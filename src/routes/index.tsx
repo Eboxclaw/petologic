@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import paladinAsset from "../assets/paladin.png.asset.json";
 
@@ -10,13 +10,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Petologic is a local-first AI familiar for Android. It guards your privacy, uses your tools, and only calls the cloud when you say so.",
+          "Petologic is a tiny intelligence infrastructure built on top of Android. Create and run specialized pets that do anything for you — inside your boundaries.",
       },
       { property: "og:title", content: "Petologic — Tiny Intelligence Inside Your Phone" },
       {
         property: "og:description",
         content:
-          "A local-first AI familiar for Android. No clouds, no leaks, just pure code — with a pixel paladin standing guard.",
+          "A tiny intelligence infrastructure on Android. Spawn specialized pets that work for you — no clouds, no leaks, just pure code.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -25,9 +25,91 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+/* --- Tiny original 8-bit MMORPG-style loop, synthesized with Web Audio --- */
+const MELODY: Array<[number, number]> = [
+  // [midi note, beats] — a cheerful overworld-style loop
+  [76, 0.5], [79, 0.5], [81, 1], [79, 0.5], [76, 0.5], [74, 1],
+  [72, 0.5], [74, 0.5], [76, 1], [69, 2],
+  [76, 0.5], [79, 0.5], [81, 1], [84, 0.5], [81, 0.5], [79, 1],
+  [76, 0.5], [74, 0.5], [72, 1], [72, 2],
+];
+const BASS: Array<[number, number]> = [
+  [48, 1], [48, 1], [45, 1], [45, 1],
+  [41, 1], [41, 1], [43, 1], [43, 1],
+  [48, 1], [48, 1], [45, 1], [45, 1],
+  [41, 1], [43, 1], [48, 2],
+];
+const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
+
+function startChiptune(ctx: AudioContext) {
+  const master = ctx.createGain();
+  master.gain.value = 0.12;
+  master.connect(ctx.destination);
+
+  const beat = 0.28; // seconds per beat
+  let t = ctx.currentTime + 0.05;
+
+  const playTrack = (notes: Array<[number, number]>, type: OscillatorType, vol: number) => {
+    let cursor = t;
+    for (const [note, beats] of notes) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = midiToFreq(note);
+      const dur = beats * beat;
+      gain.gain.setValueAtTime(vol, cursor);
+      gain.gain.setValueAtTime(vol, cursor + dur * 0.8);
+      gain.gain.linearRampToValueAtTime(0.0001, cursor + dur);
+      osc.connect(gain).connect(master);
+      osc.start(cursor);
+      osc.stop(cursor + dur);
+      cursor += dur;
+    }
+    return cursor;
+  };
+
+  const scheduleLoop = () => {
+    const endA = playTrack(MELODY, "square", 0.5);
+    const endB = playTrack(BASS, "triangle", 0.9);
+    const loopEnd = Math.max(endA, endB);
+    const id = window.setTimeout(scheduleLoop, (loopEnd - ctx.currentTime) * 1000 - 100);
+    t = loopEnd;
+    return id;
+  };
+  const timeoutId = scheduleLoop();
+  return () => {
+    window.clearTimeout(timeoutId);
+    master.disconnect();
+  };
+}
+
 function Index() {
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
+  const [musicOn, setMusicOn] = useState(false);
+  const audioRef = useRef<{ ctx: AudioContext; stop: () => void } | null>(null);
+
+  const toggleMusic = () => {
+    if (musicOn) {
+      audioRef.current?.stop();
+      void audioRef.current?.ctx.close();
+      audioRef.current = null;
+      setMusicOn(false);
+    } else {
+      const ctx = new AudioContext();
+      const stop = startChiptune(ctx);
+      audioRef.current = { ctx, stop };
+      setMusicOn(true);
+    }
+  };
+
+  useEffect(
+    () => () => {
+      audioRef.current?.stop();
+      void audioRef.current?.ctx.close();
+    },
+    [],
+  );
 
   return (
     <div className="min-h-screen bg-navy font-body text-white selection:bg-cyan selection:text-navy">
@@ -35,6 +117,16 @@ function Index() {
       <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden opacity-10" aria-hidden="true">
         <div className="h-1 w-full animate-[scanline_4s_linear_infinite] bg-white" />
       </div>
+
+      {/* Music toggle */}
+      <button
+        type="button"
+        onClick={toggleMusic}
+        aria-pressed={musicOn}
+        className="pixel-border fixed bottom-6 right-6 z-50 border-4 border-black bg-card px-4 py-3 font-display text-[10px] text-gold transition-transform hover:-translate-y-1 active:translate-y-1"
+      >
+        {musicOn ? "♪ MUSIC: ON" : "♪ MUSIC: OFF"}
+      </button>
 
       {/* Navigation */}
       <nav className="sticky top-0 z-40 border-b-4 border-black bg-navy/80 px-6 py-4 backdrop-blur-sm">
@@ -46,9 +138,9 @@ function Index() {
             <span className="font-display text-xl tracking-tighter text-gold">PETOLOGIC</span>
           </div>
           <div className="hidden gap-8 font-mono text-xs uppercase tracking-widest text-white/60 md:flex">
-            <a href="#familiar" className="transition-colors hover:text-cyan">The familiar</a>
-            <a href="#modules" className="transition-colors hover:text-cyan">Security</a>
-            <a href="#modules" className="transition-colors hover:text-cyan">Tools</a>
+            <a href="#pets" className="transition-colors hover:text-cyan">The pets</a>
+            <a href="#showcase" className="transition-colors hover:text-cyan">Showcase</a>
+            <a href="#modules" className="transition-colors hover:text-cyan">Modules</a>
           </div>
           <a
             href="#waitlist"
@@ -60,7 +152,7 @@ function Index() {
       </nav>
 
       {/* Hero */}
-      <header id="familiar" className="relative overflow-hidden px-6 pb-32 pt-20">
+      <header id="pets" className="relative overflow-hidden px-6 pb-32 pt-20">
         <div className="mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
           <div>
             <div className="mb-6 inline-block border border-royal bg-royal/20 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan">
@@ -70,8 +162,9 @@ function Index() {
               Tiny <span className="text-gold">intelligence</span> inside your phone.
             </h1>
             <p className="mb-10 max-w-md text-lg leading-relaxed text-white/70">
-              Petologic is a local-first AI familiar that guards your privacy while managing your
-              digital life. No clouds, no leaks, just pure code.
+              Petologic is a tiny intelligence infrastructure built on top of Android. Create and
+              run different specialized pets that can do anything for you — always inside your
+              boundaries.
             </p>
             <div className="flex flex-wrap gap-4">
               <a
@@ -89,7 +182,7 @@ function Index() {
               <div className="dither-pattern absolute inset-0 opacity-20" aria-hidden="true" />
               <img
                 src={paladinAsset.url}
-                alt="0xPaladino, the Petologic pixel knight mascot, in royal blue and gold armor with glowing cyan eyes"
+                alt="0xPaladino, a Petologic pixel knight pet in royal blue and gold armor with glowing cyan eyes"
                 className="relative z-10 h-full w-full object-contain shadow-[0_0_40px_rgba(42,78,214,0.3)] [image-rendering:pixelated]"
               />
               <div className="absolute -top-2 -right-2 bg-cyan px-2 font-mono text-[10px] font-bold text-navy">
@@ -105,8 +198,130 @@ function Index() {
         </div>
       </header>
 
+      {/* Phone showcase */}
+      <section id="showcase" className="border-y-4 border-black bg-black/30 px-6 py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
+          {/* Phone mockup */}
+          <div className="flex items-center justify-center">
+            <div className="pixel-border relative w-full max-w-[300px] border-8 border-black bg-card p-3">
+              {/* Notch */}
+              <div className="mx-auto mb-3 h-4 w-24 border-4 border-black bg-navy" aria-hidden="true" />
+              {/* Screen */}
+              <div className="relative overflow-hidden border-4 border-black bg-navy p-4">
+                <div className="dither-pattern absolute inset-0 opacity-10" aria-hidden="true" />
+                <div className="relative z-10">
+                  <div className="mb-1 flex items-center justify-between font-mono text-[8px] text-white/40">
+                    <span>PETOLOGIC OS</span>
+                    <span className="text-cyan">● ONLINE</span>
+                  </div>
+                  <div className="mb-3 border-2 border-royal bg-royal/10 p-3 text-center">
+                    <img
+                      src={paladinAsset.url}
+                      alt="0xPaladino pet idle on the phone screen"
+                      className="mx-auto mb-2 size-24 object-contain [image-rendering:pixelated]"
+                    />
+                    <div className="font-display text-[10px] text-gold">0xPALADINO</div>
+                    <div className="font-mono text-[8px] text-white/50">GUARDIAN CLASS · LVL 99</div>
+                  </div>
+                  {/* Stat bars */}
+                  <div className="mb-3 space-y-2">
+                    <div>
+                      <div className="mb-1 flex justify-between font-mono text-[8px] text-white/60">
+                        <span>HP</span><span>980/980</span>
+                      </div>
+                      <div className="h-2 border border-black bg-navy">
+                        <div className="h-full w-full bg-cyan" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="mb-1 flex justify-between font-mono text-[8px] text-white/60">
+                        <span>MANA</span><span>640/800</span>
+                      </div>
+                      <div className="h-2 border border-black bg-navy">
+                        <div className="h-full w-4/5 bg-royal" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="mb-1 flex justify-between font-mono text-[8px] text-white/60">
+                        <span>TRUST</span><span>MAX</span>
+                      </div>
+                      <div className="h-2 border border-black bg-navy">
+                        <div className="h-full w-full bg-gold" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Quest log */}
+                  <div className="border-2 border-gold/40 bg-card p-2">
+                    <div className="mb-1 font-display text-[8px] text-gold">QUEST LOG</div>
+                    <ul className="space-y-1 font-mono text-[8px] text-white/60">
+                      <li><span className="text-cyan">✓</span> Silence spam notifications</li>
+                      <li><span className="text-cyan">✓</span> Summarize 42 unread chats</li>
+                      <li><span className="animate-pulse text-gold">▸</span> Guarding your data…</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              {/* Home bar */}
+              <div className="mx-auto mt-3 h-1 w-16 bg-white/20" aria-hidden="true" />
+            </div>
+          </div>
+
+          {/* Feature list */}
+          <div>
+            <div className="mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
+              Field manual
+            </div>
+            <h2 className="mb-10 font-display text-4xl leading-tight">
+              One phone. <span className="text-cyan">Many pets.</span>
+            </h2>
+            <ul className="space-y-8">
+              <li className="flex gap-4">
+                <div className="pixel-border mt-1 grid size-10 shrink-0 place-items-center bg-royal font-display text-xs">01</div>
+                <div>
+                  <h3 className="mb-1 font-display text-sm text-gold">SPAWN SPECIALIZED PETS</h3>
+                  <p className="text-sm leading-relaxed text-white/60">
+                    Breed a pet for every job — one guards your messages, one tames your calendar,
+                    one hunts spam. Each runs its own tiny brain.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <div className="pixel-border mt-1 grid size-10 shrink-0 place-items-center bg-royal font-display text-xs">02</div>
+                <div>
+                  <h3 className="mb-1 font-display text-sm text-gold">SET THE BOUNDARIES</h3>
+                  <p className="text-sm leading-relaxed text-white/60">
+                    You draw the fence. Pets act only inside the permissions you grant — and every
+                    action is logged in the quest log.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <div className="pixel-border mt-1 grid size-10 shrink-0 place-items-center bg-royal font-display text-xs">03</div>
+                <div>
+                  <h3 className="mb-1 font-display text-sm text-gold">RUNS ON YOUR HARDWARE</h3>
+                  <p className="text-sm leading-relaxed text-white/60">
+                    Native to Android, powered by your device's NPU. Pets keep working offline —
+                    the cloud is a summon, never a leash.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <div className="pixel-border mt-1 grid size-10 shrink-0 place-items-center bg-royal font-display text-xs">04</div>
+                <div>
+                  <h3 className="mb-1 font-display text-sm text-gold">LEVEL THEM UP</h3>
+                  <p className="text-sm leading-relaxed text-white/60">
+                    Pets learn your habits and gain skills over time. Train a party that knows
+                    exactly how you like things done.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Feature grid */}
-      <section id="modules" className="border-y-4 border-black bg-black/30 px-6 py-24">
+      <section id="modules" className="border-b-4 border-black bg-navy px-6 py-24">
         <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
           <div className="group relative border-t-4 border-royal bg-card p-8">
             <div className="mb-4 font-mono text-[10px] tracking-tighter text-royal">[ MODULE_01 ]</div>
@@ -125,8 +340,8 @@ function Index() {
             <div className="mb-4 font-mono text-[10px] tracking-tighter text-gold">[ MODULE_02 ]</div>
             <h3 className="mb-4 font-display text-xl transition-colors group-hover:text-gold">TOOL USE</h3>
             <p className="mb-6 text-sm leading-relaxed text-white/50">
-              Petologic can navigate apps, set reminders, and manage notifications with
-              high-precision intent parsing.
+              Pets can navigate apps, set reminders, and manage notifications with high-precision
+              intent parsing.
             </p>
             <div className="flex gap-1" aria-hidden="true">
               <div className="h-1 w-full bg-gold" />
@@ -160,7 +375,7 @@ function Index() {
             Waiting for command...
           </div>
           <h2 className="mb-12 font-display text-4xl">
-            Ready to deploy your <span className="text-gold">familiar</span>?
+            Ready to raise your <span className="text-gold">tiny intelligence</span>?
           </h2>
           {joined ? (
             <div className="pixel-border inline-block border-4 border-black bg-card px-8 py-4 font-display text-sm text-cyan">
