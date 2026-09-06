@@ -1,0 +1,8 @@
+schemaVersion: 1
+roleId: paladino
+personaRef: paladino/persona.md
+memoryNamespace: paladino
+trigger: chat
+allowedTools: [notes.search, notes.create, notes.delete]
+cloudPurposes: [reason, summarize_context, plan]
+confirmationPolicy: app_minimum

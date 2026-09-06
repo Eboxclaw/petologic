@@ -1,0 +1,1 @@
+<resources><style name="Theme.Paladino" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:windowActionModeOverlay">true</item><item name="android:colorAccent">#C6F279</item><item name="android:windowBackground">#101511</item></style></resources>
