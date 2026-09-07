@@ -287,7 +287,7 @@ function Index() {
               </div>
               <div className="absolute -bottom-2 -left-2 size-6 border-4 border-gold bg-navy" aria-hidden="true" />
               <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap border-2 border-black bg-navy/90 px-3 py-1 font-mono text-[9px] tracking-widest text-gold">
-                0xPALADINO / {STATES[stateIdx].name}
+                0xPALADINO / {STATES[stateIdx]?.name}
               </div>
             </div>
             <div className="absolute inset-0 -z-10 scale-75 rounded-full bg-royal/25 blur-[110px]" aria-hidden="true" />
