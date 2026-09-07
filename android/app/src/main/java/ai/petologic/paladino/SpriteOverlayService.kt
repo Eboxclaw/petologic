@@ -1,0 +1,192 @@
+package ai.petologic.paladino
+
+import android.app.*
+import android.content.*
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
+import android.os.*
+import android.provider.Settings
+import android.view.*
+import android.widget.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlin.math.abs
+
+/** User-started companion window; never reads other apps or starts autonomous inference. */
+class SpriteOverlayService:Service(){
+ companion object { val running=MutableStateFlow(false);const val STOP="stop_sprite" }
+ private val scope=CoroutineScope(SupervisorJob()+Dispatchers.Main.immediate)
+ private val app get()=application as PaladinoApplication
+ private val positionPrefs by lazy{getSharedPreferences("sprite_position",MODE_PRIVATE)}
+ private lateinit var windows:WindowManager
+ private var root:LinearLayout?=null
+ private var layout:WindowManager.LayoutParams?=null
+ private var animation:android.graphics.drawable.AnimatedImageDrawable?=null
+ private var appliedX=Int.MIN_VALUE
+ private var appliedY=Int.MIN_VALUE
+ private var expanded=false
+ private var text:TextView?=null
+ private var title:TextView?=null
+ private var status:TextView?=null
+ private var input:EditText?=null
+ private var send:ImageButton?=null
+ private var observedSession=""
+ private var observation:Job?=null
+ private val drafts=mutableMapOf<String,String>()
+ private val gold=Color.rgb(228,187,101)
+ private val ink=Color.rgb(16,28,45)
+ private fun dp(n:Int)=(n*resources.displayMetrics.density).toInt()
+ private fun surface(color:Int,radius:Int=24,border:Boolean=false)=GradientDrawable().apply{
+  setColor(color);cornerRadius=dp(radius).toFloat();if(border)setStroke(dp(1),Color.rgb(56,73,98))
+ }
+ private fun unlocked()=!getSystemService(KeyguardManager::class.java).isKeyguardLocked&&getSystemService(PowerManager::class.java).isInteractive
+ private val screenEvents=object:BroadcastReceiver(){override fun onReceive(context:Context,intent:Intent){
+  if(intent.action==Intent.ACTION_SCREEN_OFF){collapse();animation?.stop();root?.visibility=View.GONE}
+  if(intent.action==Intent.ACTION_USER_PRESENT){render()}
+ }}
+ override fun onBind(intent:Intent?)=null
+ override fun onCreate(){
+  super.onCreate();windows=getSystemService(WindowManager::class.java)
+  val notifications=getSystemService(NotificationManager::class.java)
+  notifications.createNotificationChannel(NotificationChannel("sprite","Floating Paladino",NotificationManager.IMPORTANCE_LOW))
+  val stop=PendingIntent.getService(this,1,Intent(this,SpriteOverlayService::class.java).setAction(STOP),PendingIntent.FLAG_IMMUTABLE)
+  val open=PendingIntent.getActivity(this,2,Intent(this,MainActivity::class.java),PendingIntent.FLAG_IMMUTABLE)
+  startForeground(41,Notification.Builder(this,"sprite").setSmallIcon(R.drawable.ic_paladino).setContentTitle("Paladino is floating").setContentText("Tap to chat • drag to move").setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null,"Stop Sprite",stop).build()).build())
+  val filter=IntentFilter().apply{addAction(Intent.ACTION_SCREEN_OFF);addAction(Intent.ACTION_USER_PRESENT)}
+  if(Build.VERSION.SDK_INT>=33)registerReceiver(screenEvents,filter,RECEIVER_NOT_EXPORTED)else registerReceiver(screenEvents,filter)
+  scope.launch{app.tinyPets.state.map{it.sizeDp to it.animate}.distinctUntilChanged().drop(1).collect{if(root!=null)render()}}
+ }
+ override fun onStartCommand(intent:Intent?,flags:Int,startId:Int):Int{
+  if(intent?.action==STOP||!Settings.canDrawOverlays(this)){stopSelf();return START_NOT_STICKY}
+  if(root==null){running.value=true;render()}
+  return START_NOT_STICKY
+ }
+ override fun onConfigurationChanged(newConfig:Configuration){super.onConfigurationChanged(newConfig);if(root!=null)render()}
+ private fun workArea():Rect{
+  val metrics=windows.currentWindowMetrics
+  val inset=metrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+  val keyboard=root?.rootWindowInsets?.getInsets(WindowInsets.Type.ime())?.bottom?:0
+  return Rect(inset.left+dp(8),inset.top+dp(8),metrics.bounds.width()-inset.right-dp(8),metrics.bounds.height()-maxOf(inset.bottom,keyboard)-dp(8))
+ }
+ private fun params():WindowManager.LayoutParams {
+  val area=workArea();val width=if(expanded)minOf(dp(304),area.width())else dp(app.tinyPets.state.value.sizeDp+16)
+  return WindowManager.LayoutParams(width,WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+   WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+    if(expanded)WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+   PixelFormat.TRANSLUCENT).apply{
+   gravity=Gravity.TOP or Gravity.LEFT
+   x=OverlayPosition.coordinate(positionPrefs.getFloat("x",1f),area.left,area.right,width)
+   y=OverlayPosition.coordinate(positionPrefs.getFloat("y",.5f),area.top,area.bottom,if(expanded)dp(290)else width)
+   softInputMode=WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+  }
+ }
+ private fun clampWindow(){
+  val view=root?:return;val p=layout?:return;val area=workArea()
+  p.x=p.x.coerceIn(area.left,maxOf(area.left,area.right-view.width))
+  p.y=p.y.coerceIn(area.top,maxOf(area.top,area.bottom-view.height))
+  if(p.x!=appliedX||p.y!=appliedY){runCatching{windows.updateViewLayout(view,p)};appliedX=p.x;appliedY=p.y}
+ }
+ private fun savePosition(){
+  val view=root?:return;val p=layout?:return;val area=workArea()
+  positionPrefs.edit().putFloat("x",OverlayPosition.fraction(p.x,area.left,area.right,view.width)).putFloat("y",OverlayPosition.fraction(p.y,area.top,area.bottom,view.height)).apply()
+ }
+ private fun draggable(view:View){
+  var downX=0f;var downY=0f;var startX=0;var startY=0;var dragging=false
+  val slop=ViewConfiguration.get(this).scaledTouchSlop
+  view.setOnTouchListener{target,event->
+   when(event.actionMasked){
+    MotionEvent.ACTION_DOWN->{downX=event.rawX;downY=event.rawY;startX=layout?.x?:0;startY=layout?.y?:0;dragging=false;true}
+    MotionEvent.ACTION_MOVE->{
+     val dx=event.rawX-downX;val dy=event.rawY-downY
+     if(abs(dx)>slop||abs(dy)>slop)dragging=true
+     if(dragging){layout?.let{it.x=startX+dx.toInt();it.y=startY+dy.toInt()};clampWindow()};true
+    }
+    MotionEvent.ACTION_UP->{
+     if(dragging){
+      if(!expanded){val area=workArea();layout?.let{it.x=if(it.x+(root?.width?:0)/2<area.centerX())area.left else area.right-(root?.width?:0)}}
+      clampWindow();savePosition()
+     }else target.performClick()
+     true
+    }
+    MotionEvent.ACTION_CANCEL->{if(dragging){clampWindow();savePosition()};true}
+    else->false
+   }
+  }
+ }
+ private fun saveDraft(){input?.let{drafts[observedSession]=it.text.toString()}}
+ private fun collapse(){saveDraft();expanded=false;render()}
+ private fun icon(id:Int,label:String,filled:Boolean=false,action:()->Unit)=ImageButton(this).apply{
+  setImageResource(id);contentDescription=label;imageTintList=android.content.res.ColorStateList.valueOf(if(filled)ink else gold)
+  background=surface(if(filled)gold else Color.rgb(27,43,65),16)
+  setPadding(dp(12),dp(12),dp(12),dp(12));filterTouchesWhenObscured=true
+  setOnClickListener{action()};layoutParams=LinearLayout.LayoutParams(dp(48),dp(48))
+ }
+ private fun action(id:Int,label:String,run:()->Unit)=TextView(this).apply{
+  text=label;setTextColor(gold);textSize=12f;gravity=Gravity.CENTER;minHeight=dp(48)
+  background=surface(Color.rgb(27,43,65),16);setPadding(dp(10),dp(8),dp(10),dp(8))
+  setCompoundDrawablesRelativeWithIntrinsicBounds(id,0,0,0);compoundDrawablePadding=dp(6)
+  isClickable=true;isFocusable=true;filterTouchesWhenObscured=true;setOnClickListener{run()}
+ }
+ private fun render(){
+  saveDraft();animation?.stop();animation=null;observation?.cancel();root?.let{runCatching{windows.removeView(it)}}
+  root=null;text=null;title=null;status=null;input=null;send=null
+  if(!Settings.canDrawOverlays(this)){stopSelf();return}
+  val panel=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(if(expanded)16 else 8),dp(8),dp(if(expanded)16 else 8),dp(8));isFocusableInTouchMode=true}
+  if(!expanded){
+   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Floating Paladino. Tap to chat";adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{expanded=true;render()}}
+   panel.addView(sprite,LinearLayout.LayoutParams(-1,dp(app.tinyPets.state.value.sizeDp)));draggable(sprite)
+   val badge=TextView(this).apply{setTextColor(gold);background=surface(ink,10);textSize=10f;gravity=Gravity.CENTER;setOnClickListener{expanded=true;render()}}
+   panel.addView(badge)
+   observation=scope.launch{app.sessionHub.active.collectLatest{controller->controller.ui.collect{state->
+    val reaction=state.petReaction();badge.text=reaction.label;badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
+    sprite.contentDescription="Floating Paladino. Tap to chat. ${reaction.label}";panel.post{clampWindow()}
+   }}}
+   if(app.tinyPets.state.value.animate&&android.animation.ValueAnimator.areAnimatorsEnabled())scope.launch{
+    val image=withContext(Dispatchers.IO){runCatching{android.graphics.ImageDecoder.decodeDrawable(android.graphics.ImageDecoder.createSource(resources,R.raw.paladino_idle)) as? android.graphics.drawable.AnimatedImageDrawable}.getOrNull()}
+    if(root===panel&&image!=null){animation=image;image.repeatCount=android.graphics.drawable.AnimatedImageDrawable.REPEAT_INFINITE;sprite.setImageDrawable(image);if(unlocked())image.start()}
+   }
+  }else{
+   panel.background=surface(ink,26,true);panel.elevation=dp(8).toFloat()
+   val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
+   header.addView(ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Paladino"},LinearLayout.LayoutParams(dp(40),dp(44)))
+   title=TextView(this).apply{text="Paladino";setTextColor(Color.WHITE);textSize=16f;setPadding(dp(10),0,dp(6),0);maxLines=2;contentDescription="Drag Paladino bubble"}
+   header.addView(title,LinearLayout.LayoutParams(0,dp(52),1f));draggable(title!!)
+   header.addView(icon(R.drawable.ic_pet_collapse,"Collapse"){collapse()});panel.addView(header)
+   status=TextView(this).apply{setTextColor(gold);textSize=11f;setPadding(0,dp(6),0,dp(10));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END};panel.addView(status)
+   text=TextView(this).apply{setTextColor(Color.rgb(224,231,241));textSize=14f;maxLines=5;ellipsize=android.text.TextUtils.TruncateAt.END;setPadding(0,0,0,dp(12))};panel.addView(text)
+   val composer=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
+   input=EditText(this).apply{hint="Message Paladino";setHintTextColor(Color.rgb(151,167,189));setTextColor(Color.WHITE);textSize=14f;maxLines=2;minHeight=dp(48);background=surface(Color.rgb(27,43,65),16);setPadding(dp(12),dp(8),dp(12),dp(8));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;filterTouchesWhenObscured=true}
+   composer.addView(input,LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
+   send=icon(R.drawable.ic_pet_send,"Send",true){
+    val controller=app.sessionHub.active.value
+    if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
+   };composer.addView(send);panel.addView(composer)
+   val actions=LinearLayout(this).apply{setPadding(0,dp(10),0,dp(4))}
+   actions.addView(action(R.drawable.ic_pet_new,"New chat"){saveDraft();app.sessionHub.create()},LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
+   actions.addView(action(R.drawable.ic_pet_open,"Open app"){collapse();startActivity(Intent(this,MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))},LinearLayout.LayoutParams(0,-2,1f));panel.addView(actions)
+   panel.setOnTouchListener{_,event->if(event.action==MotionEvent.ACTION_OUTSIDE){collapse();true}else false}
+   panel.setOnKeyListener{_,key,event->if(key==KeyEvent.KEYCODE_BACK&&event.action==KeyEvent.ACTION_UP){collapse();true}else false}
+   observation=scope.launch{app.sessionHub.active.collectLatest{controller->
+    if(observedSession!=controller.sessionId){saveDraft();observedSession=controller.sessionId}
+    input?.setText(drafts[observedSession]?:"")
+    combine(controller.ui,controller.messages,controller.sessionInfo){state,messages,session->Triple(state,messages,session)}.collect{(state,messages,session)->
+     title?.text="Paladino";status?.text="${state.mode} · ${state.petReaction().label} · ${session.title}"
+     text?.text=when{state.error!=null->state.error;state.action!=null||state.cloud!=null->"Open the app to review this request.";state.busy->state.streaming.ifBlank{state.status};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:"A little help, wherever you are."}
+     send?.setImageResource(if(state.busy)R.drawable.ic_pet_stop else R.drawable.ic_pet_send);send?.contentDescription=if(state.busy)"Stop" else "Send"
+     send?.isEnabled=state.busy||(state.action==null&&state.cloud==null);send?.alpha=if(send?.isEnabled==true)1f else .4f;input?.isEnabled=!state.busy
+     panel.post{clampWindow()}
+    }
+   }}
+  }
+  root=panel;layout=params();if(!unlocked())panel.visibility=View.GONE
+  panel.setOnApplyWindowInsetsListener{_,insets->panel.post{clampWindow()};insets}
+  try{windows.addView(panel,layout);appliedX=layout!!.x;appliedY=layout!!.y;panel.post{clampWindow()}}catch(_:RuntimeException){root=null;stopSelf()}
+ }
+ override fun onDestroy(){
+  running.value=false;animation?.stop();scope.cancel();runCatching{unregisterReceiver(screenEvents)};root?.let{runCatching{windows.removeView(it)}};root=null
+  app.sessionHub.active.value.cancel();stopForeground(STOP_FOREGROUND_REMOVE);super.onDestroy()
+ }
+}

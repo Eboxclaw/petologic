@@ -26,6 +26,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private val prefs=app.getSharedPreferences("preferences",Context.MODE_PRIVATE)
  private val policy=ApprovalPolicy()
  private val manifest=PaladinoManifest.parse(app.assets.open("paladino/manifest.yaml").bufferedReader().use{it.readText()})
+ private val greetingBroker=ContextBroker(app.assets.open("paladino/greeting.md").bufferedReader().use{it.readText()})
  private val broker=ContextBroker(app.assets.open(manifest.personaRef).bufferedReader().use{it.readText()})
  val ui=MutableStateFlow(PaladinoUiState(connected=app.credentials.read()!=null,model=prefs.getString("model","")?:""))
  val messages=app.memory.dao.messages(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
@@ -71,9 +72,11 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
      is Route.Save->{check(options.value.memoryWrite&&options.value.toolCalls){"Memory writes are disabled for this session."};val p=policy.propose("notes.create",route.text);app.memory.propose(p,sessionId);ui.update{it.copy(action=p,status="Your approval is needed.")}}
      is Route.Search->{check(options.value.memoryRead&&options.value.toolCalls){"Memory reads are disabled for this session."};val found=app.memory.search(route.query,sessionId);answer(if(found.isEmpty())"No matching notes yet. Try a word from the note, or save one with ‘Remember that…’." else found.joinToString("\n\n"){"${it.text}\n[Memory · ${it.id.take(8)}]"},ExecutionMode.TINY)}
      is Route.Generate->{
-      val found=if(options.value.memoryRead)app.memory.search(request,sessionId)else emptyList()
+      // Let the tool-capable model retrieve explicitly; eager memory labels can become spurious tool arguments.
+      val found=if(options.value.memoryRead&&!options.value.toolCalls)app.memory.search(request,sessionId)else emptyList()
       val history=app.memory.dao.recentMessages(sessionId).reversed().dropLast(1).map{ChatTurn(it.speaker,it.text)}
-      val context=broker.build(request,mode,found,history)
+      val simpleGreeting=RoutePolicy().isSimpleGreeting(request)
+      val context=(if(simpleGreeting)greetingBroker else broker).build(request,mode,found,if(simpleGreeting)emptyList()else history)
       if(mode==ExecutionMode.MAXX){
        check(options.value.network){"Network is disabled for this session."}
        check(app.credentials.read()!=null){"Connect OpenRouter in Settings to use Maxx. Tiny remains available offline."}
@@ -90,8 +93,8 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private suspend fun generate(context:ContextEnvelope,mode:ExecutionMode,model:String,consent:CloudConsent?){
   ui.update{it.copy(busy=true,status=if(mode==ExecutionMode.TINY)"Thinking on your phone…" else "Thinking with Maxx…",streaming="")}
   val result=app.agent.run(context,mode,if(mode==ExecutionMode.TINY)sessionInfo.value.modelId else model,consent,options.value,
-   ai.petologic.paladino.runtime.AgentTools(
-    search={query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){"[${it.id.take(8)}] ${it.text}"}.ifBlank{"No matching notes."}},
+   if(RoutePolicy().isSimpleGreeting(context.user)) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
+    search={query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}},
     save={text->
      check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."}
      val proposal=policy.propose("notes.create",text);app.memory.propose(proposal,sessionId)

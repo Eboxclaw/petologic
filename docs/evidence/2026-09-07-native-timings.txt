@@ -1,0 +1,40 @@
+--------- beginning of main
+09-07 07:13:36.782  2817  2870 I PaladinoNative: load begin context=4096 threads=4 batch=512 micro=256
+09-07 07:13:37.099  2817  2870 I PaladinoNative: weights loaded; allocating context
+09-07 07:13:37.149  2817  2870 I PaladinoNative: context allocation completed
+09-07 07:13:37.154  2817  2870 I PaladinoNative: prefill begin tokens=256
+09-07 07:14:08.791  2817  2870 I PaladinoNative: prefill complete
+09-07 07:14:09.341  2817  2870 I PaladinoNative: decode complete tokens=2
+09-07 07:14:09.876  2817  2868 I PaladinoNative: prefill begin tokens=276
+09-07 07:14:51.077  2817  2868 I PaladinoNative: prefill complete
+09-07 07:14:51.584  2817  2868 I PaladinoNative: decode complete tokens=2
+09-07 07:17:37.208  3119  3139 I PaladinoNative: load begin context=4096 threads=4 batch=512 micro=256
+09-07 07:17:37.287  3119  3139 I PaladinoNative: weights loaded; allocating context
+09-07 07:17:37.309  3119  3139 I PaladinoNative: context allocation completed
+09-07 07:17:37.312  3119  3139 I PaladinoNative: prefill begin tokens=256
+09-07 07:17:38.128  3119  3139 I PaladinoNative: prefill complete
+09-07 07:17:38.199  3119  3139 I PaladinoNative: decode complete tokens=2
+09-07 07:17:54.891  3119  3144 I PaladinoNative: prefill begin tokens=256
+09-07 07:17:55.730  3119  3144 I PaladinoNative: prefill complete
+09-07 07:17:55.749  3119  3144 I PaladinoNative: decode complete tokens=2
+09-07 07:17:56.077  3119  3140 I PaladinoNative: prefill begin tokens=276
+09-07 07:17:57.165  3119  3140 I PaladinoNative: prefill complete
+09-07 07:17:57.194  3119  3140 I PaladinoNative: decode complete tokens=2
+09-07 07:17:57.507  3119  3144 I PaladinoNative: prefill begin tokens=51
+09-07 07:17:57.700  3119  3144 I PaladinoNative: prefill complete
+09-07 07:17:57.730  3119  3144 I PaladinoNative: decode complete tokens=4
+09-07 07:18:50.676  3431  3482 I PaladinoNative: load begin context=4096 threads=4 batch=512 micro=256
+09-07 07:18:50.743  3431  3482 I PaladinoNative: weights loaded; allocating context
+09-07 07:18:50.775  3431  3482 I PaladinoNative: context allocation completed
+09-07 07:18:50.776  3431  3482 I PaladinoNative: prefill begin tokens=256
+09-07 07:18:51.570  3431  3482 I PaladinoNative: prefill complete
+09-07 07:18:51.634  3431  3482 I PaladinoNative: decode complete tokens=2
+09-07 07:18:59.973  3431  3486 I PaladinoNative: prefill begin tokens=256
+09-07 07:19:00.795  3431  3486 I PaladinoNative: prefill complete
+09-07 07:19:00.882  3431  3486 I PaladinoNative: decode complete tokens=2
+09-07 07:19:01.211  3431  3486 I PaladinoNative: prefill begin tokens=276
+09-07 07:19:02.221  3431  3486 I PaladinoNative: prefill complete
+09-07 07:19:02.265  3431  3486 I PaladinoNative: decode complete tokens=2
+09-07 07:19:02.573  3431  3485 I PaladinoNative: prefill begin tokens=51
+09-07 07:19:02.739  3431  3485 I PaladinoNative: prefill complete
+09-07 07:19:02.767  3431  3485 I PaladinoNative: decode complete tokens=4

@@ -3,6 +3,18 @@ import kotlin.test.*
 import java.time.*
 
 class PolicyTest {
+ @Test fun `only standalone greetings can prune tools`() {
+  val router=RoutePolicy()
+  listOf("Olá, Gents, como é que estás hoje?","Bom dia, Paladino! Tudo bem?","Hello!").forEach{kotlin.test.assertTrue(router.isSimpleGreeting(it))}
+  listOf("Olá, guarda uma nota", "Bom dia, pesquisa as notas", "Olá! Qual é o código?", "Hi, delete this file").forEach{kotlin.test.assertFalse(router.isSimpleGreeting(it))}
+ }
+ @Test fun `history stays chronological and separate from the current request`() {
+  val history=listOf(ChatTurn("user","old request"),ChatTurn("assistant","old reply"))
+  val context=ContextBroker("Paladino").build("current request",ExecutionMode.TINY,emptyList(),history)
+  kotlin.test.assertEquals(history,context.history)
+  kotlin.test.assertEquals("current request",context.user)
+  kotlin.test.assertTrue(ContextBroker("Paladino").build("cloud",ExecutionMode.MAXX,emptyList(),history).history.isEmpty())
+ }
  @Test fun `save is anchored and multilingual`() {
   val policy = RoutePolicy()
   assertEquals(Route.Save("bring a coat"), policy.route("Remember that bring a coat", ExecutionMode.TINY))

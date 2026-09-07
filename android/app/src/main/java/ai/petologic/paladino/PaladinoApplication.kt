@@ -6,6 +6,7 @@ import ai.petologic.paladino.runtime.*
 import kotlinx.coroutines.*
 
 class PaladinoApplication:Application(){
+ lateinit var tinyPets:TinyPetManager;private set
  lateinit var memory:MemoryRepository;private set
  lateinit var local:LocalModel;private set
  lateinit var modelLibrary:ModelLibrary;private set
@@ -17,6 +18,7 @@ class PaladinoApplication:Application(){
  val scope=CoroutineScope(SupervisorJob()+Dispatchers.IO)
  override fun onCreate(){
   super.onCreate()
+  tinyPets=TinyPetManager(this)
   val db=Room.databaseBuilder(this,PaladinoDatabase::class.java,"paladino.db").addMigrations(*DatabaseMigrations.ALL).build()
   modelLibrary=ModelLibrary(this)
   embedder=SmallEmbedder(this,modelLibrary)

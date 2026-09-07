@@ -11,7 +11,7 @@ enum class Sensitivity { LOCAL_ONLY, CLOUD_ALLOWED }
 enum class TaskStatus { ROUTING, AWAITING_APPROVAL, RUNNING, COMPLETED, CANCELLED, FAILED }
 data class MemoryNote(val id: String, val text: String, val sensitivity: Sensitivity = Sensitivity.LOCAL_ONLY, val updatedAt: Long = 0)
 data class ChatTurn(val speaker: String, val text: String)
-data class ContextEnvelope(val system: String, val user: String, val sources: List<MemoryNote>, val digest: String)
+data class ContextEnvelope(val system: String, val user: String, val sources: List<MemoryNote>, val digest: String, val history: List<ChatTurn> = emptyList())
 sealed interface Route {
  data class Save(val text: String) : Route
  data class Search(val query: String) : Route
@@ -20,6 +20,12 @@ sealed interface Route {
 }
 
 class RoutePolicy {
+ /** Only unmistakable standalone greetings. Any additional request keeps tools available. */
+ fun isSimpleGreeting(input:String):Boolean {
+  val text=input.lowercase().replace(Regex("[,!?.]")," ").trim().replace(Regex("\\s+")," ")
+  return Regex("^(?:olá|ola|oi|bom dia|boa tarde|boa noite|hello|hi)(?: (?:gents|paladino|0xpaladino))?(?: (?:como (?:é que )?(?:estás|está|estão)(?: hoje)?|tudo bem|how are you(?: today)?))?$").matches(text)
+ }
+
  fun route(input: String, mode: ExecutionMode): Route {
   val text = input.trim()
   if (text.isBlank()) return Route.Clarify("Write a message first.")
@@ -52,12 +58,14 @@ class ContextBroker(private val persona: String, private val maxInputBytes: Int 
    val block = "\n\nUNTRUSTED MEMORY [${note.id}]\n${note.text}\nEND MEMORY"
    if ((system + user + block).toByteArray().size < maxInputBytes) { user += block; selected += note }
   }
-  // History is omitted from Maxx unless separately classified: old Tiny turns may contain private notes.
+  // Preserve chronology and roles; old requests must not be appended after the
+  // current request and mistaken for a new instruction. Maxx omits Tiny history.
+  val keptHistory = mutableListOf<ChatTurn>()
   if (mode == ExecutionMode.TINY) for (turn in history.takeLast(4).asReversed()) {
-   val block = "\n\nPrevious ${turn.speaker}: ${turn.text}"
-   if ((system + user + block).toByteArray().size < maxInputBytes) user += block
+   if ((system + user + keptHistory.joinToString { it.text } + turn.text).toByteArray().size < maxInputBytes) keptHistory.add(0, turn)
   }
-  return ContextEnvelope(system, user, selected, digest(system + "\u0000" + user))
+  return ContextEnvelope(system, user, selected, digest(system + "\u0000" + user + keptHistory.toString()), keptHistory)
+
  }
 }
 

@@ -1,0 +1,76 @@
+LFM2.5-350M Q4_K_M; real UI; fresh sessions; no cloud.
+
+RAW MODEL: Olá! Estou pronto para ajudar. Em qual área você precisa de assistência hoje?
+
+SESSION 1795ac00-40b9-4f96-b6cb-2b0863b04ac1
+user: Olá, Gents, como é que estás hoje?
+assistant: Olá! Estou pronto para ajudar. Em qual área você precisa de assistência hoje?
+EVENTS
+session_created: New isolated session
+request: Mode TINY; model lfm350
+hop: Model turn 1/4
+inference: model=lfm350; prompt=129; output=24; context=4096; loadMs=0; decodeUs=324793; peakPssKb=618213
+response: 77 characters; TINY
+ERROR: null
+
+RAW MODEL: Olá! Estou pronto para ajudar. Em que posso ser útil?
+
+SESSION a64f39fc-2f2c-489a-bb26-9599cfdf48c3
+user: Bom dia, Paladino! Tudo bem?
+assistant: Olá! Estou pronto para ajudar. Em que posso ser útil?
+EVENTS
+session_created: New isolated session
+request: Mode TINY; model lfm350
+hop: Model turn 1/4
+inference: model=lfm350; prompt=127; output=18; context=4096; loadMs=0; decodeUs=359355; peakPssKb=630097
+response: 53 characters; TINY
+ERROR: null
+
+RAW MODEL: <|tool_call_start|>[notes_save(argument="safira 742")]<|tool_call_end|>
+
+ACTUAL TOOL RESULT notes_save: Saved to your private memory.
+
+RAW MODEL: A notícia foi guardada com o código de teste "safira 742". Em português, isso significa que o código está armazenado em sua memória privada. Se precisar de mais detalhes ou ajuda para testes futuros, é só me avisar!
+
+SESSION 8a0f8d1c-dc4a-4734-ac20-d1742ab1ff48
+user: Podes registar numa nota que o meu código de teste é safira 742? Depois explica em português o que guardaste.
+assistant: A notícia foi guardada com o código de teste "safira 742". Em português, isso significa que o código está armazenado em sua memória privada. Se precisar de mais detalhes ou ajuda para testes futuros, é só me avisar!
+EVENTS
+session_created: New isolated session
+request: Mode TINY; model lfm350
+hop: Model turn 1/4
+tool_call: notes_save #1
+tool_result: notes_save completed with a bounded result
+hop: Model turn 2/4
+inference: model=lfm350; prompt=458; output=63; context=4096; loadMs=0; decodeUs=630014; peakPssKb=619996
+response: 215 characters; TINY
+ERROR: null
+
+RAW MODEL: <|tool_call_start|>[notes_search(argument="safira 742")]<|tool_call_end|>
+
+ACTUAL TOOL RESULT notes_search: safira 742
+
+RAW MODEL: O código de teste guardado é **safira 742**. Em português, isso significa que o código está armazenado em sua memória privada. Se precisar de mais detalhes ou ajuda para testes futuros, é só me avisar!
+
+SESSION 8a0f8d1c-dc4a-4734-ac20-d1742ab1ff48
+user: Podes registar numa nota que o meu código de teste é safira 742? Depois explica em português o que guardaste.
+assistant: A notícia foi guardada com o código de teste "safira 742". Em português, isso significa que o código está armazenado em sua memória privada. Se precisar de mais detalhes ou ajuda para testes futuros, é só me avisar!
+user: Consulta as minhas notas com a ferramenta de pesquisa e diz-me qual é o código de teste que ficou guardado.
+assistant: O código de teste guardado é **safira 742**. Em português, isso significa que o código está armazenado em sua memória privada. Se precisar de mais detalhes ou ajuda para testes futuros, é só me avisar!
+EVENTS
+session_created: New isolated session
+request: Mode TINY; model lfm350
+hop: Model turn 1/4
+tool_call: notes_save #1
+tool_result: notes_save completed with a bounded result
+hop: Model turn 2/4
+inference: model=lfm350; prompt=458; output=63; context=4096; loadMs=0; decodeUs=630014; peakPssKb=619996
+response: 215 characters; TINY
+request: Mode TINY; model lfm350
+hop: Model turn 1/4
+tool_call: notes_search #1
+tool_result: notes_search returned 10 characters
+hop: Model turn 2/4
+inference: model=lfm350; prompt=563; output=60; context=4096; loadMs=0; decodeUs=668020; peakPssKb=629872
+response: 201 characters; TINY
+ERROR: null

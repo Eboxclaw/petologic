@@ -40,15 +40,19 @@ internal val Cream=Color(0xFFF2F4E8)
 
 class MainActivity:ComponentActivity(){
  override fun onStop(){super.onStop();if(!isChangingConfigurations)(application as PaladinoApplication).sessionHub.onUiHidden()}
- override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),navigationBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT));setContent{
+ override fun onNewIntent(intent:android.content.Intent){super.onNewIntent(intent);setIntent(intent);openWidgetSession(intent)}
+ private fun openWidgetSession(intent:android.content.Intent){intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
+ override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);openWidgetSession(intent);enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),navigationBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT));setContent{
   MaterialTheme(colorScheme=darkColorScheme(primary=Lime,onPrimary=Ink,background=Ink,surface=Panel,onSurface=Cream,onBackground=Cream,secondary=Lime)){
    PaladinoScreen()
   }
  }}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
 @Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel()){
+ val petApp=androidx.compose.ui.platform.LocalContext.current.applicationContext as PaladinoApplication
+ val petPrefs by petApp.tinyPets.state.collectAsStateWithLifecycle()
  val state by vm.ui.collectAsStateWithLifecycle()
  val messages by vm.messages.collectAsStateWithLifecycle()
  val notes by vm.notes.collectAsStateWithLifecycle()
@@ -60,13 +64,20 @@ class MainActivity:ComponentActivity(){
  val uiScope=rememberCoroutineScope()
  val session by vm.session.collectAsStateWithLifecycle()
  var draft by rememberSaveable(session.id){mutableStateOf("")}
+ var spriteChat by rememberSaveable{mutableStateOf(false)}
+ var spriteDraft by rememberSaveable{mutableStateOf("")}
+ val modalOpen=state.action!=null||state.cloud!=null||state.error!=null||state.notice!=null
+ val keyboardOpen=WindowInsets.isImeVisible
  val scroll=rememberLazyListState()
  LaunchedEffect(messages.size,state.streaming){if(messages.isNotEmpty())scroll.animateScrollToItem(messages.size-1)}
  ModalNavigationDrawer(drawerState=drawer,drawerContent={ModalDrawerSheet(drawerContainerColor=Ink){
   TextButton(onClick={uiScope.launch{drawer.close()}}){Text("← Back to chat")}
   SessionsScreen(vm,onOpen={tab=0;uiScope.launch{drawer.close()}})
  }}){
- Scaffold(containerColor=Ink,bottomBar={
+ Scaffold(containerColor=Ink,floatingActionButton={
+  if(tab!=0&&petPrefs.visible&&!keyboardOpen&&!modalOpen&&!spriteChat)SpriteQuickActions(petPrefs.animate,petPrefs.sizeDp,
+   onChat={spriteDraft="";spriteChat=true},onRemember={spriteDraft="Remember that ";spriteChat=true},onOpen={tab=0})
+ },bottomBar={
   NavigationBar(containerColor=Ink,tonalElevation=0.dp){
    listOf("Chat" to Icons.Outlined.ChatBubbleOutline,"Orchestration" to Icons.Outlined.Hub,"Console" to Icons.Outlined.Terminal,"Settings" to Icons.Outlined.Tune).forEachIndexed{i,item->
     NavigationBarItem(selected=tab==i,onClick={tab=i},icon={Icon(item.second,item.first)},label={Text(item.first)},colors=NavigationBarItemDefaults.colors(selectedIconColor=Ink,indicatorColor=Lime,selectedTextColor=Lime,unselectedTextColor=Muted,unselectedIconColor=Muted))
@@ -83,7 +94,8 @@ class MainActivity:ComponentActivity(){
     0->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,"Conversations")}
-      Column(Modifier.weight(1f)){Text("Chat",fontSize=if(messages.isEmpty())30.sp else 24.sp,fontWeight=FontWeight.Bold);Text(session.title+" · "+state.status,color=Muted,fontSize=12.sp)}
+      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(40.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat")
+      Column(Modifier.weight(1f)){Text("Chat",fontSize=if(messages.isEmpty())30.sp else 24.sp,fontWeight=FontWeight.Bold);Text(session.title,color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
       Surface(color=Panel,shape=RoundedCornerShape(24.dp)){Row(Modifier.padding(4.dp)){
        ExecutionMode.entries.forEach{mode->
         val selected=mode==state.mode
@@ -95,7 +107,7 @@ class MainActivity:ComponentActivity(){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
        Spacer(Modifier.height(20.dp))
        Box(Modifier.fillMaxWidth().height(225.dp).background(Brush.radialGradient(listOf(Color(0xFF35432A),Ink))),contentAlignment=Alignment.Center){
-        Image(painterResource(R.drawable.paladino),"0xPaladino, your blue and gold armored companion",Modifier.size(210.dp))
+        if(petPrefs.visible)PaladinoSprite(Modifier.size(210.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat")
        }
        Text("Small companion.\nA little more possible.",fontSize=27.sp,lineHeight=33.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))
@@ -139,6 +151,7 @@ class MainActivity:ComponentActivity(){
   }
  }
  }
+ if(spriteChat&&!modalOpen)SpriteChatBubble(vm,spriteDraft,onDismiss={spriteChat=false},onOpen={spriteChat=false;tab=0})
  state.action?.let{action->AlertDialog(onDismissRequest=vm::denyAction,title={Text(if(action.tool=="notes.create")"Keep this in memory?" else "Delete this note?")},text={Column{
   Text(if(action.tool=="notes.create")action.argument else notes.find{it.id==action.argument}?.text?:"Selected note")
   Spacer(Modifier.height(12.dp));Text("This action happens only on your phone.",color=Muted,fontSize=12.sp)
@@ -160,6 +173,7 @@ class MainActivity:ComponentActivity(){
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
   Text("Make yourself at home.",fontSize=30.sp,fontWeight=FontWeight.Bold)
   Text("Your companion. Your boundaries.",color=Muted)
+  TinyPetSettings(vm)
   ModelManager(vm)
   AdvancedSettings(vm)
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){

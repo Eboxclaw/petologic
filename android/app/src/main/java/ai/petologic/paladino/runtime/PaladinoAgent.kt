@@ -27,6 +27,9 @@ data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspe
 /** Koog's singleRunStrategy owns model → tool → observation → model transitions. */
 class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
  private val testTurn:(suspend(String,String)->String)?=null) {
+ /** Test-scoped observer; unset in normal use. Never persist raw model text in production logs. */
+ internal var responseObserver:((String)->Unit)?=null
+ internal var toolResultObserver:((String,String)->Unit)?=null
  suspend fun run(context:ContextEnvelope,mode:ExecutionMode,modelId:String,consent:CloudConsent?=null,
   options:SessionOptions=SessionOptions(),tools:AgentTools=AgentTools(),
   onEvent:suspend(String,String)->Unit={_,_->},onText:(String)->Unit):String=withTimeout(options.validate().totalTimeoutSeconds*1000L) {
@@ -36,13 +39,13 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
     if(options.memoryRead&&tools.search!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
      override suspend fun execute(args:NoteToolArgs):String {
       budget.tool("notes_search",args.argument);onEvent("tool_call","notes_search #${budget.calls}")
-      return tools.search.invoke(args.argument).take(4000).also{onEvent("tool_result","notes_search returned ${it.length} characters")}
+      return tools.search.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("notes_search",it);onEvent("tool_result","notes_search returned ${it.length} characters")}
      }
     })
     if(options.memoryWrite&&tools.save!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
      override suspend fun execute(args:NoteToolArgs):String {
       budget.tool("notes_save",args.argument);onEvent("tool_call","notes_save #${budget.calls}")
-      return tools.save.invoke(args.argument).take(1000).also{onEvent("tool_result","notes_save completed with a bounded result")}
+      return tools.save.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("notes_save",it);onEvent("tool_result","notes_save completed with a bounded result")}
      }
     })
    }
@@ -56,37 +59,37 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
      val text=checkNotNull(cloud).generate(context,modelId,checkNotNull(credentials?.read()){"Connect OpenRouter first."},checkNotNull(consent){"Review this cloud request first."},onText)
      return Message.Assistant(text,metaInfo=ResponseMetaInfo.create(KoogClock.System))
     }
-    val toolInstructions=if(tools.isEmpty())"" else "\nAvailable tools: "+registry.tools.joinToString { "${it.name}: ${it.descriptor.description}" }+"\nTo call a tool, output ONLY JSON: {\"tool\":\"notes_search\",\"argument\":\"query\"} or {\"tool\":\"notes_save\",\"argument\":\"note text\"}. Otherwise answer normally. After a tool observation, use its result and either call a different necessary tool or give the final answer. Never repeat an identical call."
+    val definitions=buildJsonArray{tools.forEach{descriptor->add(buildJsonObject{
+     put("name",descriptor.name);put("description",descriptor.description)
+     put("parameters",buildJsonObject{put("type","object");put("properties",buildJsonObject{put("argument",buildJsonObject{put("type","string")})});put("required",buildJsonArray{add("argument")})})
+    })}}
+    val toolInstructions=if(tools.isEmpty())"" else "\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
     val system=context.system+"\nSession instructions: "+options.instructions+toolInstructions
-    val transcript=prompt.messages.filterNot{it is Message.System}.joinToString("\n\n"){message->
-     val role=if(message is Message.Assistant)"ASSISTANT" else "USER / TOOL OBSERVATION"
-     role+": "+message.parts.joinToString("\n"){part->when(part){
-      is MessagePart.Text->part.text
-      is MessagePart.Tool.Call->"TOOL CALL ${part.tool} ${part.args}"
-      is MessagePart.Tool.Result->"UNTRUSTED TOOL OBSERVATION ${part.tool}: ${part.output}"
-      else->"[Unsupported attachment]"
-     }}
-    }
+    val turns=context.history+prompt.messages.filterNot{it is Message.System}.flatMap{message->message.parts.mapNotNull{part->when(part){
+     is MessagePart.Text->ChatTurn(if(message is Message.Assistant)"assistant" else "user",part.text)
+     is MessagePart.Tool.Call->ChatTurn("assistant","<|tool_call_start|>"+buildJsonObject{put("name",part.tool);put("arguments",part.args)}+"<|tool_call_end|>")
+     is MessagePart.Tool.Result->ChatTurn("tool",part.output.toString())
+     else->null
+    }}}
+    val transcript=turns.joinToString("\n\n"){it.speaker+": "+it.text}
     val hardBytes=(options.contextTokens-options.outputTokens-options.toolReserve)*3
     check((system+transcript).toByteArray().size<hardBytes){"Session context is full. Start a new session or compress its history before continuing."}
-    suspend fun generate(user:String)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(local).generate(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options){text->if(!text.trimStart().startsWith("{"))onText(text)}}
-    var result=generate(transcript)
-    if(result.trimStart().startsWith("{")&&tools.isNotEmpty()){
+    suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(local).generate(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,if(repair)turns+ChatTurn("user",user) else turns){text->if(tools.isEmpty())onText(text)}}
+    var result=generate(transcript).also{responseObserver?.invoke(it)}
+    if(looksLikeToolCall(result)&&tools.isNotEmpty()){
      while(true){
-      val call=runCatching{Json.parseToJsonElement(result.trim().removePrefix("```json").removeSuffix("```").trim()).jsonObject}.getOrNull()
-      val name=call?.get("tool")?.jsonPrimitive?.contentOrNull
-      val argument=call?.get("argument")?.jsonPrimitive?.contentOrNull
-      if(name!=null&&argument!=null&&argument.isNotBlank()&&argument.length<=12000&&call.keys==setOf("tool","argument")){
-       check(registry.getToolOrNull(name)!=null){"The model requested a tool that this session cannot use."}
-       return Message.Assistant(parts=listOf(MessagePart.Tool.Call(UUID.randomUUID().toString(),name,buildJsonObject{put("argument",argument)})),metaInfo=ResponseMetaInfo.create(KoogClock.System))
+      val call=runCatching{parseNoteToolCall(result)}.getOrNull()
+      if(call!=null){
+       check(tools.any{it.name==call.first}){"The model requested a tool that this session cannot use."}
+       return Message.Assistant(parts=listOf(MessagePart.Tool.Call(UUID.randomUUID().toString(),call.first,buildJsonObject{put("argument",call.second)})),metaInfo=ResponseMetaInfo.create(KoogClock.System))
       }
-      if(call?.containsKey("answer")==true){result=call["answer"]!!.jsonPrimitive.content;break}
       check(repairs++<options.maxRetries){"Malformed tool call. No action was performed."}
       budget.hop();onEvent("repair","Repairing malformed tool JSON ($repairs)")
-      result=generate(transcript+"\nYour previous response was invalid. Return exactly a valid tool JSON object with tool and argument, or a normal final answer.")
-      if(!result.trimStart().startsWith("{"))break
+      result=generate("Return only one valid JSON tool call with name and arguments, or a natural-language answer. Do not append an explanation to a tool call.",true).also{responseObserver?.invoke(it)}
+      if(!looksLikeToolCall(result))break
      }
     }
+    onText(result)
     return Message.Assistant(result,metaInfo=ResponseMetaInfo.create(KoogClock.System))
    }
    override fun executeStreaming(prompt:Prompt,model:LLModel,tools:List<ToolDescriptor>):Flow<StreamFrame> = flow {execute(prompt,model,tools).toStreamFrames().forEach{emit(it)}}

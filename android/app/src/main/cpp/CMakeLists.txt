@@ -14,5 +14,12 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/llama.cpp/CMakeLists.txt")
  message(FATAL_ERROR "Run android/scripts/bootstrap-native.sh first")
 endif()
 add_subdirectory(vendor/llama.cpp)
+# A debuggable Android app still needs optimized CPU inference kernels.
+# Keep symbols and assertions; limit optimization to the vendored runtime.
+foreach(runtime_target ggml-base ggml-cpu ggml llama)
+ if(TARGET ${runtime_target})
+  target_compile_options(${runtime_target} PRIVATE "$<$<CONFIG:Debug>:-O2>")
+ endif()
+endforeach()
 add_library(paladino SHARED paladino.cpp)
 target_link_libraries(paladino PRIVATE llama android log)
