@@ -93,6 +93,52 @@
   background-size: 4px 4px;
 }
 
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-royal) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-royal) 18%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility pixel-border-cyan {
+  box-shadow:
+    0 -4px 0 0 var(--color-cyan),
+    0 4px 0 0 var(--color-cyan),
+    -4px 0 0 0 var(--color-cyan),
+    4px 0 0 0 var(--color-cyan);
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s steps(8), transform 0.6s steps(8);
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-cyan) 35%, transparent); }
+  50% { box-shadow: 0 0 32px 4px color-mix(in oklab, var(--color-cyan) 35%, transparent); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.9; }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
