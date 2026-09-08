@@ -277,7 +277,13 @@ function Index() {
                 MEET THE PETS
               </a>
             </div>
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+              {APK_URL
+                ? "Android 10+ / sideload build / enable install from unknown sources"
+                : "Android build not released yet. Join the waitlist to get the APK first."}
+            </p>
           </div>
+
 
           <div className="relative flex items-center justify-center">
             <div className="pixel-border relative z-10 flex aspect-square w-full max-w-[420px] animate-[glow-pulse_5s_ease-in-out_infinite] items-center justify-center border-8 border-black bg-card p-8">
