@@ -94,7 +94,7 @@ class MainActivity:ComponentActivity(){
     0->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,"Conversations")}
-      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(40.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat")
+      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(40.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
       Column(Modifier.weight(1f)){Text("Chat",fontSize=if(messages.isEmpty())30.sp else 24.sp,fontWeight=FontWeight.Bold);Text(session.title,color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
       Surface(color=Panel,shape=RoundedCornerShape(24.dp)){Row(Modifier.padding(4.dp)){
        ExecutionMode.entries.forEach{mode->
@@ -107,7 +107,7 @@ class MainActivity:ComponentActivity(){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
        Spacer(Modifier.height(20.dp))
        Box(Modifier.fillMaxWidth().height(225.dp).background(Brush.radialGradient(listOf(Color(0xFF35432A),Ink))),contentAlignment=Alignment.Center){
-        if(petPrefs.visible)PaladinoSprite(Modifier.size(210.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat")
+        if(petPrefs.visible)PaladinoSprite(Modifier.size(210.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
        }
        Text("Small companion.\nA little more possible.",fontSize=27.sp,lineHeight=33.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))

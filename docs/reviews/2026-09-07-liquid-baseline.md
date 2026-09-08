@@ -14,7 +14,7 @@ O [protocolo oficial de ferramentas](https://docs.liquid.ai/lfm/key-concepts/too
 
 O [LocalCowork da Liquid AI](https://www.liquid.ai/blog/no-cloud-tool-calling-agents-consumer-hardware-lfm2-24b-a2b) avalia seleção de ferramentas e cadeias guiadas. É um caso de outro modelo e de hardware desktop; os seus resultados e parâmetros não devem ser apresentados como desempenho do nosso 350M no telemóvel.
 
-A referência escrita como “insilico” ainda não foi identificada de forma inequívoca. Foi pedido o link; não foi assumido que Insilico Medicine ou outro projeto fosse o pretendido.
+Atualização de 8 de setembro: o utilizador identificou Insilico Medicine. O comunicado refere LFM2-2.6B-MMAI para investigação farmacêutica, não o nosso 350M. Ver [revisão das referências e decisão Android](2026-09-08-android-pet-decision.md).
 
 ## Regra de evolução
 

@@ -24,6 +24,8 @@ class SpriteOverlayService:Service(){
  private lateinit var windows:WindowManager
  private var root:LinearLayout?=null
  private var layout:WindowManager.LayoutParams?=null
+ private var animationLoad:Job?=null
+ private var animationResource:Int?=null
  private var animation:android.graphics.drawable.AnimatedImageDrawable?=null
  private var appliedX=Int.MIN_VALUE
  private var appliedY=Int.MIN_VALUE
@@ -130,8 +132,23 @@ class SpriteOverlayService:Service(){
   setCompoundDrawablesRelativeWithIntrinsicBounds(id,0,0,0);compoundDrawablePadding=dp(6)
   isClickable=true;isFocusable=true;filterTouchesWhenObscured=true;setOnClickListener{run()}
  }
+ private fun showAnimation(sprite:ImageView,panel:View,reaction:PetReaction){
+  if(!app.tinyPets.state.value.animate||!android.animation.ValueAnimator.areAnimatorsEnabled())return
+  val resource=reaction.animationResource()
+  if(animationResource==resource)return
+  animationResource=resource;animationLoad?.cancel();animation?.stop();animation=null
+  animationLoad=scope.launch{
+   val image=withContext(Dispatchers.IO){runCatching{
+    android.graphics.ImageDecoder.decodeDrawable(android.graphics.ImageDecoder.createSource(resources,resource)) as? android.graphics.drawable.AnimatedImageDrawable
+   }.getOrNull()}
+   if(root===panel&&animationResource==resource&&image!=null){
+    animation=image;image.repeatCount=android.graphics.drawable.AnimatedImageDrawable.REPEAT_INFINITE
+    sprite.setImageDrawable(image);if(unlocked())image.start()
+   }
+  }
+ }
  private fun render(){
-  saveDraft();animation?.stop();animation=null;observation?.cancel();root?.let{runCatching{windows.removeView(it)}}
+  saveDraft();animationLoad?.cancel();animationResource=null;animation?.stop();animation=null;observation?.cancel();root?.let{runCatching{windows.removeView(it)}}
   root=null;text=null;title=null;status=null;input=null;send=null
   if(!Settings.canDrawOverlays(this)){stopSelf();return}
   val panel=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(if(expanded)16 else 8),dp(8),dp(if(expanded)16 else 8),dp(8));isFocusableInTouchMode=true}
@@ -141,17 +158,15 @@ class SpriteOverlayService:Service(){
    val badge=TextView(this).apply{setTextColor(gold);background=surface(ink,10);textSize=10f;gravity=Gravity.CENTER;setOnClickListener{expanded=true;render()}}
    panel.addView(badge)
    observation=scope.launch{app.sessionHub.active.collectLatest{controller->controller.ui.collect{state->
-    val reaction=state.petReaction();badge.text=reaction.label;badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
+    val reaction=state.petReaction();showAnimation(sprite,panel,reaction);badge.text=reaction.label;badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
     sprite.contentDescription="Floating Paladino. Tap to chat. ${reaction.label}";panel.post{clampWindow()}
    }}}
-   if(app.tinyPets.state.value.animate&&android.animation.ValueAnimator.areAnimatorsEnabled())scope.launch{
-    val image=withContext(Dispatchers.IO){runCatching{android.graphics.ImageDecoder.decodeDrawable(android.graphics.ImageDecoder.createSource(resources,R.raw.paladino_idle)) as? android.graphics.drawable.AnimatedImageDrawable}.getOrNull()}
-    if(root===panel&&image!=null){animation=image;image.repeatCount=android.graphics.drawable.AnimatedImageDrawable.REPEAT_INFINITE;sprite.setImageDrawable(image);if(unlocked())image.start()}
-   }
+
   }else{
    panel.background=surface(ink,26,true);panel.elevation=dp(8).toFloat()
    val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
-   header.addView(ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Paladino"},LinearLayout.LayoutParams(dp(40),dp(44)))
+   val headerSprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Paladino"}
+   header.addView(headerSprite,LinearLayout.LayoutParams(dp(40),dp(44)))
    title=TextView(this).apply{text="Paladino";setTextColor(Color.WHITE);textSize=16f;setPadding(dp(10),0,dp(6),0);maxLines=2;contentDescription="Drag Paladino bubble"}
    header.addView(title,LinearLayout.LayoutParams(0,dp(52),1f));draggable(title!!)
    header.addView(icon(R.drawable.ic_pet_collapse,"Collapse"){collapse()});panel.addView(header)
@@ -173,6 +188,7 @@ class SpriteOverlayService:Service(){
     if(observedSession!=controller.sessionId){saveDraft();observedSession=controller.sessionId}
     input?.setText(drafts[observedSession]?:"")
     combine(controller.ui,controller.messages,controller.sessionInfo){state,messages,session->Triple(state,messages,session)}.collect{(state,messages,session)->
+     showAnimation(headerSprite,panel,state.petReaction())
      title?.text="Paladino";status?.text="${state.mode} · ${state.petReaction().label} · ${session.title}"
      text?.text=when{state.error!=null->state.error;state.action!=null||state.cloud!=null->"Open the app to review this request.";state.busy->state.streaming.ifBlank{state.status};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:"A little help, wherever you are."}
      send?.setImageResource(if(state.busy)R.drawable.ic_pet_stop else R.drawable.ic_pet_send);send?.contentDescription=if(state.busy)"Stop" else "Send"

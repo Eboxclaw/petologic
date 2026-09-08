@@ -26,13 +26,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@Composable fun PaladinoSprite(modifier:Modifier=Modifier,animated:Boolean=true,label:String="Paladino, your TinyPet"){
+@Composable fun PaladinoSprite(modifier:Modifier=Modifier,animated:Boolean=true,label:String="Paladino, your TinyPet",reaction:PetReaction=PetReaction.IDLE){
  val context=LocalContext.current
  val owner=LocalLifecycleOwner.current
- val drawable by produceState<AnimatedImageDrawable?>(null,animated){
+ val resource=reaction.animationResource()
+ val drawable by produceState<AnimatedImageDrawable?>(null,animated,resource){
   value=null
   if(animated&&ValueAnimator.areAnimatorsEnabled())value=withContext(Dispatchers.IO){
-   runCatching{ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources,R.raw.paladino_idle)) as? AnimatedImageDrawable}.getOrNull()?.apply{repeatCount=AnimatedImageDrawable.REPEAT_INFINITE}
+   runCatching{ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources,resource)) as? AnimatedImageDrawable}.getOrNull()?.apply{repeatCount=AnimatedImageDrawable.REPEAT_INFINITE}
   }
  }
  DisposableEffect(drawable,owner,animated){
@@ -49,7 +50,7 @@ import kotlinx.coroutines.withContext
  val context=LocalContext.current
  val app=context.applicationContext as PaladinoApplication
  val overlayRunning by SpriteOverlayService.running.collectAsStateWithLifecycle()
- val notificationPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()){granted->if(granted)context.startForegroundService(android.content.Intent(context,SpriteOverlayService::class.java))}
+ val notificationPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()){_->context.startForegroundService(android.content.Intent(context,SpriteOverlayService::class.java))}
  fun startOverlay(){if(android.os.Build.VERSION.SDK_INT>=33&&context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)else context.startForegroundService(android.content.Intent(context,SpriteOverlayService::class.java))}
  val overlayPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()){if(android.provider.Settings.canDrawOverlays(context))startOverlay()}
  val manager=app.tinyPets
@@ -75,7 +76,7 @@ import kotlinx.coroutines.withContext
     Row{listOf(48 to "Small",64 to "Default",88 to "Large").forEach{(size,name)->FilterChip(prefs.sizeDp==size,{manager.update(prefs.copy(sizeDp=size))},label={Text(name)},modifier=Modifier.padding(end=4.dp))}}
     HorizontalDivider()
     Text("Floating above other apps",style=MaterialTheme.typography.titleMedium)
-    Text("Tap Paladino to chat. Drag to move; the Sprite remembers its position. Android requires overlay access and a visible notification.",style=MaterialTheme.typography.bodySmall)
+    Text("Tap Paladino to chat. Drag to move; the Sprite remembers its position. Allow display over other apps. Notifications provide a Stop control; you can also stop the Sprite here.",style=MaterialTheme.typography.bodySmall)
     Button(onClick={if(overlayRunning)context.stopService(android.content.Intent(context,SpriteOverlayService::class.java))else if(android.provider.Settings.canDrawOverlays(context))startOverlay()else overlayPermission.launch(android.content.Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,android.net.Uri.parse("package:"+context.packageName)))}){Text(if(overlayRunning)"Stop floating Sprite" else "Enable floating Sprite")}
     HorizontalDivider()
     Text("Home-screen widget",style=MaterialTheme.typography.titleMedium)

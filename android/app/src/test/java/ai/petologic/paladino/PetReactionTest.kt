@@ -12,5 +12,10 @@ class PetReactionTest {
   PetReaction.entries.forEach{assertEquals("idle",it.animation(setOf("idle")))}
   assertEquals("waiting",PetReaction.NEEDS_INPUT.animation(setOf("idle","waiting")))
  }
+ @Test fun thinking_is_selected_only_while_working(){
+  assertEquals("thinking",PetReaction.RUNNING.animation(setOf("idle","thinking")))
+  assertEquals(R.raw.paladino_thinking,PetReaction.RUNNING.animationResource())
+  listOf(PetReaction.IDLE,PetReaction.NEEDS_INPUT,PetReaction.BLOCKED).forEach{assertEquals(R.raw.paladino_idle,it.animationResource())}
+ }
  @Test(expected=IllegalArgumentException::class) fun missing_idle_is_invalid(){PetReaction.RUNNING.animation(emptySet())}
 }

@@ -1,0 +1,16 @@
+
+ai.petologic.paladino.MemoryIntegrationTest:.
+ai.petologic.paladino.OverlayIntegrationTest:.
+ai.petologic.paladino.PaladinoUiTest:.....
+ai.petologic.paladino.RealAppConversationTest:.
+ai.petologic.paladino.RealModelTest:.
+ai.petologic.paladino.RealToolConversationTest:.
+ai.petologic.paladino.SemanticModelTest:.
+ai.petologic.paladino.SessionIntegrationTest:...
+ai.petologic.paladino.TinyPetIntegrationTest:..
+
+Time: 159.669
+
+OK (16 tests)
+
+
