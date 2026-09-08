@@ -342,7 +342,7 @@ function Index() {
       </div>
 
       {/* Lore */}
-      <section id="lore" className="relative px-6 py-24">
+      <section id="lore" className="relative px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-4xl text-center">
           <div className="reveal mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
             Codex entry 001
