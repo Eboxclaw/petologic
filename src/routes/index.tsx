@@ -44,6 +44,10 @@ const BASS: Array<[number, number]> = [
 ];
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
+// Drop the Android build link here (a URL, or /petologic.apk after placing the
+// file in public/). While empty, the install button routes to the waitlist.
+const APK_URL = "";
+
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
   master.gain.value = 0.12;
