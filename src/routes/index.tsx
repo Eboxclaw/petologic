@@ -44,6 +44,10 @@ const BASS: Array<[number, number]> = [
 ];
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
+// Drop the Android build link here (a URL, or /petologic.apk after placing the
+// file in public/). While empty, the install button routes to the waitlist.
+const APK_URL = "";
+
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
   master.gain.value = 0.12;
@@ -259,10 +263,11 @@ function Index() {
             </ul>
             <div className="flex flex-wrap gap-4">
               <a
-                href="#waitlist"
+                href={APK_URL || "#waitlist"}
+                {...(APK_URL ? { download: "petologic.apk", rel: "noopener" } : {})}
                 className="pixel-border-gold group bg-royal px-8 py-4 font-display text-sm tracking-wide transition-all hover:bg-royal/90 active:translate-y-1"
               >
-                INSTALL ON ANDROID{" "}
+                {APK_URL ? "DOWNLOAD APK" : "INSTALL ON ANDROID"}{" "}
                 <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
               </a>
               <a
@@ -272,7 +277,13 @@ function Index() {
                 MEET THE PETS
               </a>
             </div>
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+              {APK_URL
+                ? "Android 10+ / sideload build / enable install from unknown sources"
+                : "Android build not released yet. Join the waitlist to get the APK first."}
+            </p>
           </div>
+
 
           <div className="relative flex items-center justify-center">
             <div className="pixel-border relative z-10 flex aspect-square w-full max-w-[420px] animate-[glow-pulse_5s_ease-in-out_infinite] items-center justify-center border-8 border-black bg-card p-8">
