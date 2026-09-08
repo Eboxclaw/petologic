@@ -31,25 +31,36 @@ export const Route = createFileRoute("/")({
 
 /* --- Tiny original 8-bit MMORPG-style loop, synthesized with Web Audio --- */
 const MELODY: Array<[number, number]> = [
-  [76, 0.5], [79, 0.5], [81, 1], [79, 0.5], [76, 0.5], [74, 1],
-  [72, 0.5], [74, 0.5], [76, 1], [69, 2],
-  [76, 0.5], [79, 0.5], [81, 1], [84, 0.5], [81, 0.5], [79, 1],
-  [76, 0.5], [74, 0.5], [72, 1], [72, 2],
+  [69, 1], [76, 1], [74, 0.5], [72, 0.5], [74, 1], [76, 2],
+  [72, 1], [79, 1], [77, 0.5], [76, 0.5], [74, 1], [72, 2],
+  [69, 1], [76, 1], [81, 1], [79, 0.5], [77, 0.5], [76, 1], [74, 1], [72, 2],
+  [67, 1], [69, 1], [72, 1], [76, 1], [74, 2], [69, 2],
 ];
 const BASS: Array<[number, number]> = [
-  [48, 1], [48, 1], [45, 1], [45, 1],
-  [41, 1], [41, 1], [43, 1], [43, 1],
-  [48, 1], [48, 1], [45, 1], [45, 1],
-  [41, 1], [43, 1], [48, 2],
+  [45, 2], [45, 2], [41, 2], [41, 2],
+  [40, 2], [40, 2], [45, 2], [45, 2],
+  [45, 2], [48, 2], [43, 2], [41, 2],
+  [40, 2], [40, 2], [45, 4],
 ];
+const ARP: Array<[number, number]> = [
+  [69, 0.5], [72, 0.5], [76, 0.5], [72, 0.5], [69, 0.5], [72, 0.5], [76, 0.5], [72, 0.5],
+  [65, 0.5], [69, 0.5], [72, 0.5], [69, 0.5], [65, 0.5], [69, 0.5], [72, 0.5], [69, 0.5],
+  [64, 0.5], [67, 0.5], [71, 0.5], [67, 0.5], [64, 0.5], [67, 0.5], [71, 0.5], [67, 0.5],
+  [69, 0.5], [72, 0.5], [76, 0.5], [72, 0.5], [69, 0.5], [72, 0.5], [76, 0.5], [72, 0.5],
+];
+
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
+
+// Drop the Android build link here (a URL, or /petologic.apk after placing the
+// file in public/). While empty, the install button routes to the waitlist.
+const APK_URL = "";
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
   master.gain.value = 0.12;
   master.connect(ctx.destination);
 
-  const beat = 0.28;
+  const beat = 0.32;
   let t = ctx.currentTime + 0.05;
 
   const playTrack = (notes: Array<[number, number]>, type: OscillatorType, vol: number) => {
@@ -72,11 +83,13 @@ function startChiptune(ctx: AudioContext) {
   };
 
   const scheduleLoop = () => {
-    const endA = playTrack(MELODY, "square", 0.5);
-    const endB = playTrack(BASS, "triangle", 0.9);
-    const loopEnd = Math.max(endA, endB);
+    const endA = playTrack(MELODY, "square", 0.45);
+    const endB = playTrack(BASS, "triangle", 0.85);
+    const endC = playTrack(ARP, "square", 0.12);
+    const loopEnd = Math.max(endA, endB, endC);
     const id = window.setTimeout(scheduleLoop, (loopEnd - ctx.currentTime) * 1000 - 100);
     t = loopEnd;
+
     return id;
   };
   const timeoutId = scheduleLoop();
@@ -163,7 +176,7 @@ function Index() {
   const [joined, setJoined] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
   const [stateIdx, setStateIdx] = useState(0);
-  const [revealTwin, setRevealTwin] = useState(false);
+  
   const audioRef = useRef<{ ctx: AudioContext; stop: () => void } | null>(null);
 
   useReveal();
@@ -207,19 +220,19 @@ function Index() {
         type="button"
         onClick={toggleMusic}
         aria-pressed={musicOn}
-        className="pixel-border fixed bottom-6 right-6 z-50 border-4 border-black bg-card px-4 py-3 font-display text-[10px] text-gold transition-transform hover:-translate-y-1 active:translate-y-1"
+        className="pixel-border fixed bottom-4 right-4 z-50 border-4 border-black bg-card px-3 py-2 font-display text-[9px] text-gold transition-transform hover:-translate-y-1 active:translate-y-1 sm:bottom-6 sm:right-6 sm:px-4 sm:py-3 sm:text-[10px]"
       >
         {musicOn ? "\u266a MUSIC: ON" : "\u266a MUSIC: OFF"}
       </button>
 
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 border-b-4 border-black bg-navy/85 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="pixel-border-gold grid size-8 place-items-center bg-royal">
+      <nav className="sticky top-0 z-40 border-b-4 border-black bg-navy/90 px-4 py-3 backdrop-blur-sm sm:px-6 sm:py-4">
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <div className="pixel-border-gold grid size-7 shrink-0 place-items-center bg-royal sm:size-8">
               <div className="size-2 animate-[twinkle_1.6s_steps(2)_infinite] bg-cyan shadow-[0_0_8px_var(--color-cyan)]" />
             </div>
-            <span className="font-display text-xl tracking-tighter text-gold">PETOLOGIC</span>
+            <span className="truncate font-display text-base tracking-tighter text-gold sm:text-xl">PETOLOGIC</span>
           </div>
           <div className="hidden gap-8 font-mono text-xs uppercase tracking-widest text-white/60 lg:flex">
             <a href="#lore" className="transition-colors hover:text-cyan">Lore</a>
@@ -230,49 +243,66 @@ function Index() {
           </div>
           <a
             href="#waitlist"
-            className="pixel-border bg-gold px-4 py-2 font-display text-xs text-navy transition-transform hover:translate-y-1"
+            className="pixel-border shrink-0 bg-gold px-3 py-2 font-display text-[10px] text-navy transition-transform hover:translate-y-1 sm:px-4 sm:text-xs"
           >
             ENLIST
           </a>
         </div>
+        <div className="-mx-4 mt-3 flex gap-5 overflow-x-auto px-4 font-mono text-[10px] uppercase tracking-widest text-white/50 [scrollbar-width:none] lg:hidden">
+          <a href="#lore" className="shrink-0">Lore</a>
+          <a href="#roster" className="shrink-0">Roster</a>
+          <a href="#states" className="shrink-0">States</a>
+          <a href="#showcase" className="shrink-0">Showcase</a>
+          <a href="#modules" className="shrink-0">Modules</a>
+        </div>
       </nav>
 
+
       {/* Hero */}
-      <header className="relative overflow-hidden px-6 pb-28 pt-20">
+      <header className="relative overflow-hidden px-4 pb-16 pt-10 sm:px-6 sm:pb-28 sm:pt-20">
         <div className="grid-bg pointer-events-none absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" aria-hidden="true" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
           <div className="reveal">
-            <div className="mb-6 inline-block border border-royal bg-royal/20 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan">
+            <div className="mb-5 inline-block border border-royal bg-royal/20 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-cyan sm:mb-6 sm:text-[10px]">
               Protocol initialized: v2.0.4 / Android first
             </div>
-            <h1 className="mb-8 text-balance font-display text-5xl leading-[1.1] lg:text-7xl">
+            <h1 className="mb-6 text-balance font-display text-[2rem] leading-[1.15] sm:text-5xl sm:leading-[1.1] lg:text-7xl">
               Tiny <span className="text-gold">intelligence</span> pets, living in your phone.
             </h1>
-            <p className="mb-6 max-w-md text-lg leading-relaxed text-white/70">
+            <p className="mb-6 max-w-md text-base leading-relaxed text-white/70 sm:text-lg">
               Petologic is a tiny intelligence infrastructure built on top of Android. Create and run
               specialized pets that can do anything for you, always inside your boundaries.
             </p>
+
             <ul className="mb-10 space-y-2 font-mono text-xs text-white/50">
               <li><span className="text-cyan">&gt;</span> Runs on your device NPU, offline by default</li>
               <li><span className="text-cyan">&gt;</span> Every action logged in your quest log</li>
               <li><span className="text-cyan">&gt;</span> Cloud models are a summon, never a leash</li>
             </ul>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <a
-                href="#waitlist"
-                className="pixel-border-gold group bg-royal px-8 py-4 font-display text-sm tracking-wide transition-all hover:bg-royal/90 active:translate-y-1"
+                href={APK_URL || "#waitlist"}
+                {...(APK_URL ? { download: "petologic.apk", rel: "noopener" } : {})}
+                className="pixel-border-gold group bg-royal px-6 py-4 text-center font-display text-xs tracking-wide transition-all hover:bg-royal/90 active:translate-y-1 sm:px-8 sm:text-sm"
               >
-                INSTALL ON ANDROID{" "}
+                {APK_URL ? "DOWNLOAD APK" : "INSTALL ON ANDROID"}{" "}
                 <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
               </a>
               <a
                 href="#roster"
-                className="pixel-border bg-card px-8 py-4 font-display text-sm text-cyan transition-all hover:bg-card/70 active:translate-y-1"
+                className="pixel-border bg-card px-6 py-4 text-center font-display text-xs text-cyan transition-all hover:bg-card/70 active:translate-y-1 sm:px-8 sm:text-sm"
               >
                 MEET THE PETS
               </a>
             </div>
+
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+              {APK_URL
+                ? "Android 10+ / sideload build / enable install from unknown sources"
+                : "Android build not released yet. Join the waitlist to get the APK first."}
+            </p>
           </div>
+
 
           <div className="relative flex items-center justify-center">
             <div className="pixel-border relative z-10 flex aspect-square w-full max-w-[420px] animate-[glow-pulse_5s_ease-in-out_infinite] items-center justify-center border-8 border-black bg-card p-8">
@@ -312,12 +342,12 @@ function Index() {
       </div>
 
       {/* Lore */}
-      <section id="lore" className="relative px-6 py-24">
+      <section id="lore" className="relative px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-4xl text-center">
           <div className="reveal mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
             Codex entry 001
           </div>
-          <h2 className="reveal mb-8 font-display text-4xl leading-tight">
+          <h2 className="reveal mb-8 font-display text-3xl sm:text-4xl leading-tight">
             The phone became a <span className="text-cyan">kingdom</span>.
           </h2>
           <div className="reveal pixel-border mx-auto max-w-3xl border-4 border-black bg-card p-8 text-left">
@@ -340,30 +370,27 @@ function Index() {
       </section>
 
       {/* Roster */}
-      <section id="roster" className="border-y-4 border-black bg-black/30 px-6 py-24">
+      <section id="roster" className="border-y-4 border-black bg-black/30 px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="reveal mb-4 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-cyan">
             Party slots: 1 of 4 unlocked
           </div>
-          <h2 className="reveal mb-14 text-center font-display text-4xl">THE ROSTER</h2>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="reveal mb-10 text-center font-display text-3xl sm:mb-14 sm:text-4xl">THE ROSTER</h2>
+          <div className="grid gap-5 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
             {PETS.map((pet) => {
-              const locked = pet.tag === "SECRET" && !revealTwin;
+              const locked = pet.tag !== "OWNED";
               return (
                 <article
                   key={pet.name}
-                  onMouseEnter={() => pet.tag === "SECRET" && setRevealTwin(true)}
-                  onFocus={() => pet.tag === "SECRET" && setRevealTwin(true)}
-                  tabIndex={0}
-                  className="reveal pixel-border group relative flex flex-col border-4 border-black bg-card p-5 transition-transform duration-200 hover:-translate-y-2 focus:-translate-y-2 focus:outline-none"
+                  className="reveal pixel-border group relative flex flex-col border-4 border-black bg-card p-4 transition-transform duration-200 hover:-translate-y-2 sm:p-5"
                 >
                   <div className="relative mb-4 grid aspect-square place-items-center overflow-hidden border-2 border-black bg-navy">
                     <div className="dither-pattern absolute inset-0 opacity-15" aria-hidden="true" />
                     <img
                       src={pet.img}
-                      alt={`${pet.name}, a ${pet.cls} Petologic pet`}
-                      className={`relative z-10 h-4/5 w-4/5 animate-[bob_3s_ease-in-out_infinite] object-contain [image-rendering:pixelated] transition-all duration-300 ${
-                        locked ? "brightness-0 opacity-40" : ""
+                      alt={locked ? "Locked Petologic pet silhouette" : `${pet.name}, a ${pet.cls} Petologic pet`}
+                      className={`relative z-10 h-4/5 w-4/5 animate-[bob_3s_ease-in-out_infinite] object-contain [image-rendering:pixelated] ${
+                        locked ? "opacity-50 brightness-0" : ""
                       }`}
                     />
                     {locked ? (
@@ -378,14 +405,26 @@ function Index() {
                             : "bg-royal text-white"
                       }`}
                     >
-                      {pet.tag}
+                      {pet.tag === "OWNED" ? "OWNED" : pet.tag === "PREMIUM" ? "LOCKED / PREMIUM" : "LOCKED / SECRET"}
                     </span>
                   </div>
                   <h3 className="font-display text-sm text-gold">{locked ? "???????" : pet.name}</h3>
                   <div className="mb-3 font-mono text-[9px] uppercase tracking-widest text-white/40">
-                    {pet.cls}
+                    {locked ? "Unknown class" : pet.cls}
                   </div>
-                  <p className="text-xs leading-relaxed text-white/60">{pet.lore}</p>
+                  <p
+                    className={`text-xs leading-relaxed text-white/60 ${
+                      locked ? "select-none blur-[4px]" : ""
+                    }`}
+                    aria-hidden={locked ? true : undefined}
+                  >
+                    {pet.lore}
+                  </p>
+                  {locked ? (
+                    <div className="mt-3 font-mono text-[9px] uppercase tracking-widest text-cyan/70">
+                      Record sealed
+                    </div>
+                  ) : null}
                   <div className="mt-4 flex gap-1" aria-hidden="true">
                     <div className={`h-1 w-full bg-${pet.accent}`} />
                     <div className={`h-1 w-1/3 bg-${pet.accent}/30`} />
@@ -395,21 +434,22 @@ function Index() {
             })}
           </div>
           <p className="reveal mt-10 text-center font-mono text-[10px] uppercase tracking-widest text-white/30">
-            Hover the fourth slot if you dare
+            Three records still sealed. They open in a later season.
           </p>
         </div>
       </section>
 
+
       {/* Animation states */}
-      <section id="states" className="px-6 py-24">
+      <section id="states" className="px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="reveal mb-4 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
             Core animation set 1 of 5
           </div>
-          <h2 className="reveal mb-12 text-center font-display text-4xl">
+          <h2 className="reveal mb-12 text-center font-display text-3xl sm:text-4xl">
             SMALL CHANGES. <span className="text-cyan">BIG EXPRESSIONS.</span>
           </h2>
-          <div className="grid gap-6 md:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-5">
             {STATES.map((s, i) => (
               <button
                 key={s.name}
@@ -443,7 +483,7 @@ function Index() {
       </section>
 
       {/* Phone showcase */}
-      <section id="showcase" className="border-y-4 border-black bg-black/30 px-6 py-24">
+      <section id="showcase" className="border-y-4 border-black bg-black/30 px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
           <div className="reveal flex items-center justify-center">
             <div className="pixel-border relative w-full max-w-[300px] animate-[float_6s_ease-in-out_infinite] border-8 border-black bg-card p-3">
@@ -499,7 +539,7 @@ function Index() {
             <div className="reveal mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
               Field manual
             </div>
-            <h2 className="reveal mb-10 font-display text-4xl leading-tight">
+            <h2 className="reveal mb-10 font-display text-3xl sm:text-4xl leading-tight">
               One phone. <span className="text-cyan">Many pets.</span>
             </h2>
             <ul className="space-y-8">
@@ -525,7 +565,7 @@ function Index() {
       </section>
 
       {/* Feature grid */}
-      <section id="modules" className="border-b-4 border-black bg-navy px-6 py-24">
+      <section id="modules" className="border-b-4 border-black bg-navy px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
           {[
             { n: "01", t: "LOCAL BRAIN", c: "royal", b: "Runs entirely on your device NPU. Your data never leaves the hardware. Zero latency, total control." },
@@ -551,7 +591,7 @@ function Index() {
       </section>
 
       {/* Bottom CTA */}
-      <section id="waitlist" className="relative px-6 py-32 text-center">
+      <section id="waitlist" className="relative px-4 py-20 text-center sm:px-6 sm:py-32">
         <div
           className="absolute top-0 left-1/2 h-24 w-px -translate-x-1/2 bg-gradient-to-b from-royal to-transparent"
           aria-hidden="true"
@@ -560,7 +600,7 @@ function Index() {
           <div className="reveal mb-8 animate-pulse font-display text-xs uppercase tracking-widest text-cyan">
             Waiting for command...
           </div>
-          <h2 className="reveal mb-12 font-display text-4xl">
+          <h2 className="reveal mb-12 font-display text-3xl sm:text-4xl">
             Ready to raise your <span className="text-gold">tiny intelligence</span>?
           </h2>
           {joined ? (
@@ -583,7 +623,7 @@ function Index() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ENTER EMAIL"
-                className="w-64 border-none bg-navy px-6 py-4 font-mono text-sm outline-none focus:ring-2 focus:ring-cyan md:w-80"
+                className="w-full min-w-0 border-none bg-navy px-4 py-4 sm:w-64 font-mono text-sm outline-none focus:ring-2 focus:ring-cyan md:w-80"
               />
               <button
                 type="submit"
