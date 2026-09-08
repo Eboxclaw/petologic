@@ -259,10 +259,11 @@ function Index() {
             </ul>
             <div className="flex flex-wrap gap-4">
               <a
-                href="#waitlist"
+                href={APK_URL || "#waitlist"}
+                {...(APK_URL ? { download: "petologic.apk", rel: "noopener" } : {})}
                 className="pixel-border-gold group bg-royal px-8 py-4 font-display text-sm tracking-wide transition-all hover:bg-royal/90 active:translate-y-1"
               >
-                INSTALL ON ANDROID{" "}
+                {APK_URL ? "DOWNLOAD APK" : "INSTALL ON ANDROID"}{" "}
                 <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
               </a>
               <a
