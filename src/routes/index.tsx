@@ -347,7 +347,7 @@ function Index() {
           <div className="reveal mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
             Codex entry 001
           </div>
-          <h2 className="reveal mb-8 font-display text-4xl leading-tight">
+          <h2 className="reveal mb-8 font-display text-3xl sm:text-4xl leading-tight">
             The phone became a <span className="text-cyan">kingdom</span>.
           </h2>
           <div className="reveal pixel-border mx-auto max-w-3xl border-4 border-black bg-card p-8 text-left">
@@ -441,12 +441,12 @@ function Index() {
 
 
       {/* Animation states */}
-      <section id="states" className="px-6 py-24">
+      <section id="states" className="px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="reveal mb-4 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
             Core animation set 1 of 5
           </div>
-          <h2 className="reveal mb-12 text-center font-display text-4xl">
+          <h2 className="reveal mb-12 text-center font-display text-3xl sm:text-4xl">
             SMALL CHANGES. <span className="text-cyan">BIG EXPRESSIONS.</span>
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-5">
@@ -483,7 +483,7 @@ function Index() {
       </section>
 
       {/* Phone showcase */}
-      <section id="showcase" className="border-y-4 border-black bg-black/30 px-6 py-24">
+      <section id="showcase" className="border-y-4 border-black bg-black/30 px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-16 md:grid-cols-2">
           <div className="reveal flex items-center justify-center">
             <div className="pixel-border relative w-full max-w-[300px] animate-[float_6s_ease-in-out_infinite] border-8 border-black bg-card p-3">
@@ -539,7 +539,7 @@ function Index() {
             <div className="reveal mb-6 inline-block border border-gold bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold">
               Field manual
             </div>
-            <h2 className="reveal mb-10 font-display text-4xl leading-tight">
+            <h2 className="reveal mb-10 font-display text-3xl sm:text-4xl leading-tight">
               One phone. <span className="text-cyan">Many pets.</span>
             </h2>
             <ul className="space-y-8">
@@ -565,7 +565,7 @@ function Index() {
       </section>
 
       {/* Feature grid */}
-      <section id="modules" className="border-b-4 border-black bg-navy px-6 py-24">
+      <section id="modules" className="border-b-4 border-black bg-navy px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
           {[
             { n: "01", t: "LOCAL BRAIN", c: "royal", b: "Runs entirely on your device NPU. Your data never leaves the hardware. Zero latency, total control." },
@@ -591,7 +591,7 @@ function Index() {
       </section>
 
       {/* Bottom CTA */}
-      <section id="waitlist" className="relative px-6 py-32 text-center">
+      <section id="waitlist" className="relative px-4 py-20 text-center sm:px-6 sm:py-32">
         <div
           className="absolute top-0 left-1/2 h-24 w-px -translate-x-1/2 bg-gradient-to-b from-royal to-transparent"
           aria-hidden="true"
@@ -600,7 +600,7 @@ function Index() {
           <div className="reveal mb-8 animate-pulse font-display text-xs uppercase tracking-widest text-cyan">
             Waiting for command...
           </div>
-          <h2 className="reveal mb-12 font-display text-4xl">
+          <h2 className="reveal mb-12 font-display text-3xl sm:text-4xl">
             Ready to raise your <span className="text-gold">tiny intelligence</span>?
           </h2>
           {joined ? (
@@ -623,7 +623,7 @@ function Index() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ENTER EMAIL"
-                className="w-64 border-none bg-navy px-6 py-4 font-mono text-sm outline-none focus:ring-2 focus:ring-cyan md:w-80"
+                className="w-full min-w-0 border-none bg-navy px-4 py-4 sm:w-64 font-mono text-sm outline-none focus:ring-2 focus:ring-cyan md:w-80"
               />
               <button
                 type="submit"
