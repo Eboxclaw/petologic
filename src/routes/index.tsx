@@ -57,19 +57,38 @@ const APK_URL = `${APK_RELEASE}/petologic-0.1.2-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
-  master.gain.value = 0.12;
-  master.connect(ctx.destination);
+  master.gain.value = 0.16;
 
-  const beat = 0.32;
-  let t = ctx.currentTime + 0.05;
+  // Gentle bus compression so the low end stays thick without clipping.
+  const glue = ctx.createDynamicsCompressor();
+  glue.threshold.value = -18;
+  glue.knee.value = 24;
+  glue.ratio.value = 6;
+  glue.attack.value = 0.004;
+  glue.release.value = 0.18;
+  master.connect(glue).connect(ctx.destination);
 
-  const playTrack = (notes: Array<[number, number]>, type: OscillatorType, vol: number) => {
+  // Shared white-noise buffer for the drum kit.
+  const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+  const nd = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+
+  const beat = 0.3;
+  let t = ctx.currentTime + 0.06;
+
+  const playTrack = (
+    notes: Array<[number, number]>,
+    type: OscillatorType,
+    vol: number,
+    detune = 0,
+  ) => {
     let cursor = t;
     for (const [note, beats] of notes) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = type;
       osc.frequency.value = midiToFreq(note);
+      osc.detune.value = detune;
       const dur = beats * beat;
       gain.gain.setValueAtTime(vol, cursor);
       gain.gain.setValueAtTime(vol, cursor + dur * 0.8);
@@ -82,20 +101,120 @@ function startChiptune(ctx: AudioContext) {
     return cursor;
   };
 
-  const scheduleLoop = () => {
-    const endA = playTrack(MELODY, "square", 0.45);
-    const endB = playTrack(BASS, "triangle", 0.85);
-    const endC = playTrack(ARP, "square", 0.12);
-    const loopEnd = Math.max(endA, endB, endC);
-    const id = window.setTimeout(scheduleLoop, (loopEnd - ctx.currentTime) * 1000 - 100);
-    t = loopEnd;
+  // Liquid bass: saw through a resonant lowpass that opens and closes per note.
+  const playLiquidBass = (notes: Array<[number, number]>, vol: number) => {
+    let cursor = t;
+    for (const [note, beats] of notes) {
+      const dur = beats * beat;
+      const osc = ctx.createOscillator();
+      osc.type = "sawtooth";
+      osc.frequency.value = midiToFreq(note - 12);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.Q.value = 12;
+      filter.frequency.setValueAtTime(160, cursor);
+      filter.frequency.exponentialRampToValueAtTime(1100, cursor + dur * 0.35);
+      filter.frequency.exponentialRampToValueAtTime(180, cursor + dur);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, cursor);
+      gain.gain.exponentialRampToValueAtTime(vol, cursor + 0.02);
+      gain.gain.setValueAtTime(vol, cursor + dur * 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.0001, cursor + dur);
+      osc.connect(filter).connect(gain).connect(master);
+      osc.start(cursor);
+      osc.stop(cursor + dur);
 
-    return id;
+      // Sub sine doubling one octave lower for real weight.
+      const sub = ctx.createOscillator();
+      sub.type = "sine";
+      sub.frequency.value = midiToFreq(note - 24);
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.0001, cursor);
+      subGain.gain.exponentialRampToValueAtTime(vol * 0.9, cursor + 0.02);
+      subGain.gain.setValueAtTime(vol * 0.9, cursor + dur * 0.7);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, cursor + dur);
+      sub.connect(subGain).connect(master);
+      sub.start(cursor);
+      sub.stop(cursor + dur);
+
+      cursor += dur;
+    }
+    return cursor;
   };
-  const timeoutId = scheduleLoop();
+
+  const kick = (at: number) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(150, at);
+    osc.frequency.exponentialRampToValueAtTime(42, at + 0.12);
+    gain.gain.setValueAtTime(1.1, at);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+    osc.connect(gain).connect(master);
+    osc.start(at);
+    osc.stop(at + 0.24);
+  };
+
+  const noiseHit = (at: number, dur: number, hp: number, vol: number) => {
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.value = hp;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(vol, at);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    src.connect(filter).connect(gain).connect(master);
+    src.start(at);
+    src.stop(at + dur);
+  };
+
+  const snare = (at: number) => {
+    noiseHit(at, 0.16, 1400, 0.5);
+    const body = ctx.createOscillator();
+    const bg = ctx.createGain();
+    body.type = "triangle";
+    body.frequency.setValueAtTime(220, at);
+    bg.gain.setValueAtTime(0.3, at);
+    bg.gain.exponentialRampToValueAtTime(0.0001, at + 0.1);
+    body.connect(bg).connect(master);
+    body.start(at);
+    body.stop(at + 0.12);
+  };
+
+  const playDrums = (bars: number) => {
+    // 4 beats per bar, 16th-note hats.
+    for (let b = 0; b < bars * 4; b++) {
+      const at = t + b * beat;
+      const step = b % 4;
+      if (step === 0 || step === 2) kick(at);
+      if (step === 1 || step === 3) snare(at);
+      if (step === 2) kick(at + beat * 0.5);
+      noiseHit(at, 0.05, 7000, 0.14);
+      noiseHit(at + beat * 0.5, 0.04, 7000, 0.09);
+    }
+    return t + bars * 4 * beat;
+  };
+
+  const timeouts: number[] = [];
+
+  const scheduleLoop = () => {
+    const endA = playTrack(MELODY, "square", 0.34);
+    const endA2 = playTrack(MELODY, "square", 0.16, 9);
+    const endB = playLiquidBass(BASS, 0.6);
+    const endC = playTrack(ARP, "square", 0.1);
+    const endD = playDrums(8);
+    const loopEnd = Math.max(endA, endA2, endB, endC, endD);
+    timeouts.push(
+      window.setTimeout(scheduleLoop, (loopEnd - ctx.currentTime) * 1000 - 120),
+    );
+    t = loopEnd;
+  };
+  scheduleLoop();
   return () => {
-    window.clearTimeout(timeoutId);
+    for (const id of timeouts) window.clearTimeout(id);
     master.disconnect();
+    glue.disconnect();
   };
 }
 
