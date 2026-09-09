@@ -40,4 +40,6 @@ Thinking WebP ligado ao estado real, notificações opcionais sem bloquear overl
 
 35 JVM tests, lint, debug/release builds and 4 focused Android instrumentation tests passed. The same five real Tiny prompts passed in Chat and Sprite after fixing English greetings and requiring a real note-search result instead of accepting a claim based on history. [Results and UI improvements](reviews/2026-09-09-chat-sprite-test.md).
 
-OpenAI/Z.ai API-key integration added with isolated encrypted storage and provider-bound consent. OAuth and live cloud validation remain pending. Signed ARM64 0.1.1-preview APK installed and launched on a clean emulator; the website now links to a separate public binary release, keeping source private. [Release record](releases/0.1.1-preview.md). Physical-device testing, signed upgrades, sprite alpha cleanup and the listed UI improvements remain open.
+OpenAI/Z.ai API-key integration added with isolated encrypted storage and provider-bound consent. OAuth and live cloud validation remain pending. Signed ARM64 0.1.1-preview APK installed and launched on a clean emulator; the website source now links to a separate public binary release, keeping source private. [Release record](releases/0.1.1-preview.md). Physical-device testing, signed upgrades, sprite alpha cleanup and the listed UI improvements remain open.
+
+Vercel blocked the production deployment. The APK is publicly downloadable and checksum-verified, but the live website update awaits authenticated Vercel access.
