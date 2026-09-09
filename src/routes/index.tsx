@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
-import paladinAsset from "../assets/paladin.png.asset.json";
-import paladinIdle from "../assets/paladino_idle.gif.asset.json";
-import mewsashiAsset from "../assets/mewsashi.png.asset.json";
-import monkaiAsset from "../assets/Monkai.png.asset.json";
-import darktwinAsset from "../assets/darktwin.png.asset.json";
+import paladinAsset from "../assets/pets/0xpaladino.png";
+import paladinIdle from "../assets/pets/paladino_idle.gif";
+import mewsashiAsset from "../assets/pets/mewsashi.png";
+import monkaiAsset from "../assets/pets/Monkai.png";
+import darktwinAsset from "../assets/pets/darktwin.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -140,7 +140,7 @@ const PETS: Array<Pet> = [
   {
     name: "0xPALADINO",
     cls: "Guardian class",
-    img: paladinAsset.url,
+    img: paladinAsset,
     tag: "OWNED",
     lore: "The first tiny intelligence. Forged to stand between your data and everything else. Loyalty, intelligence, action, always with you.",
     accent: "royal",
@@ -148,7 +148,7 @@ const PETS: Array<Pet> = [
   {
     name: "MEWSASHI",
     cls: "Blade class",
-    img: mewsashiAsset.url,
+    img: mewsashiAsset,
     tag: "PREMIUM",
     lore: "A one cut duelist that slices noise out of your inbox and your notifications. Fast, silent, never asks twice.",
     accent: "gold",
@@ -156,7 +156,7 @@ const PETS: Array<Pet> = [
   {
     name: "MONKAI",
     cls: "Monk class",
-    img: monkaiAsset.url,
+    img: monkaiAsset,
     tag: "PREMIUM",
     lore: "Keeper of focus. Bends your calendar into order, breathes through long tasks, and returns only when the work is done.",
     accent: "gold",
@@ -164,7 +164,7 @@ const PETS: Array<Pet> = [
   {
     name: "DARKTWIN",
     cls: "Unknown class",
-    img: darktwinAsset.url,
+    img: darktwinAsset,
     tag: "SECRET",
     lore: "Every paladin casts a shadow. Reach level 99 with 0xPaladino and something answers from the other side of the mirror.",
     accent: "cyan",
@@ -317,7 +317,7 @@ function Index() {
             <div className="pixel-border relative z-10 flex aspect-square w-full max-w-[420px] animate-[glow-pulse_5s_ease-in-out_infinite] items-center justify-center border-8 border-black bg-card p-8">
               <div className="dither-pattern absolute inset-0 opacity-20" aria-hidden="true" />
               <img
-                src={paladinIdle.url}
+                src={paladinIdle}
                 alt="0xPaladino, the Petologic pixel paladin pet, idling in royal blue and gold armour"
                 className="relative z-10 h-full w-full animate-[float_4s_ease-in-out_infinite] object-contain [image-rendering:pixelated]"
               />
@@ -472,7 +472,7 @@ function Index() {
                 <div className="relative mb-3 grid aspect-square place-items-center border-2 border-black bg-navy">
                   <div className="dither-pattern absolute inset-0 opacity-10" aria-hidden="true" />
                   <img
-                    src={paladinIdle.url}
+                    src={paladinIdle}
                     alt={`0xPaladino in the ${s.name.toLowerCase()} state`}
                     className="relative z-10 h-4/5 w-4/5 object-contain [image-rendering:pixelated]"
                   />
@@ -506,7 +506,7 @@ function Index() {
                   </div>
                   <div className="mb-3 border-2 border-royal bg-royal/10 p-3 text-center">
                     <img
-                      src={paladinIdle.url}
+                      src={paladinIdle}
                       alt="0xPaladino idling on the phone home screen"
                       className="mx-auto mb-2 size-24 object-contain [image-rendering:pixelated]"
                     />
