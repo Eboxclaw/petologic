@@ -16,7 +16,7 @@ class RealAppConversationTest {
   assertTrue(app.local.ready.value)
   compose.onNodeWithContentDescription("Conversations").performClick()
   compose.onNodeWithText("New conversation").performClick()
-  compose.waitUntil(10000){compose.onAllNodesWithText("Small companion.\nA little more possible.").fetchSemanticsNodes().isNotEmpty()}
+  compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
   val id=app.sessionHub.active.value.sessionId
   val first="Reply with exactly: Blue shield."
   compose.onNodeWithText("What’s on your mind?").performTextInput(first)

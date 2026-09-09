@@ -34,25 +34,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ai.petologic.core.*
 import ai.petologic.paladino.data.NoteRow
 
-internal val Ink=Color(0xFF101511)
-internal val Panel=Color(0xFF1C241D)
-internal val Lime=Color(0xFFC6F279)
-internal val Muted=Color(0xFFADB7AA)
-internal val Cream=Color(0xFFF2F4E8)
-
 class MainActivity:ComponentActivity(){
+ private var openChatRequest by mutableIntStateOf(0)
  override fun onStop(){super.onStop();if(!isChangingConfigurations)(application as PaladinoApplication).sessionHub.onUiHidden()}
  override fun onNewIntent(intent:android.content.Intent){super.onNewIntent(intent);setIntent(intent);openWidgetSession(intent)}
- private fun openWidgetSession(intent:android.content.Intent){intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
+ private fun openWidgetSession(intent:android.content.Intent){if(intent.getBooleanExtra("open_chat",false))openChatRequest++;intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
  override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);openWidgetSession(intent);enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),navigationBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT));setContent{
-  MaterialTheme(colorScheme=darkColorScheme(primary=Lime,onPrimary=Ink,background=Ink,surface=Panel,onSurface=Cream,onBackground=Cream,secondary=Lime)){
-   PaladinoScreen()
+  MaterialTheme(colorScheme=PetColors){
+   PaladinoScreen(openChatRequest=openChatRequest)
   }
  }}
 }
 
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
-@Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel()){
+@Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel(),openChatRequest:Int=0){
  val petApp=androidx.compose.ui.platform.LocalContext.current.applicationContext as PaladinoApplication
  val petPrefs by petApp.tinyPets.state.collectAsStateWithLifecycle()
  val state by vm.ui.collectAsStateWithLifecycle()
@@ -62,6 +57,7 @@ class MainActivity:ComponentActivity(){
  val modelReady by vm.modelReady.collectAsStateWithLifecycle()
  val progress by vm.downloadProgress.collectAsStateWithLifecycle()
  var tab by rememberSaveable{mutableIntStateOf(0)}
+ LaunchedEffect(openChatRequest){if(openChatRequest>0)tab=0}
  val drawer=rememberDrawerState(DrawerValue.Closed)
  val uiScope=rememberCoroutineScope()
  val session by vm.session.collectAsStateWithLifecycle()
@@ -81,14 +77,14 @@ class MainActivity:ComponentActivity(){
    onChat={spriteDraft="";spriteChat=true},onRemember={spriteDraft="Remember that ";spriteChat=true},onOpen={tab=0})
  },bottomBar={
   NavigationBar(containerColor=Ink,tonalElevation=0.dp){
-   listOf("Chat" to Icons.Outlined.ChatBubbleOutline,"Orchestration" to Icons.Outlined.Hub,"Console" to Icons.Outlined.Terminal,"Settings" to Icons.Outlined.Tune).forEachIndexed{i,item->
-    NavigationBarItem(selected=tab==i,onClick={tab=i},icon={Icon(item.second,item.first)},label={Text(item.first)},colors=NavigationBarItemDefaults.colors(selectedIconColor=Ink,indicatorColor=Lime,selectedTextColor=Lime,unselectedTextColor=Muted,unselectedIconColor=Muted))
+   listOf("Chat" to Icons.Outlined.ChatBubbleOutline,"Controls" to Icons.Outlined.Hub,"Console" to Icons.Outlined.Terminal,"Settings" to Icons.Outlined.Tune).forEachIndexed{i,item->
+    NavigationBarItem(selected=tab==i,onClick={tab=i},icon={Icon(item.second,item.first)},label={Text(item.first)},colors=NavigationBarItemDefaults.colors(selectedIconColor=Ink,indicatorColor=Gold,selectedTextColor=Gold,unselectedTextColor=Muted,unselectedIconColor=Muted))
    }
   }
  }){padding->
   Column(Modifier.fillMaxSize().padding(padding).imePadding()){
-   Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=14.dp),verticalAlignment=Alignment.CenterVertically){
-    Box(Modifier.size(9.dp).background(Lime,CircleShape));Spacer(Modifier.width(9.dp))
+   Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){
+    Box(Modifier.size(9.dp).background(Gold,CircleShape));Spacer(Modifier.width(9.dp))
     Text("PETOLOGIC",fontSize=13.sp,fontWeight=FontWeight.Bold,letterSpacing=2.sp)
     Spacer(Modifier.weight(1f));Text("EARLY ACCESS",fontSize=10.sp,letterSpacing=1.sp,color=Muted)
    }
@@ -96,30 +92,34 @@ class MainActivity:ComponentActivity(){
     0->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,"Conversations")}
-      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(40.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
-      Column(Modifier.weight(1f)){Text("Chat",fontSize=if(messages.isEmpty())30.sp else 24.sp,fontWeight=FontWeight.Bold);Text(session.title,color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
+      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(48.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+      Column(Modifier.weight(1f)){Text("Chat",fontSize=24.sp,fontWeight=FontWeight.Bold);Text(session.title,color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
+      IconButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Icon(painterResource(R.drawable.ic_pet_new),"New conversation",tint=Gold)}
+     }
+     Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.SpaceBetween){
+      Text(if(state.mode==ExecutionMode.TINY)"On your phone" else "Cloud · review before sending",color=Muted,fontSize=12.sp,modifier=Modifier.weight(1f))
       Surface(color=Panel,shape=RoundedCornerShape(24.dp)){Row(Modifier.padding(4.dp)){
        ExecutionMode.entries.forEach{mode->
         val selected=mode==state.mode
-        TextButton(onClick={vm.mode(mode)},enabled=!state.busy&&state.action==null&&state.cloud==null,colors=ButtonDefaults.textButtonColors(containerColor=if(selected)Lime else Color.Transparent,contentColor=if(selected)Ink else Muted),contentPadding=PaddingValues(horizontal=12.dp)) {Text(if(mode==ExecutionMode.TINY)"Tiny" else "Maxx",fontWeight=FontWeight.Bold)}
+        TextButton(onClick={vm.mode(mode)},enabled=!state.busy&&state.action==null&&state.cloud==null,colors=ButtonDefaults.textButtonColors(containerColor=if(selected)Gold else Color.Transparent,contentColor=if(selected)Ink else Muted),contentPadding=PaddingValues(horizontal=12.dp)) {Text(if(mode==ExecutionMode.TINY)"Tiny" else "Maxx",fontWeight=FontWeight.Bold)}
        }
       }}
      }
      if(messages.isEmpty()){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
        Spacer(Modifier.height(20.dp))
-       Box(Modifier.fillMaxWidth().height(225.dp).background(Brush.radialGradient(listOf(Color(0xFF35432A),Ink))),contentAlignment=Alignment.Center){
-        if(petPrefs.visible)PaladinoSprite(Modifier.size(210.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+       Box(Modifier.fillMaxWidth().height(112.dp).background(Brush.radialGradient(listOf(Raised,Ink))),contentAlignment=Alignment.Center){
+        if(petPrefs.visible)PaladinoSprite(Modifier.size(104.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
        }
-       Text("Small companion.\nA little more possible.",fontSize=27.sp,lineHeight=33.sp,fontWeight=FontWeight.SemiBold)
+       Text("How can I help?",fontSize=26.sp,lineHeight=32.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))
-       Text("A thought to untangle. A detail to remember.\nI’m right here, on your phone.",fontSize=14.sp,lineHeight=21.sp,color=Muted)
+       Text("Ask a question, make a plan, or save a thought.",fontSize=14.sp,lineHeight=21.sp,color=Muted)
        Spacer(Modifier.height(20.dp))
        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
         SuggestionChip(onClick={draft="Remember that "},label={Text("Remember something",fontSize=12.sp)},icon={Icon(Icons.Outlined.Add,"",Modifier.size(15.dp))})
         SuggestionChip(onClick={draft="Help me plan my day"},label={Text("Make a plan",fontSize=12.sp)})
        }
-       if(!modelReady) TextButton(onClick={tab=3}){Text("Set up your local brain →",color=Lime)}
+       if(!modelReady) TextButton(onClick={tab=3}){Text("Set up offline chat →",color=Gold)}
       }
      }else{
       LazyColumn(Modifier.weight(1f).fillMaxWidth(),state=scroll,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
@@ -127,18 +127,18 @@ class MainActivity:ComponentActivity(){
         val isUser=message.speaker=="user"
         Column(Modifier.fillMaxWidth(),horizontalAlignment=if(isUser)Alignment.End else Alignment.Start){
          Text(if(isUser)"YOU" else "PALADINO · ${message.mode}",color=Muted,fontSize=10.sp,letterSpacing=1.sp,modifier=Modifier.padding(bottom=6.dp))
-         Surface(color=if(isUser)Color(0xFF2D3829) else Panel,shape=RoundedCornerShape(18.dp)){
-          Text(message.text,Modifier.padding(16.dp),fontSize=15.sp,lineHeight=23.sp)
+         Surface(color=if(isUser)Raised else Panel,shape=RoundedCornerShape(18.dp)){
+          androidx.compose.foundation.text.selection.SelectionContainer{Text(message.text,Modifier.padding(16.dp),fontSize=16.sp,lineHeight=24.sp)}
          }
         }
        }
-       if(state.busy)item{Column{Text(if(state.streaming.isBlank())state.status else state.streaming,color=Cream,modifier=Modifier.padding(12.dp));LinearProgressIndicator(Modifier.fillMaxWidth(),color=Lime,trackColor=Panel)}}
+       if(state.busy)item{Column{Text(if(state.streaming.isBlank())state.status else state.streaming,color=Cream,modifier=Modifier.padding(12.dp));LinearProgressIndicator(Modifier.fillMaxWidth(),color=Gold,trackColor=Panel)}}
       }
      }
      Column(Modifier.padding(horizontal=20.dp,vertical=8.dp)){
       if(state.mode==ExecutionMode.MAXX)Text("Cloud mode · you review every request before sending",fontSize=10.sp,color=Muted,modifier=Modifier.padding(bottom=8.dp))
       Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
-       OutlinedTextField(value=draft,onValueChange={draft=it},placeholder={Text("What’s on your mind?",fontSize=14.sp)},modifier=Modifier.weight(1f),shape=RoundedCornerShape(24.dp),maxLines=4,enabled=!state.busy,colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=Color(0xFF384134)))
+       OutlinedTextField(value=draft,onValueChange={draft=it},placeholder={Text("What’s on your mind?",fontSize=14.sp)},modifier=Modifier.weight(1f),shape=RoundedCornerShape(24.dp),maxLines=4,enabled=!state.busy,colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=Color(PetPalette.outline)))
        FilledIconButton(onClick={if(state.busy)vm.cancel() else if(draft.isNotBlank()){vm.send(draft);draft=""}},modifier=Modifier.size(50.dp),enabled=state.busy||draft.isNotBlank()){
         Icon(if(state.busy)Icons.Outlined.Stop else Icons.Outlined.ArrowUpward,if(state.busy)"Stop response" else "Send message")
        }
@@ -161,8 +161,8 @@ class MainActivity:ComponentActivity(){
  state.cloud?.let{pending->AlertDialog(onDismissRequest=vm::denyCloud,title={Text("Let Paladino use Maxx?")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
   Text("${pending.provider.label} · ${pending.model}",fontWeight=FontWeight.Bold)
   Text("This request and Paladino’s instructions will leave your phone. Your private notes and Tiny history are excluded. Up to 512 output tokens; your provider may charge for usage.",color=Muted,modifier=Modifier.padding(vertical=12.dp))
-  Text("REQUEST",fontSize=10.sp,color=Lime);Text(pending.context.user,modifier=Modifier.padding(vertical=8.dp))
-  Text("PALADINO INSTRUCTIONS",fontSize=10.sp,color=Lime);Text(pending.context.system,fontSize=12.sp,color=Muted)
+  Text("REQUEST",fontSize=10.sp,color=Gold);Text(pending.context.user,modifier=Modifier.padding(vertical=8.dp))
+  Text("PALADINO INSTRUCTIONS",fontSize=10.sp,color=Gold);Text(pending.context.system,fontSize=12.sp,color=Muted)
  }},confirmButton={TextButton(onClick=vm::approveCloud){Text("Send to Maxx")}},dismissButton={TextButton(onClick=vm::denyCloud){Text("Keep local")}})}
  if(state.error!=null||state.notice!=null)AlertDialog(onDismissRequest=vm::clearError,title={Text(if(state.error!=null)"A quick heads-up" else "All set")},text={Text(state.error?:state.notice?:"")},confirmButton={TextButton(onClick=vm::clearError){Text("Got it")}})
 }
@@ -174,13 +174,12 @@ class MainActivity:ComponentActivity(){
  var key by remember(state.provider){mutableStateOf("")}
  var model by rememberSaveable(state.provider,state.model){mutableStateOf(state.model)}
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
-  Text("Make yourself at home.",fontSize=30.sp,fontWeight=FontWeight.Bold)
-  Text("Your companion. Your boundaries.",color=Muted)
+  Text("Settings",fontSize=30.sp,fontWeight=FontWeight.Bold)
+  Text("Appearance, models and connections.",color=Muted)
   TinyPetSettings(vm)
   ModelManager(vm)
-  AdvancedSettings(vm)
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-   Row{Icon(Icons.Outlined.Memory,null,tint=Lime);Spacer(Modifier.width(12.dp));Text("Tiny · your local brain",fontWeight=FontWeight.Bold)}
+   Row{Icon(Icons.Outlined.Memory,null,tint=Gold);Spacer(Modifier.width(12.dp));Text("Tiny · your local brain",fontWeight=FontWeight.Bold)}
    Text(status,color=Muted)
    Text("LFM2.5-350M lives on your phone. Download once, then chat offline. Files are verified before installation.",fontSize=13.sp,color=Muted)
    if(progress!=null)LinearProgressIndicator(progress={progress},modifier=Modifier.fillMaxWidth())
@@ -192,19 +191,20 @@ class MainActivity:ComponentActivity(){
    Button(onClick=vm::installSemantic,enabled=!semanticReady&&!semanticInstalling){Text(if(semanticReady)"Semantic memory ready" else if(semanticInstalling)"Downloading…" else "Set up semantic memory · 23 MB")}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-   Row{Icon(Icons.Outlined.CloudQueue,null,tint=Lime);Spacer(Modifier.width(12.dp));Text("Maxx · a little extra reach",fontWeight=FontWeight.Bold)}
+   Row{Icon(Icons.Outlined.CloudQueue,null,tint=Gold);Spacer(Modifier.width(12.dp));Text("Maxx · a little extra reach",fontWeight=FontWeight.Bold)}
    Text("Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider.",fontSize=13.sp,color=Muted)
    Row(horizontalArrangement=Arrangement.spacedBy(4.dp)){CloudProvider.entries.forEach{provider->FilterChip(selected=state.provider==provider,onClick={vm.selectProvider(provider)},enabled=!state.busy&&state.cloud==null&&state.action==null,label={Text(provider.label)})}}
-   Text("API key authentication. OAuth sign-in is not available for this integration.",fontSize=12.sp,color=Muted)
+   Text("API key authentication. Browser sign-in is not connected yet.",fontSize=12.sp,color=Muted)
    TextButton(onClick={uriHandler.openUri(state.provider.keysUrl)}){Text("Manage ${state.provider.label} API keys")}
    if(state.provider==CloudProvider.ZAI)Text("Uses the general Z.ai API, not the Coding Plan endpoint.",fontSize=12.sp,color=Muted)
-   if(state.connected){Text("Key stored securely on this device",color=Lime,fontSize=12.sp);Text(state.model,fontSize=13.sp);OutlinedButton(onClick=vm::disconnect){Text("Disconnect")}}
+   if(state.connected){Text("Key stored securely on this device",color=Gold,fontSize=12.sp);Text(state.model,fontSize=13.sp);OutlinedButton(onClick=vm::disconnect){Text("Disconnect")}}
    else{
     OutlinedTextField(key,{key=it},label={Text("${state.provider.label} API key")},visualTransformation=PasswordVisualTransformation(),singleLine=true,modifier=Modifier.fillMaxWidth())
     OutlinedTextField(model,{model=it},label={Text("Model ID")},placeholder={Text(if(state.provider==CloudProvider.OPENROUTER)"provider/model" else "Exact model ID from your provider")},singleLine=true,modifier=Modifier.fillMaxWidth())
     Button(onClick={vm.connect(key,model.trim());key=""},enabled=key.isNotBlank()&&model.isNotBlank(),modifier=Modifier.fillMaxWidth()){Text("Save connection")}
    }
   }}
+  AdvancedSettings(vm)
   Row(Modifier.padding(vertical=8.dp)){Icon(Icons.Outlined.Shield,null,tint=Muted);Spacer(Modifier.width(12.dp));Text("No account needed for Tiny. No hidden cloud fallback. Private memory stays here.",fontSize=12.sp,color=Muted)}
   Text("0xPaladino 0.1 · Native Android preview\nGoogle companion accelerators are not enabled yet.",fontSize=11.sp,color=Muted,modifier=Modifier.padding(bottom=24.dp))
  }

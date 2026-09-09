@@ -28,7 +28,7 @@ class RealToolConversationTest {
   fun fresh():String{
    compose.onNodeWithContentDescription("Conversations").performClick()
    compose.onNodeWithText("New conversation").performClick()
-   compose.waitUntil(10000){compose.onAllNodesWithText("Small companion.\nA little more possible.").fetchSemanticsNodes().isNotEmpty()}
+   compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
    return app.sessionHub.active.value.sessionId
   }
   fun turn(id:String,request:String,approve:Boolean=false):Pair<String,List<ai.petologic.paladino.data.ExecutionEventRow>>{

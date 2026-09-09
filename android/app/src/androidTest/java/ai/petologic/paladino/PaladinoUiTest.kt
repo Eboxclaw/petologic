@@ -13,7 +13,7 @@ class PaladinoUiTest {
  @Before fun start_with_a_clean_conversation(){
   compose.onNodeWithContentDescription("Conversations").performClick()
   compose.onNodeWithText("New conversation").performClick()
-  compose.waitUntil(10000){compose.onAllNodesWithText("Small companion.\nA little more possible.").fetchSemanticsNodes().isNotEmpty()}
+  compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
  }
  @Test fun save_requires_confirmation_and_memory_can_be_deleted(){
   val note="Emulator notebook ${System.currentTimeMillis()}"
@@ -22,7 +22,7 @@ class PaladinoUiTest {
   compose.waitUntil(10000){compose.onAllNodesWithText("Keep this in memory?").fetchSemanticsNodes().isNotEmpty()}
   compose.onNodeWithText("Save note").performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("Saved to your private memory.").fetchSemanticsNodes().isNotEmpty()}
-  compose.onNodeWithText("Orchestration",useUnmergedTree=true).performClick()
+  compose.onNodeWithText("Controls",useUnmergedTree=true).performClick()
   compose.onNodeWithText("Memory").performClick()
   compose.onNodeWithText(note).assertIsDisplayed()
   compose.onNodeWithTag("delete:"+note).performScrollTo().performClick()
@@ -38,7 +38,7 @@ class PaladinoUiTest {
  @Test fun chat_drawer_creates_an_independent_conversation(){
   compose.onNodeWithContentDescription("Conversations").performClick()
   compose.onNodeWithText("New conversation").performClick()
-  compose.waitUntil(10000){compose.onAllNodesWithText("Small companion.\nA little more possible.").fetchSemanticsNodes().isNotEmpty()}
+  compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
   compose.onNodeWithText("What’s on your mind?").assertIsDisplayed()
   compose.onNodeWithContentDescription("Conversations").assertIsDisplayed()
  }
@@ -53,14 +53,14 @@ class PaladinoUiTest {
  @Test fun sprite_chat_is_saved_in_the_app_conversation(){
   compose.onNodeWithText("Settings",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Quick actions").performClick()
-  compose.onNodeWithText("Ask Paladino").performClick()
+  compose.onNodeWithText("Message Paladino").performClick()
   val request="Find bubblefixture${System.currentTimeMillis()}"
   compose.onNode(hasText("New conversation") and hasAnyAncestor(isDialog())).performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("I’m here. What would you like to do?").fetchSemanticsNodes().isNotEmpty()}
   compose.onNodeWithText("Message Paladino").performTextInput(request)
   compose.onNodeWithText("Send to Paladino").performScrollTo().performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("No matching notes yet. Try a word from the note, or save one with ‘Remember that…’.").fetchSemanticsNodes().isNotEmpty()}
-  compose.onNodeWithText("Open full conversation").performScrollTo().performClick()
+  compose.onNodeWithText("Full conversation").performScrollTo().performClick()
   compose.onNodeWithText(request).assertExists()
  }
 

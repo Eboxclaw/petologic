@@ -96,7 +96,7 @@ import ai.petologic.core.*
   Text("Metadata only. API keys and prompt contents are excluded.",fontSize=12.sp,color=Muted)
   if(events.isEmpty())Text("Run a request to see its steps here.")
   events.forEach{event->Card(Modifier.fillMaxWidth()){Column(Modifier.padding(12.dp)){
-   Text(event.type,fontWeight=FontWeight.Bold,color=Lime)
+   Text(event.type,fontWeight=FontWeight.Bold,color=Gold)
    Text(event.detail,fontSize=12.sp)
    Text(java.time.Instant.ofEpochMilli(event.createdAt).toString(),fontSize=10.sp,color=Muted)
   }}}
@@ -115,7 +115,7 @@ import ai.petologic.core.*
   Text("Already downloaded? Select a file or folder. Exact publisher, model and quantization are verified before reuse. Android hides other apps’ private downloads.",fontSize=13.sp)
   Text("Reuse copies the verified file into Paladino’s storage; it avoids another network download.",fontSize=12.sp,color=Muted)
   Row{TextButton(onClick={filePicker.launch(arrayOf("*/*"))},enabled=progress==null){Text("Use existing file")};TextButton(onClick={folderPicker.launch(null)},enabled=progress==null){Text("Choose folder")}}
-  Text(status,fontSize=12.sp,color=Lime)
+  Text(status,fontSize=12.sp,color=Gold)
   ModelCatalog.artifacts.filter{it.id!="minilm"}.forEach{artifact->
    HorizontalDivider()
    Text(artifact.model+" · "+artifact.quantization,fontWeight=FontWeight.Bold)

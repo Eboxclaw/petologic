@@ -112,9 +112,9 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
    PaladinoSprite(Modifier.fillMaxSize(),animated,"Open Sprite chat")
   }
   Box{
-   FloatingActionButton(onClick={expanded=!expanded},containerColor=androidx.compose.ui.graphics.Color(0xFFE4BB65),contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription="Quick actions"}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
-   DropdownMenu(expanded=expanded,onDismissRequest={expanded=false}){
-    listOf(SpriteAction("ask","Ask Paladino",onChat),SpriteAction("remember","Remember something",onRemember),SpriteAction("open","Open conversation",onOpen)).forEach{action->
+   FloatingActionButton(onClick={expanded=!expanded},containerColor=Gold,contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription="Quick actions"}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
+   DropdownMenu(expanded=expanded,onDismissRequest={expanded=false},containerColor=Panel,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp)){
+    listOf(SpriteAction("ask","Message Paladino",onChat),SpriteAction("remember","Save a note",onRemember),SpriteAction("open","Full conversation",onOpen)).forEach{action->
      DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"remember"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(action.label)},onClick={expanded=false;action.run()})
     }
    }
@@ -132,10 +132,10 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
   Surface(shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),color=Panel){
    Column(Modifier.fillMaxWidth().heightIn(max=520.dp).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
     Row{Text("Paladino",style=MaterialTheme.typography.titleMedium,modifier=Modifier.weight(1f));TextButton(onClick=onDismiss){Text("Close bubble")}}
-    Text(session.title+" · "+(if(state.mode==ai.petologic.core.ExecutionMode.TINY)"Tiny" else "Maxx")+" · "+state.petReaction().label,style=MaterialTheme.typography.labelSmall,color=Lime)
+    Text(session.title+" · "+(if(state.mode==ai.petologic.core.ExecutionMode.TINY)"Tiny" else "Maxx")+" · "+state.petReaction().label,style=MaterialTheme.typography.labelSmall,color=Gold)
     val reply=if(state.busy)state.streaming.ifBlank{state.status}else messages.lastOrNull{it.sessionId==session.id&&it.speaker=="assistant"}?.text?:"I’m here. What would you like to do?"
-    Text(reply,maxLines=6,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-    Row{TextButton(onClick=onOpen){Text("Open full conversation")};TextButton(onClick={vm.hub.create()},enabled=!state.busy){Text("New conversation")}}
+    Text(replyPreview(reply),maxLines=6,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+    Row{TextButton(onClick=onOpen){Text(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation")};TextButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Text("New conversation")}}
     OutlinedTextField(draft,{draft=it},label={Text("Message Paladino")},modifier=Modifier.fillMaxWidth(),maxLines=3,enabled=!state.busy)
     Button(onClick={if(state.busy)vm.cancel()else{vm.send(draft);draft=""}},enabled=state.busy||draft.isNotBlank(),modifier=Modifier.fillMaxWidth()){
      Text(if(state.busy)"Stop response" else "Send to Paladino")

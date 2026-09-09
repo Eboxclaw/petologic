@@ -52,8 +52,8 @@ const ARP: Array<[number, number]> = [
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
 // Public binary distribution; source code remains in the private application repository.
-const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.1-preview";
-const APK_URL = `${APK_RELEASE}/petologic-0.1.1-preview-arm64.apk`;
+const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.2-preview";
+const APK_URL = `${APK_RELEASE}/petologic-0.1.2-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
@@ -297,7 +297,7 @@ function Index() {
             </div>
 
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Android 12+ · ARM64 · 0.1.1 preview · local model downloads separately (229 MB)
+              Android 12+ · ARM64 · 0.1.2 preview · local model downloads separately (229 MB)
             </p>
             <details className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-white/60">
               <summary className="cursor-pointer text-cyan">Installation steps and checksum</summary>

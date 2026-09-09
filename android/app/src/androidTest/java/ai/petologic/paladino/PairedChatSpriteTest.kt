@@ -33,7 +33,7 @@ class PairedChatSpriteTest {
    for(surface in listOf("app","sprite")){
     if(surface=="app"){
      compose.onNodeWithContentDescription("Conversations").performClick();compose.onNodeWithText("New conversation").performClick()
-     compose.waitUntil(10000){compose.onAllNodesWithText("Small companion.\nA little more possible.").fetchSemanticsNodes().isNotEmpty()}
+     compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
     }else{
      shell("appops set ai.petologic.paladino SYSTEM_ALERT_WINDOW allow")
      shell("pm grant ai.petologic.paladino android.permission.POST_NOTIFICATIONS")
@@ -61,7 +61,7 @@ class PairedChatSpriteTest {
       while(true){
        val state=controller.ui.value
        if(state.action!=null&&!approved&&!unexpectedApproval){
-        if(surface=="sprite"){device.findObject(By.text("Open app")).click();assertTrue(device.wait(Until.hasObject(By.text("Save note")),10000))}
+        if(surface=="sprite"){device.findObject(By.text("Open to approve")).click();assertTrue(device.wait(Until.hasObject(By.text("Save note")),10000))}
         if(index==3){compose.onNodeWithText("Save note").performClick();approved=true}
         else{unexpectedApproval=true;compose.runOnUiThread{controller.denyAction()}}
        }

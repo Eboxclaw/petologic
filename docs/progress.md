@@ -43,3 +43,7 @@ Thinking WebP ligado ao estado real, notificações opcionais sem bloquear overl
 OpenAI/Z.ai API-key integration added with isolated encrypted storage and provider-bound consent. OAuth and live cloud validation remain pending. Signed ARM64 0.1.1-preview APK installed and launched on a clean emulator; the website source now links to a separate public binary release, keeping source private. [Release record](releases/0.1.1-preview.md). Physical-device testing, signed upgrades, sprite alpha cleanup and the listed UI improvements remain open.
 
 Vercel blocked the production deployment. The APK is publicly downloadable and checksum-verified, but the live website update awaits authenticated Vercel access.
+
+## 2026-09-09 — visual iteration 0.1.2
+
+Implemented the researched [app/Sprite visual plan](plans/05-app-sprite-visual-improvements.md): shared navy/gold palette, more compact Chat, readable messages, new-session header action, clearer menus and correct overlay-to-Chat navigation. 36 JVM + 9 instrumented tests passed, including 10 paired real-model interactions. Signed 0.1.1→0.1.2 update preserved the test session. [Release and evidence](releases/0.1.2-preview.md). Full localization, rich Markdown, physical accessibility checks and sprite alpha cleanup remain open.
