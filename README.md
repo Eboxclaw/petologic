@@ -1,6 +1,5 @@
 # Petologic: Smart Companion
 
-make the web landing page for Petologic
 
 tiny inteligence inside your phone
 
