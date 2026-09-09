@@ -81,7 +81,7 @@ import ai.petologic.core.*
     Text("Private notes and Tiny history are excluded from Maxx. Unsupported tool calls cannot grant access.",color=Muted)
    }
    "Skills & MCPs"->Text("External skills and MCP servers are not connected in this preview. The bundled Paladino manifest allows only the implemented note tools. Future packages must declare their tools and permissions before activation.")
-   "Integrations"->Text("OpenRouter is available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default.")
+   "Integrations"->Text("OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default.")
   }
  }
 }

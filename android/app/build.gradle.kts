@@ -7,9 +7,9 @@ android {
  compileSdk = 36
  defaultConfig {
   applicationId = "ai.petologic.paladino"
-  minSdk = 31; targetSdk = 36; versionCode = 1; versionName = "0.1.0"
+  minSdk = 31; targetSdk = 36; versionCode = 2; versionName = "0.1.1-preview"
   testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-  ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+  ndk { abiFilters += (providers.gradleProperty("paladinoAbi").orNull?.let { listOf(it) } ?: listOf("arm64-v8a", "x86_64")) }
   externalNativeBuild { cmake { cppFlags += "-std=c++17"; arguments += listOf("-DANDROID_STL=c++_shared") } }
  }
  ndkVersion = "28.2.13676358"

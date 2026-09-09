@@ -32,6 +32,7 @@ class PaladinoViewModel(application:Application):AndroidViewModel(application){
  fun clearError()=current.clearError()
  fun install()=current.install()
  fun installSemantic()=current.installSemantic()
+ fun selectProvider(provider:ai.petologic.paladino.runtime.CloudProvider)=current.selectProvider(provider)
  fun connect(key:String,model:String)=current.connect(key,model)
  fun disconnect()=current.disconnect()
  fun approveCloud()=current.approveCloud()

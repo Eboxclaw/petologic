@@ -41,9 +41,9 @@ class RoutePolicy {
 fun digest(value: String): String = MessageDigest.getInstance("SHA-256").digest(value.toByteArray()).joinToString("") { "%02x".format(it) }
 
 /** Consent is bound to the exact final payload and provider, never merely a mode toggle. */
-data class CloudConsent(val payloadDigest: String, val providerModel: String, val expiresAt: Instant) {
- fun permits(payload: ContextEnvelope, model: String, now: Instant): Boolean =
-  payload.digest == payloadDigest && model == providerModel && now.isBefore(expiresAt)
+data class CloudConsent(val payloadDigest: String, val providerModel: String, val expiresAt: Instant, val providerId: String = "openrouter") {
+ fun permits(payload: ContextEnvelope, model: String, now: Instant, provider: String = "openrouter"): Boolean =
+  provider == providerId && payload.digest == payloadDigest && model == providerModel && now.isBefore(expiresAt)
 }
 
 class ContextBroker(private val persona: String, private val maxInputBytes: Int = 11_000) {

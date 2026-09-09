@@ -51,9 +51,9 @@ const ARP: Array<[number, number]> = [
 
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
-// Drop the Android build link here (a URL, or /petologic.apk after placing the
-// file in public/). While empty, the install button routes to the waitlist.
-const APK_URL = "";
+// Public binary distribution; source code remains in the private application repository.
+const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.1-preview";
+const APK_URL = `${APK_RELEASE}/petologic-0.1.1-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
@@ -270,22 +270,22 @@ function Index() {
               Tiny <span className="text-gold">intelligence</span> pets, living in your phone.
             </h1>
             <p className="mb-6 max-w-md text-base leading-relaxed text-white/70 sm:text-lg">
-              Petologic is a tiny intelligence infrastructure built on top of Android. Create and run
-              specialized pets that can do anything for you, always inside your boundaries.
+              Petologic is a tiny intelligence infrastructure built on top of Android. Start with 0xPaladino:
+              local chat, private notes and an animated companion, inside your boundaries.
             </p>
 
             <ul className="mb-10 space-y-2 font-mono text-xs text-white/50">
-              <li><span className="text-cyan">&gt;</span> Runs on your device NPU, offline by default</li>
+              <li><span className="text-cyan">&gt;</span> Runs locally on Android, offline after setup</li>
               <li><span className="text-cyan">&gt;</span> Every action logged in your quest log</li>
               <li><span className="text-cyan">&gt;</span> Cloud models are a summon, never a leash</li>
             </ul>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <a
-                href={APK_URL || "#waitlist"}
-                {...(APK_URL ? { download: "petologic.apk", rel: "noopener" } : {})}
+                href={APK_URL}
+                rel="noopener"
                 className="pixel-border-gold group bg-royal px-6 py-4 text-center font-display text-xs tracking-wide transition-all hover:bg-royal/90 active:translate-y-1 sm:px-8 sm:text-sm"
               >
-                {APK_URL ? "DOWNLOAD APK" : "INSTALL ON ANDROID"}{" "}
+                DOWNLOAD APK{" "}
                 <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
               </a>
               <a
@@ -297,10 +297,19 @@ function Index() {
             </div>
 
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              {APK_URL
-                ? "Android 10+ / sideload build / enable install from unknown sources"
-                : "Android build not released yet. Join the waitlist to get the APK first."}
+              Android 12+ · ARM64 · 0.1.1 preview · local model downloads separately (229 MB)
             </p>
+            <details className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-white/60">
+              <summary className="cursor-pointer text-cyan">Installation steps and checksum</summary>
+              <ol className="mt-3 list-decimal space-y-2 pl-5">
+                <li>Download the preview APK on your Android phone and open it.</li>
+                <li>If Android asks, allow this browser to install apps, then confirm installation.</li>
+                <li>Open Paladino and download or import the local model in Settings.</li>
+                <li>To float over other apps, enable the Sprite and grant display-over-apps access.</li>
+              </ol>
+              <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
+              <a className="mt-3 inline-block text-cyan underline" href={`${APK_RELEASE}/SHA256SUMS.txt`}>Verify SHA-256 checksum</a>
+            </details>
           </div>
 
 
@@ -544,10 +553,10 @@ function Index() {
             </h2>
             <ul className="space-y-8">
               {[
-                ["SPAWN SPECIALIZED PETS", "Breed a pet for every job. One guards your messages, one tames your calendar, one hunts spam. Each runs its own tiny brain."],
+                ["SPAWN SPECIALIZED PETS", "0xPaladino is the only launch pet. Future roles will share the same local model rather than download a separate brain."],
                 ["SET THE BOUNDARIES", "You draw the fence. Pets act only inside the permissions you grant, and every action lands in the quest log."],
-                ["RUNS ON YOUR HARDWARE", "Native to Android, powered by your device NPU. Pets keep working offline when the signal drops."],
-                ["LEVEL THEM UP", "Pets learn your habits and gain skills over time. Train a party that knows exactly how you like things done."],
+                ["RUNS ON YOUR HARDWARE", "Native to Android. Tiny runs locally on your phone after model setup, even when the signal drops."],
+                ["LEVEL THEM UP", "Start with conversations and private notes. More skills and roles are planned; this preview does not train model weights."],
               ].map(([title, body], i) => (
                 <li key={title} className="reveal flex gap-4">
                   <div className="pixel-border mt-1 grid size-10 shrink-0 place-items-center bg-royal font-display text-xs">
@@ -568,9 +577,9 @@ function Index() {
       <section id="modules" className="border-b-4 border-black bg-navy px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
           {[
-            { n: "01", t: "LOCAL BRAIN", c: "royal", b: "Runs entirely on your device NPU. Your data never leaves the hardware. Zero latency, total control." },
-            { n: "02", t: "TOOL USE", c: "gold", b: "Pets navigate apps, set reminders, and manage notifications with high precision intent parsing." },
-            { n: "03", t: "CLOUD RELAY", c: "cyan", b: "Reach for Claude, GPT, or OpenRouter only when you need massive compute. You choose the link." },
+            { n: "01", t: "LOCAL BRAIN", c: "royal", b: "LFM2.5-350M runs locally in Tiny after setup. Cloud requests require your review and a connected provider." },
+            { n: "02", t: "TOOL USE", c: "gold", b: "Paladino can search private notes and propose saving a note for your approval. More tools are planned." },
+            { n: "03", t: "CLOUD RELAY", c: "cyan", b: "Connect OpenRouter, OpenAI or Z.ai with your API key for Maxx text replies. Browser sign-in is still planned." },
           ].map((m) => (
             <div
               key={m.n}

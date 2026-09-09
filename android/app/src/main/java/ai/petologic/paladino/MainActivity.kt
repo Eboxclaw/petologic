@@ -1,5 +1,7 @@
 package ai.petologic.paladino
 
+import ai.petologic.paladino.runtime.CloudProvider
+
 import android.os.Bundle
 import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
@@ -157,7 +159,7 @@ class MainActivity:ComponentActivity(){
   Spacer(Modifier.height(12.dp));Text("This action happens only on your phone.",color=Muted,fontSize=12.sp)
  }},confirmButton={TextButton(onClick=vm::approveAction){Text(if(action.tool=="notes.create")"Save note" else "Delete note")}},dismissButton={TextButton(onClick=vm::denyAction){Text("Cancel")}})}
  state.cloud?.let{pending->AlertDialog(onDismissRequest=vm::denyCloud,title={Text("Let Paladino use Maxx?")},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
-  Text("OpenRouter · ${pending.model}",fontWeight=FontWeight.Bold)
+  Text("${pending.provider.label} · ${pending.model}",fontWeight=FontWeight.Bold)
   Text("This request and Paladino’s instructions will leave your phone. Your private notes and Tiny history are excluded. Up to 512 output tokens; your provider may charge for usage.",color=Muted,modifier=Modifier.padding(vertical=12.dp))
   Text("REQUEST",fontSize=10.sp,color=Lime);Text(pending.context.user,modifier=Modifier.padding(vertical=8.dp))
   Text("PALADINO INSTRUCTIONS",fontSize=10.sp,color=Lime);Text(pending.context.system,fontSize=12.sp,color=Muted)
@@ -168,8 +170,9 @@ class MainActivity:ComponentActivity(){
 @Composable private fun Settings(state:PaladinoUiState,status:String,ready:Boolean,progress:Float?,vm:PaladinoViewModel){
  val semanticReady by vm.semanticReady.collectAsStateWithLifecycle()
  val semanticInstalling by vm.semanticInstalling.collectAsStateWithLifecycle()
- var key by remember{mutableStateOf("")}
- var model by rememberSaveable(state.model){mutableStateOf(state.model)}
+ val uriHandler=androidx.compose.ui.platform.LocalUriHandler.current
+ var key by remember(state.provider){mutableStateOf("")}
+ var model by rememberSaveable(state.provider,state.model){mutableStateOf(state.model)}
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
   Text("Make yourself at home.",fontSize=30.sp,fontWeight=FontWeight.Bold)
   Text("Your companion. Your boundaries.",color=Muted)
@@ -190,11 +193,15 @@ class MainActivity:ComponentActivity(){
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Row{Icon(Icons.Outlined.CloudQueue,null,tint=Lime);Spacer(Modifier.width(12.dp));Text("Maxx · a little extra reach",fontWeight=FontWeight.Bold)}
-   Text("Connect your OpenRouter key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider.",fontSize=13.sp,color=Muted)
+   Text("Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider.",fontSize=13.sp,color=Muted)
+   Row(horizontalArrangement=Arrangement.spacedBy(4.dp)){CloudProvider.entries.forEach{provider->FilterChip(selected=state.provider==provider,onClick={vm.selectProvider(provider)},enabled=!state.busy&&state.cloud==null&&state.action==null,label={Text(provider.label)})}}
+   Text("API key authentication. OAuth sign-in is not available for this integration.",fontSize=12.sp,color=Muted)
+   TextButton(onClick={uriHandler.openUri(state.provider.keysUrl)}){Text("Manage ${state.provider.label} API keys")}
+   if(state.provider==CloudProvider.ZAI)Text("Uses the general Z.ai API, not the Coding Plan endpoint.",fontSize=12.sp,color=Muted)
    if(state.connected){Text("Key stored securely on this device",color=Lime,fontSize=12.sp);Text(state.model,fontSize=13.sp);OutlinedButton(onClick=vm::disconnect){Text("Disconnect")}}
    else{
-    OutlinedTextField(key,{key=it},label={Text("OpenRouter API key")},visualTransformation=PasswordVisualTransformation(),singleLine=true,modifier=Modifier.fillMaxWidth())
-    OutlinedTextField(model,{model=it},label={Text("Model ID")},placeholder={Text("provider/model")},singleLine=true,modifier=Modifier.fillMaxWidth())
+    OutlinedTextField(key,{key=it},label={Text("${state.provider.label} API key")},visualTransformation=PasswordVisualTransformation(),singleLine=true,modifier=Modifier.fillMaxWidth())
+    OutlinedTextField(model,{model=it},label={Text("Model ID")},placeholder={Text(if(state.provider==CloudProvider.OPENROUTER)"provider/model" else "Exact model ID from your provider")},singleLine=true,modifier=Modifier.fillMaxWidth())
     Button(onClick={vm.connect(key,model.trim());key=""},enabled=key.isNotBlank()&&model.isNotBlank(),modifier=Modifier.fillMaxWidth()){Text("Save connection")}
    }
   }}

@@ -1,0 +1,11 @@
+
+ai.petologic.paladino.PairedChatSpriteTest:.
+ai.petologic.paladino.RealToolConversationTest:.
+ai.petologic.paladino.ProviderCredentialTest:.
+ai.petologic.paladino.ProviderUiInspectionTest:.
+
+Time: 83.734
+
+OK (4 tests)
+
+

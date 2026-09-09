@@ -11,6 +11,11 @@ class NoteToolProtocolTest {
   assertEquals("notes_save" to "safira 742",parseNoteToolCall("""<|tool_call_start|>[notes_save(argument="safira 742")]<|tool_call_end|>"""))
   assertEquals("notes_search" to "bike",parseNoteToolCall("""[notes_search(argument='bike')]"""))
  }
+ @Test fun bare_typed_call_is_data_not_executable_code(){
+  assertTrue(looksLikeToolCall("notes_search(\"safira 742\")"))
+  assertEquals("notes_search" to "safira 742",parseNoteToolCall("notes_search(\"safira 742\")"))
+  listOf("notes_search(other())","notes_search(\"x\"); notes_save(\"y\")","notes_search(\"x\", \"y\")").forEach{assertTrue(runCatching{parseNoteToolCall(it)}.isFailure)}
+ }
  @Test fun malformed_or_unauthorized_calls_never_parse(){
   listOf(
    """{"name":"shell","arguments":{"argument":"id"}}""",

@@ -34,12 +34,13 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
   options:SessionOptions=SessionOptions(),tools:AgentTools=AgentTools(),
   onEvent:suspend(String,String)->Unit={_,_->},onText:(String)->Unit):String=withTimeout(options.validate().totalTimeoutSeconds*1000L) {
   val budget=LoopBudget(options)
+  var searchPerformed=false
   val registry=ToolRegistry {
    if(mode==ExecutionMode.TINY&&options.toolCalls){
     if(options.memoryRead&&tools.search!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
      override suspend fun execute(args:NoteToolArgs):String {
       budget.tool("notes_search",args.argument);onEvent("tool_call","notes_search #${budget.calls}")
-      return tools.search.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("notes_search",it);onEvent("tool_result","notes_search returned ${it.length} characters")}
+      return tools.search.invoke(args.argument).take(4000).also{searchPerformed=true;toolResultObserver?.invoke("notes_search",it);onEvent("tool_result","notes_search returned ${it.length} characters")}
      }
     })
     if(options.memoryWrite&&tools.save!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
@@ -56,14 +57,16 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
     budget.hop();onEvent("hop","Model turn ${budget.hops}/${options.maxHops}")
     if(mode==ExecutionMode.MAXX){
      check(options.network){"Network is disabled for this session."}
-     val text=checkNotNull(cloud).generate(context,modelId,checkNotNull(credentials?.read()){"Connect OpenRouter first."},checkNotNull(consent){"Review this cloud request first."},onText)
+     val grant=checkNotNull(consent){"Review this cloud request first."}
+     val provider=CloudProvider.fromId(grant.providerId)
+     val text=checkNotNull(cloud).generate(context,modelId,checkNotNull(credentials?.read(provider)){"Connect ${provider.label} first."},grant,provider,onText)
      return Message.Assistant(text,metaInfo=ResponseMetaInfo.create(KoogClock.System))
     }
     val definitions=buildJsonArray{tools.forEach{descriptor->add(buildJsonObject{
      put("name",descriptor.name);put("description",descriptor.description)
      put("parameters",buildJsonObject{put("type","object");put("properties",buildJsonObject{put("argument",buildJsonObject{put("type","string")})});put("required",buildJsonArray{add("argument")})})
     })}}
-    val toolInstructions=if(tools.isEmpty())"" else "\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
+    val toolInstructions=if(tools.isEmpty())"" else "\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. When the current request explicitly asks to search notes, you must call notes_search now even if the answer appears in the conversation history. History is not a new search result. Never say a search was performed unless its tool result exists in this turn. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
     val system=context.system+"\nSession instructions: "+options.instructions+toolInstructions
     val turns=context.history+prompt.messages.filterNot{it is Message.System}.flatMap{message->message.parts.mapNotNull{part->when(part){
      is MessagePart.Text->ChatTurn(if(message is Message.Assistant)"assistant" else "user",part.text)
@@ -76,10 +79,17 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
     check((system+transcript).toByteArray().size<hardBytes){"Session context is full. Start a new session or compress its history before continuing."}
     suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(local).generate(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,if(repair)turns+ChatTurn("user",user) else turns){text->if(tools.isEmpty())onText(text)}}
     var result=generate(transcript).also{responseObserver?.invoke(it)}
+    val freshSearchRequired=requiresFreshNoteSearch(context.user)&&tools.any{it.name=="notes_search"}&&!searchPerformed
+    if(freshSearchRequired&&!looksLikeToolCall(result)){
+     check(repairs++<options.maxRetries){"A fresh note search was requested but not performed. No search result is available."}
+     budget.hop();onEvent("repair","Requested search has no tool result; requesting a real call")
+     result=generate("No notes_search has run in this turn. Call notes_search now with a concise search query. Return only the tool call; no prose. Conversation history is not a search result.",true).also{responseObserver?.invoke(it)}
+    }
     if(looksLikeToolCall(result)&&tools.isNotEmpty()){
      while(true){
       val call=runCatching{parseNoteToolCall(result)}.getOrNull()
       if(call!=null){
+       check(!freshSearchRequired||call.first=="notes_search"){"A note search was requested; no other action was authorized."}
        check(tools.any{it.name==call.first}){"The model requested a tool that this session cannot use."}
        return Message.Assistant(parts=listOf(MessagePart.Tool.Call(UUID.randomUUID().toString(),call.first,buildJsonObject{put("argument",call.second)})),metaInfo=ResponseMetaInfo.create(KoogClock.System))
       }
@@ -89,6 +99,7 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
       if(!looksLikeToolCall(result))break
      }
     }
+    check(!freshSearchRequired){"The model did not perform the requested note search. Please try again."}
     onText(result)
     return Message.Assistant(result,metaInfo=ResponseMetaInfo.create(KoogClock.System))
    }
@@ -116,4 +127,12 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
   val agent=AIAgent(strategy=strategy,promptExecutor=executor,llmModel=model,toolRegistry=registry,systemPrompt=context.system,maxIterations=options.maxHops*3+6)
   try{agent.run(context.user)}finally{agent.close()}
  }
+}
+
+/** Conservative explicit retrieval intent; mentions and negated requests do not trigger it. */
+internal fun requiresFreshNoteSearch(request:String):Boolean {
+ val text=request.trim().lowercase()
+ return Regex("^(consulta|pesquisa|procura|search|look up|use)\\b").containsMatchIn(text)&&
+  Regex("\\b(notas|notes)\\b").containsMatchIn(text)&&
+  !Regex("\\b(sem|without|não|not)\\b|don't").containsMatchIn(text)
 }

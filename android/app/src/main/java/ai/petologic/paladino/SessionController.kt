@@ -1,5 +1,6 @@
 package ai.petologic.paladino
 
+import ai.petologic.paladino.runtime.CloudProvider
 import android.app.Application
 import android.content.Context
 
@@ -11,11 +12,11 @@ import kotlinx.coroutines.flow.*
 import java.time.Instant
 import java.util.UUID
 
-data class PendingCloud(val context:ContextEnvelope,val model:String)
+data class PendingCloud(val context:ContextEnvelope,val model:String,val provider:CloudProvider=CloudProvider.OPENROUTER)
 data class PaladinoUiState(
  val mode:ExecutionMode=ExecutionMode.TINY,val busy:Boolean=false,val status:String="At your side.",
  val streaming:String="",val error:String?=null,val action:ActionProposal?=null,
- val cloud:PendingCloud?=null,val connected:Boolean=false,val model:String="",val notice:String?=null
+ val provider:CloudProvider=CloudProvider.OPENROUTER,val cloud:PendingCloud?=null,val connected:Boolean=false,val model:String="",val notice:String?=null
 )
 class SessionController(private val app:PaladinoApplication,val sessionId:String){
  private val scope=CoroutineScope(SupervisorJob(app.scope.coroutineContext[Job])+Dispatchers.Main.immediate)
@@ -26,9 +27,12 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private val prefs=app.getSharedPreferences("preferences",Context.MODE_PRIVATE)
  private val policy=ApprovalPolicy()
  private val manifest=PaladinoManifest.parse(app.assets.open("paladino/manifest.yaml").bufferedReader().use{it.readText()})
+ private val englishGreetingBroker=ContextBroker(app.assets.open("paladino/greeting_en.md").bufferedReader().use{it.readText()})
  private val greetingBroker=ContextBroker(app.assets.open("paladino/greeting.md").bufferedReader().use{it.readText()})
  private val broker=ContextBroker(app.assets.open(manifest.personaRef).bufferedReader().use{it.readText()})
- val ui=MutableStateFlow(PaladinoUiState(connected=app.credentials.read()!=null,model=prefs.getString("model","")?:""))
+ private val initialProvider=runCatching{CloudProvider.fromId(prefs.getString("cloud_provider","openrouter")!!)}.getOrDefault(CloudProvider.OPENROUTER)
+ private fun modelSlot(provider:CloudProvider)=if(provider==CloudProvider.OPENROUTER)"model" else "model.${provider.id}"
+ val ui=MutableStateFlow(PaladinoUiState(provider=initialProvider,connected=app.credentials.read(initialProvider)!=null,model=prefs.getString(modelSlot(initialProvider),"")?:""))
  val messages=app.memory.dao.messages(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
  val notes=app.memory.dao.observeNotes(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
  val modelStatus=app.local.status
@@ -48,11 +52,18 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  suspend fun log(type:String,detail:String){app.memory.dao.event(ExecutionEventRow(UUID.randomUUID().toString(),sessionId,activeTaskId?:"session",type,detail.take(1000)))}
  fun clearError(){ui.update{it.copy(error=null,notice=null)}}
  fun install(){if(downloadProgress.value!=null)return;scope.launch{try{app.local.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Download failed. Retry in Settings.")}}}}
+ fun selectProvider(provider:CloudProvider){
+  if(ui.value.busy||ui.value.cloud!=null||ui.value.action!=null)return
+  prefs.edit().putString("cloud_provider",provider.id).apply()
+  ui.update{it.copy(provider=provider,connected=app.credentials.read(provider)!=null,model=prefs.getString(modelSlot(provider),"")?:"",error=null,notice=null)}
+ }
  fun connect(key:String,model:String){
-  try{require(model.matches(Regex("[A-Za-z0-9._:-]+/[A-Za-z0-9._:/-]+"))){"Enter an OpenRouter model ID, such as provider/model."};app.credentials.save(key.trim());prefs.edit().putString("model",model).apply();ui.update{it.copy(connected=true,model=model,notice="Key saved securely. The first Maxx request will validate access.")}}
+  val provider=ui.value.provider
+  if(ui.value.busy||ui.value.cloud!=null)return
+  try{require(provider.validModel(model)){"Enter a valid ${provider.label} model ID."};app.credentials.save(key.trim(),provider);prefs.edit().putString(modelSlot(provider),model).apply();ui.update{it.copy(connected=true,model=model,notice="Key saved securely. Send a Maxx message to validate access after reviewing the request.")}}
   catch(e:Exception){ui.update{it.copy(error=e.message?:"Could not save the connection.")}}
  }
- fun disconnect(){cancel();app.credentials.disconnect();ui.update{it.copy(connected=false,cloud=null,notice="Disconnected on this device. You can revoke the key in OpenRouter.")}}
+ fun disconnect(){val provider=ui.value.provider;cancel();app.credentials.disconnect(provider);ui.update{it.copy(connected=false,cloud=null,notice="Disconnected on this device. Revoke the key in ${provider.label} to invalidate it elsewhere.")}}
  fun send(input:String){
   if(ui.value.busy || ui.value.action!=null || ui.value.cloud!=null)return
   val request=input.trim();if(request.isEmpty())return
@@ -76,11 +87,12 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
       val found=if(options.value.memoryRead&&!options.value.toolCalls)app.memory.search(request,sessionId)else emptyList()
       val history=app.memory.dao.recentMessages(sessionId).reversed().dropLast(1).map{ChatTurn(it.speaker,it.text)}
       val simpleGreeting=RoutePolicy().isSimpleGreeting(request)
-      val context=(if(simpleGreeting)greetingBroker else broker).build(request,mode,found,if(simpleGreeting)emptyList()else history)
+      val englishGreeting=simpleGreeting&&Regex("(?i)^(hello|hi|hey|good morning|good afternoon|good evening)\\b").containsMatchIn(request)
+      val context=(if(englishGreeting)englishGreetingBroker else if(simpleGreeting)greetingBroker else broker).build(request,mode,found,if(simpleGreeting)emptyList()else history)
       if(mode==ExecutionMode.MAXX){
        check(options.value.network){"Network is disabled for this session."}
-       check(app.credentials.read()!=null){"Connect OpenRouter in Settings to use Maxx. Tiny remains available offline."}
-       ui.update{it.copy(cloud=PendingCloud(context,prefs.getString("model","")?:""),status="Review what leaves your phone.")}
+       check(app.credentials.read(ui.value.provider)!=null){"Connect ${ui.value.provider.label} in Settings to use Maxx. Tiny remains available offline."}
+       ui.update{it.copy(cloud=PendingCloud(context,ui.value.model,ui.value.provider),status="Review what leaves your phone.")}
       }else generate(context,mode,ui.value.model,null)
      }
     }
@@ -109,7 +121,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  fun approveCloud(){
   val pending=ui.value.cloud?:return
   ui.update{it.copy(cloud=null,busy=true,error=null)}
-  task=scope.launch{try{check(options.value.network){"Network permission was revoked."};generate(pending.context,ExecutionMode.MAXX,pending.model,CloudConsent(pending.context.digest,pending.model,Instant.now().plusSeconds(300)));finishTask("COMPLETED")}catch(e:CancellationException){withContext(NonCancellable){finishTask("CANCELLED")};throw e}catch(e:Exception){finishTask("FAILED");ui.update{it.copy(error=e.message?:"Cloud request failed.")}}finally{ui.update{it.copy(busy=false,streaming="",status="At your side.")}}}
+  task=scope.launch{try{check(options.value.network){"Network permission was revoked."};generate(pending.context,ExecutionMode.MAXX,pending.model,CloudConsent(pending.context.digest,pending.model,Instant.now().plusSeconds(300),pending.provider.id));finishTask("COMPLETED")}catch(e:CancellationException){withContext(NonCancellable){finishTask("CANCELLED")};throw e}catch(e:Exception){finishTask("FAILED");ui.update{it.copy(error=e.message?:"Cloud request failed.")}}finally{ui.update{it.copy(busy=false,streaming="",status="At your side.")}}}
  }
  fun denyCloud(){val id=activeTaskId;scope.launch{id?.let{app.memory.dao.taskStatus(it,"CANCELLED")}};ui.update{it.copy(cloud=null,status="Nothing was sent to the cloud.")}}
  fun deleteNote(note:NoteRow){if(ui.value.busy||ui.value.action!=null||ui.value.cloud!=null)return;activeTaskId=null;scope.launch{val p=policy.propose("notes.delete",note.id);app.memory.propose(p,sessionId);ui.update{it.copy(action=p)}}}

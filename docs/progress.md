@@ -34,3 +34,10 @@ Rebuilt APK passed 19 JVM and 15 device tests, including actual model replies th
 ## 2026-09-08 — idle/thinking e integração com main
 
 Thinking WebP ligado ao estado real, notificações opcionais sem bloquear overlay, pesquisa Android e estado documentados. 27 JVM + 16 Android passaram; lint, APK e build web passaram. Ver [ponto de situação](STATUS-2026-09-08.md). Transparência dos assets e validação física continuam pendentes.
+
+
+## 2026-09-09 — paired Chat/Sprite validation and public APK
+
+35 JVM tests, lint, debug/release builds and 4 focused Android instrumentation tests passed. The same five real Tiny prompts passed in Chat and Sprite after fixing English greetings and requiring a real note-search result instead of accepting a claim based on history. [Results and UI improvements](reviews/2026-09-09-chat-sprite-test.md).
+
+OpenAI/Z.ai API-key integration added with isolated encrypted storage and provider-bound consent. OAuth and live cloud validation remain pending. Signed ARM64 0.1.1-preview APK installed and launched on a clean emulator; the website now links to a separate public binary release, keeping source private. [Release record](releases/0.1.1-preview.md). Physical-device testing, signed upgrades, sprite alpha cleanup and the listed UI improvements remain open.

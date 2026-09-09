@@ -1,7 +1,7 @@
 package ai.petologic.paladino.runtime
 import kotlinx.serialization.json.*
 
-internal fun looksLikeToolCall(raw:String):Boolean = raw.trimStart().let{it.startsWith("{")||it.startsWith("[")||it.startsWith("```")||it.contains("<|tool_call_start|>")}
+internal fun looksLikeToolCall(raw:String):Boolean = raw.trimStart().let{it.startsWith("{")||it.startsWith("[")||it.startsWith("```")||it.contains("<|tool_call_start|>")||it.startsWith("notes_search(")||it.startsWith("notes_save(")}
 /** Strict data parser; never evaluates Python, arbitrary functions or trailing prose. */
 internal fun parseNoteToolCall(raw:String):Pair<String,String>{
  var text=raw.trim()
@@ -13,7 +13,8 @@ internal fun parseNoteToolCall(raw:String):Pair<String,String>{
  if(text.startsWith("```json\n")&&text.endsWith("```"))text=text.removePrefix("```json\n").removeSuffix("```").trim()
  // LFM's documented default is a Pythonic list. Parse only our two typed
  // functions with one string literal; never evaluate expressions or Python code.
- val pythonCall=Regex("""^\[(notes_save|notes_search)\(argument\s*=\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\)\]$""",RegexOption.DOT_MATCHES_ALL).matchEntire(text)
+ val candidate=if(text.startsWith("[")&&text.endsWith("]"))text.substring(1,text.length-1).trim()else text
+ val pythonCall=Regex("""^(notes_save|notes_search)\((?:argument\s*=\s*)?("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\)$""",RegexOption.DOT_MATCHES_ALL).matchEntire(candidate)
  if(pythonCall!=null){
   val value=decodeToolString(pythonCall.groupValues[2])
   require(value.isNotBlank()&&value.length<=12000)
