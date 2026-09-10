@@ -64,6 +64,7 @@ class ModelLibrary(private val context:Context){
     check(response.isSuccessful){"Download failed (${response.code})."};val append=offset>0&&response.code==206;var count=if(append)offset else 0
     response.body.byteStream().use{input->java.io.FileOutputStream(partial,append).use{output->val buf=ByteArray(65536);while(true){ensureActive();val n=input.read(buf);if(n<0)break;count+=n;check(count<=artifact.size);output.write(buf,0,n);progress.value=count.toFloat()/artifact.size}}}
    }
+   status.value="Verifying ${artifact.model} · ${artifact.quantization}"
    check(partial.length()==artifact.size&&hash(partial)==artifact.sha256){"Model checksum mismatch. Retry or select the official file."}
    check(partial.renameTo(file(id))){"Could not install verified model."};installed.update{it+id};status.value="Ready · ${artifact.model} ${artifact.quantization}"
   }finally{progress.value=null}
