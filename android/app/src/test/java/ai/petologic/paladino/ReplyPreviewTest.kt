@@ -1,10 +1,9 @@
 package ai.petologic.paladino
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 class ReplyPreviewTest {
- @Test fun compact_emphasis_does_not_change_literal_symbols_or_links(){
-  assertEquals("Code safira 742",replyPreview("Code **safira** `742`"))
-  assertEquals("2 * 3; file_name; https://example.com",replyPreview("2 * 3; file_name; https://example.com"))
-  assertEquals("**unfinished",replyPreview("**unfinished"))
+ @Test fun only_web_links_without_credentials_are_opened(){
+  assertTrue(isWebLink("https://example.com/docs?q=hello"))
+  listOf("javascript:alert(1)","file:///data/local/tmp/x","intent://open","https://user:secret@example.com","//example.com").forEach{assertFalse(it,isWebLink(it))}
  }
 }

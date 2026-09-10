@@ -42,10 +42,11 @@ import kotlinx.coroutines.withContext
   val observer=LifecycleEventObserver{_,_->sync()};owner.lifecycle.addObserver(observer);sync()
   onDispose{image?.stop();owner.lifecycle.removeObserver(observer)}
  }
- if(drawable==null)Image(painterResource(R.drawable.paladino_static),label,modifier)
- else AndroidView(factory={ImageView(it).apply{scaleType=ImageView.ScaleType.FIT_CENTER}},modifier=modifier,update={it.setImageDrawable(drawable);it.contentDescription=label})
+ if(drawable==null)Image(painterResource(R.drawable.paladino_static),context.uiText(label),modifier)
+ else AndroidView(factory={ImageView(it).apply{scaleType=ImageView.ScaleType.FIT_CENTER}},modifier=modifier,update={it.setImageDrawable(drawable);it.contentDescription=context.uiText(label)})
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable fun TinyPetSettings(vm:PaladinoViewModel){
  val context=LocalContext.current
  val app=context.applicationContext as PaladinoApplication
@@ -61,39 +62,39 @@ import kotlinx.coroutines.withContext
  var expanded by remember{mutableStateOf(false)}
  Card(Modifier.fillMaxWidth()){
   Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-   Text("Sprite & Widget",style=MaterialTheme.typography.titleLarge)
+   Text(tr("Sprite & Widget"),style=MaterialTheme.typography.titleLarge)
    Row(horizontalArrangement=Arrangement.spacedBy(16.dp)){
     PaladinoSprite(Modifier.size(88.dp),prefs.animate)
-    Column{Text("0xPaladino",style=MaterialTheme.typography.titleMedium);Text("TinyPet 01 · Personal companion",color=Muted);Text("One role. Tiny or Maxx.",color=Muted)}
+    Column{Text(tr("0xPaladino"),style=MaterialTheme.typography.titleMedium);Text(tr("TinyPet 01 · Personal companion"),color=Muted);Text(tr("One role. Tiny or Maxx."),color=Muted)}
    }
-   Text("Paladino uses the current conversation’s tools, instructions and permissions. Changing its appearance never changes its access.",style=MaterialTheme.typography.bodySmall)
-   TextButton(onClick={expanded=!expanded}){Text(if(expanded)"Close Sprite controls" else "Manage Sprite & Widget")}
+   Text(tr("Paladino uses the current conversation’s tools, instructions and permissions. Changing its appearance never changes its access."),style=MaterialTheme.typography.bodySmall)
+   TextButton(onClick={expanded=!expanded}){Text(tr(if(expanded)"Close Sprite controls" else "Manage Sprite & Widget"))}
    if(expanded){
     PetSwitch("Show in-app Sprite",prefs.visible){manager.update(prefs.copy(visible=it))}
     PetSwitch("Animate idle Sprite",prefs.animate){manager.update(prefs.copy(animate=it))}
-    Text("System reduced motion is respected. Animation pauses when this screen leaves the foreground.",style=MaterialTheme.typography.bodySmall,color=Muted)
-    Text("Sprite size")
-    Row{listOf(48 to "Small",64 to "Default",88 to "Large").forEach{(size,name)->FilterChip(prefs.sizeDp==size,{manager.update(prefs.copy(sizeDp=size))},label={Text(name)},modifier=Modifier.padding(end=4.dp))}}
+    Text(tr("System reduced motion is respected. Animation pauses when this screen leaves the foreground."),style=MaterialTheme.typography.bodySmall,color=Muted)
+    Text(tr("Sprite size"))
+    FlowRow{listOf(48 to "Small",64 to "Default",88 to "Large").forEach{(size,name)->FilterChip(prefs.sizeDp==size,{manager.update(prefs.copy(sizeDp=size))},label={Text(tr(name))},modifier=Modifier.padding(end=4.dp))}}
     HorizontalDivider()
-    Text("Floating above other apps",style=MaterialTheme.typography.titleMedium)
-    Text("Tap Paladino to chat. Drag to move; the Sprite remembers its position. Allow display over other apps. Notifications provide a Stop control; you can also stop the Sprite here.",style=MaterialTheme.typography.bodySmall)
-    Button(onClick={if(overlayRunning)context.stopService(android.content.Intent(context,SpriteOverlayService::class.java))else if(android.provider.Settings.canDrawOverlays(context))startOverlay()else overlayPermission.launch(android.content.Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,android.net.Uri.parse("package:"+context.packageName)))}){Text(if(overlayRunning)"Stop floating Sprite" else "Enable floating Sprite")}
+    Text(tr("Floating above other apps"),style=MaterialTheme.typography.titleMedium)
+    Text(tr("Tap Paladino to chat. Drag to move; the Sprite remembers its position. Allow display over other apps. Notifications provide a Stop control; you can also stop the Sprite here."),style=MaterialTheme.typography.bodySmall)
+    Button(onClick={if(overlayRunning)context.stopService(android.content.Intent(context,SpriteOverlayService::class.java))else if(android.provider.Settings.canDrawOverlays(context))startOverlay()else overlayPermission.launch(android.content.Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,android.net.Uri.parse("package:"+context.packageName)))}){Text(tr(if(overlayRunning)"Stop floating Sprite" else "Enable floating Sprite"))}
     HorizontalDivider()
-    Text("Home-screen widget",style=MaterialTheme.typography.titleMedium)
-    Text("A static Paladino opens Chat. Android launcher widgets do not play this GIF. No background model runs just because a widget is present.",style=MaterialTheme.typography.bodySmall)
+    Text(tr("Home-screen widget"),style=MaterialTheme.typography.titleMedium)
+    Text(tr("A static Paladino opens Chat. Android launcher widgets do not play this GIF. No background model runs just because a widget is present."),style=MaterialTheme.typography.bodySmall)
     PetSwitch("Show widget caption",prefs.widgetCaption){manager.update(prefs.copy(widgetCaption=it))}
-    Text("Widget conversation")
-    FilterChip(prefs.widgetSession.isBlank(),{manager.update(prefs.copy(widgetSession=""))},label={Text("Last active conversation")})
+    Text(tr("Widget conversation"))
+    FilterChip(prefs.widgetSession.isBlank(),{manager.update(prefs.copy(widgetSession=""))},label={Text(tr("Last active conversation"))})
     sessions.filter{!it.archived}.take(12).forEach{session->
-     FilterChip(prefs.widgetSession==session.id,{manager.update(prefs.copy(widgetSession=session.id))},label={Text(session.title)})
+     FilterChip(prefs.widgetSession==session.id,{manager.update(prefs.copy(widgetSession=session.id))},label={Text(sessionLabel(session.title))})
     }
-    Text("These settings apply to all Paladino home-screen widgets. An archived or missing target falls back to the active conversation.",style=MaterialTheme.typography.bodySmall,color=Muted)
+    Text(tr("These settings apply to all Paladino home-screen widgets. An archived or missing target falls back to the active conversation."),style=MaterialTheme.typography.bodySmall,color=Muted)
     Button(onClick={
      message=if(widgets.isRequestPinAppWidgetSupported){
       if(widgets.requestPinAppWidget(ComponentName(context,PaladinoWidget::class.java),null,null))"Confirm placement in your launcher. The launcher decides where to place it." else "Open your launcher’s Widgets menu and choose 0xPaladino."
      }else "This launcher does not support pin requests. Long-press the home screen, open Widgets and choose 0xPaladino."
-    }){Text("Add to home screen")}
-    message?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
+    }){Text(tr("Add to home screen"))}
+    message?.let{Text(tr(it),style=MaterialTheme.typography.bodySmall)}
 
 
    }
@@ -101,21 +102,22 @@ import kotlinx.coroutines.withContext
  }
 }
 @Composable private fun PetSwitch(label:String,checked:Boolean,onChange:(Boolean)->Unit){
- Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(label,Modifier.weight(1f).padding(top=12.dp));Switch(checked,onChange)}
+ Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(tr(label),Modifier.weight(1f).padding(top=12.dp));Switch(checked,onChange)}
 }
 
 private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
 @Composable fun SpriteQuickActions(animated:Boolean,size:Int,onChat:()->Unit,onRemember:()->Unit,onOpen:()->Unit){
+ val quickActionsLabel=tr("Quick actions")
  var expanded by remember{mutableStateOf(false)}
  Column(horizontalAlignment=androidx.compose.ui.Alignment.End){
   androidx.compose.material3.IconButton(onClick=onChat,modifier=Modifier.size(size.dp)){
    PaladinoSprite(Modifier.fillMaxSize(),animated,"Open Sprite chat")
   }
   Box{
-   FloatingActionButton(onClick={expanded=!expanded},containerColor=Gold,contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription="Quick actions"}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
+   FloatingActionButton(onClick={expanded=!expanded},containerColor=Gold,contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription=quickActionsLabel}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
    DropdownMenu(expanded=expanded,onDismissRequest={expanded=false},containerColor=Panel,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp)){
     listOf(SpriteAction("ask","Message Paladino",onChat),SpriteAction("remember","Save a note",onRemember),SpriteAction("open","Full conversation",onOpen)).forEach{action->
-     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"remember"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(action.label)},onClick={expanded=false;action.run()})
+     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"remember"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(tr(action.label))},onClick={expanded=false;action.run()})
     }
    }
   }
@@ -131,16 +133,16 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
  androidx.compose.ui.window.Dialog(onDismissRequest=onDismiss){
   Surface(shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),color=Panel){
    Column(Modifier.fillMaxWidth().heightIn(max=520.dp).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-    Row{Text("Paladino",style=MaterialTheme.typography.titleMedium,modifier=Modifier.weight(1f));TextButton(onClick=onDismiss){Text("Close bubble")}}
-    Text(session.title+" · "+(if(state.mode==ai.petologic.core.ExecutionMode.TINY)"Tiny" else "Maxx")+" · "+state.petReaction().label,style=MaterialTheme.typography.labelSmall,color=Gold)
-    val reply=if(state.busy)state.streaming.ifBlank{state.status}else messages.lastOrNull{it.sessionId==session.id&&it.speaker=="assistant"}?.text?:"I’m here. What would you like to do?"
-    Text(replyPreview(reply),maxLines=6,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-    Row{TextButton(onClick=onOpen){Text(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation")};TextButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Text("New conversation")}}
-    OutlinedTextField(draft,{draft=it},label={Text("Message Paladino")},modifier=Modifier.fillMaxWidth(),maxLines=3,enabled=!state.busy)
+    Row{Text(tr("Paladino"),style=MaterialTheme.typography.titleMedium,modifier=Modifier.weight(1f));TextButton(onClick=onDismiss){Text(tr("Close bubble"))}}
+    Text(sessionLabel(session.title)+" · "+(if(state.mode==ai.petologic.core.ExecutionMode.TINY)"Tiny" else "Maxx")+" · "+tr(state.petReaction().label),style=MaterialTheme.typography.labelSmall,color=Gold)
+    val reply=if(state.busy)state.streaming.ifBlank{tr(state.status)}else messages.lastOrNull{it.sessionId==session.id&&it.speaker=="assistant"}?.text?:tr("I’m here. What would you like to do?")
+    MarkdownReply(reply,maxLines=6)
+    Row{TextButton(onClick=onOpen){Text(tr(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation"))};TextButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Text(tr("New conversation"))}}
+    OutlinedTextField(draft,{draft=it},label={Text(tr("Message Paladino"))},modifier=Modifier.fillMaxWidth(),maxLines=3,enabled=!state.busy)
     Button(onClick={if(state.busy)vm.cancel()else{vm.send(draft);draft=""}},enabled=state.busy||draft.isNotBlank(),modifier=Modifier.fillMaxWidth()){
-     Text(if(state.busy)"Stop response" else "Send to Paladino")
+     Text(tr(if(state.busy)"Stop response" else "Send to Paladino"))
     }
-    Text("Messages are saved in this app conversation.",style=MaterialTheme.typography.labelSmall,color=Muted)
+    Text(tr("Messages are saved in this app conversation."),style=MaterialTheme.typography.labelSmall,color=Muted)
    }
   }
  }

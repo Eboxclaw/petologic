@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): false
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Petologic, O=Petologic
+Signer #1 certificate SHA-256 digest: bbb593b41123f3239be46ac4260c352f60f8a4179e3f1a8b596f39516763f4c7
+Signer #1 certificate SHA-1 digest: e94e7316207f27183a3df8ed03642b0bb10616d5
+Signer #1 certificate MD5 digest: 9ede88fe7cba65ebdbe020d8a2487f9b
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: c124c55a1f7f86284ed7fe5be734c634f5e6c9e08c90a75826f3bfc47de6b8ad
+Signer #1 public key SHA-1 digest: ea186c4bf57cb79cf4c7351e317fc75e99f1c303
+Signer #1 public key MD5 digest: f2bb66c06024e645d8b246e02fa41bc5

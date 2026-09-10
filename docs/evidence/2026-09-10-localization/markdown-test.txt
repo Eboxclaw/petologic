@@ -1,0 +1,8 @@
+
+ai.petologic.paladino.MarkdownRenderingTest:.
+
+Time: 3.244
+
+OK (1 test)
+
+

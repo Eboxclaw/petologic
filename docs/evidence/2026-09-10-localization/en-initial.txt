@@ -1,0 +1,26 @@
+
+ai.petologic.paladino.PaladinoUiTest:.....
+ai.petologic.paladino.PairedChatSpriteTest:.
+ai.petologic.paladino.OverlayIntegrationTest:.
+ai.petologic.paladino.MarkdownRenderingTest:
+Error in markdown_and_translations_render_without_remote_images(ai.petologic.paladino.MarkdownRenderingTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at ai.petologic.paladino.MarkdownRenderingTest.markdown_and_translations_render_without_remote_images(MarkdownRenderingTest.kt:31)
+
+
+Time: 110.302
+There was 1 failure:
+1) markdown_and_translations_render_without_remote_images(ai.petologic.paladino.MarkdownRenderingTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at ai.petologic.paladino.MarkdownRenderingTest.markdown_and_translations_render_without_remote_images(MarkdownRenderingTest.kt:31)
+
+FAILURES!!!
+Tests run: 8,  Failures: 1
+
+

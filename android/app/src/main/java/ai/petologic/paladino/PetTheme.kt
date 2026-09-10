@@ -29,8 +29,3 @@ internal val PetColors=darkColorScheme(
  outline=Color(PetPalette.outline),outlineVariant=Raised,
  error=Color(0xFFFFB4AB),onError=Color(0xFF690005)
 )
-
-/** Compact display only: original conversation text is never modified. No HTML or links executed. */
-internal fun replyPreview(text:String):String = text
- .replace(Regex("\\*\\*([^*\\n]+)\\*\\*"),"$1")
- .replace(Regex("`([^`\\n]+)`"),"$1")

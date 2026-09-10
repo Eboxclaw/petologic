@@ -39,6 +39,6 @@ The repository now has an installable native app scaffold with real local infere
 - Source-versioned session summaries, exact tokenizer preflight, checkpoint execution resume and scoped token totals.
 - Fair bounded local-runtime queue and controller eviction; separate conversations currently share a mutex-protected model.
 - Physical 8 GB device benchmarks for both 2.6B quants; VL-450M/VL-3B multimodal runtime and projector tests.
-- Sprite FAB/bubble interactions, cooldown/accessibility tests and live widget state. The current launcher widget only opens the app.
-- Explicit bounded foreground service and background recovery. The preview stops when the Activity leaves the foreground.
-- Signed APK website distribution. The user authorized a GitHub feature-branch checkpoint, not an unverified main merge.
+- Physical-phone/TalkBack and cooldown coverage, plus live launcher-widget state. Chat/Sprite paired inference, drag, new/full conversation, PT/EN labels and enlarged text now have emulator evidence. The launcher widget remains a static entry point.
+- Durable background recovery and OEM battery-policy validation. An explicit stoppable foreground overlay service now permits requests while other apps are foreground; process-death task resumption remains open.
+- Production release gates remain open. User-authorized signed preview APKs are distributed through the public downloads repository and website; preview distribution does not imply completion of physical-device/security gates.

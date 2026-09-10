@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ <string name="ui_2ced57f12591" formatted="false">"Chat"</string>
+ <string name="ui_bee75ca77f75" formatted="false">"Controls"</string>
+ <string name="ui_6926cb0e99e8" formatted="false">"Orchestration"</string>
+ <string name="ui_9f3341d3710b" formatted="false">"Console"</string>
+ <string name="ui_c7f73bb54d92" formatted="false">"Settings"</string>
+ <string name="ui_07c59b44128d" formatted="false">"Conversations"</string>
+ <string name="ui_7f031b1a1a17" formatted="false">"New conversation"</string>
+ <string name="ui_009bf6b90cde" formatted="false">"New chat"</string>
+ <string name="ui_7b131e53b9c1" formatted="false">"Full chat"</string>
+ <string name="ui_62b8613e0e10" formatted="false">"Full conversation"</string>
+ <string name="ui_dddd8ff78619" formatted="false">"Open to approve"</string>
+ <string name="ui_cf9b77061f7b" formatted="false">"Open"</string>
+ <string name="ui_2621c6fd51a5" formatted="false">"Archive"</string>
+ <string name="ui_3cbe6d6b9a8d" formatted="false">"Restore"</string>
+ <string name="ui_1627510b242f" formatted="false">"Branch"</string>
+ <string name="ui_5084eea95673" formatted="false">"Show archived"</string>
+ <string name="ui_46089728ff0f" formatted="false">"← Back to chat"</string>
+ <string name="ui_4218f415b781" formatted="false">"← All controls"</string>
+ <string name="ui_a8f3ed6b9bc7" formatted="false">"EARLY ACCESS"</string>
+ <string name="ui_af319eaa7d4b" formatted="false">"YOU"</string>
+ <string name="ui_5b11cc3aac82" formatted="false">"How can I help?"</string>
+ <string name="ui_cd605c6f6115" formatted="false">"Ask a question, make a plan, or save a thought."</string>
+ <string name="ui_eb3e679b5c80" formatted="false">"On your phone"</string>
+ <string name="ui_ce446fdd85d7" formatted="false">"Cloud · review before sending"</string>
+ <string name="ui_ef67e09ddfa2" formatted="false">"Remember something"</string>
+ <string name="ui_3dde480365a1" formatted="false">"Make a plan"</string>
+ <string name="ui_086b576605a8" formatted="false">"Remember that "</string>
+ <string name="ui_988d41cf1d13" formatted="false">"Help me plan my day"</string>
+ <string name="ui_aaccac334b41" formatted="false">"Set up offline chat →"</string>
+ <string name="ui_3fd30dbd5276" formatted="false">"What’s on your mind?"</string>
+ <string name="ui_c70a890d1411" formatted="false">"Send message"</string>
+ <string name="ui_68a76b55a28a" formatted="false">"Stop response"</string>
+ <string name="ui_a97eb580e68d" formatted="false">"Cloud mode · you review every request before sending"</string>
+ <string name="ui_e4acd70b3b06" formatted="false">"ON YOUR DEVICE  ·  PRIVATE BY DEFAULT"</string>
+ <string name="ui_e3d36496fcfb" formatted="false">"SAME PALADINO  ·  MORE CAPABILITY"</string>
+ <string name="ui_105a32ee8d92" formatted="false">"Keep this in memory?"</string>
+ <string name="ui_bbe3fa151609" formatted="false">"Delete this note?"</string>
+ <string name="ui_4e52789aac4c" formatted="false">"Selected note"</string>
+ <string name="ui_a97f86e48e5f" formatted="false">"This action happens only on your phone."</string>
+ <string name="ui_d69ca0d332d1" formatted="false">"Save note"</string>
+ <string name="ui_a8ed43571dd8" formatted="false">"Delete note"</string>
+ <string name="ui_77dfd2135f4d" formatted="false">"Cancel"</string>
+ <string name="ui_7458f94133f5" formatted="false">"Let Paladino use Maxx?"</string>
+ <string name="ui_3c14697f3c27" formatted="false">"This request and Paladino’s instructions will leave your phone. Your private notes and Tiny history are excluded. Up to 512 output tokens; your provider may charge for usage."</string>
+ <string name="ui_1f62564d5146" formatted="false">"REQUEST"</string>
+ <string name="ui_ff4f0e65008e" formatted="false">"PALADINO INSTRUCTIONS"</string>
+ <string name="ui_997e3f8719c6" formatted="false">"Send to Maxx"</string>
+ <string name="ui_a94cb137c24a" formatted="false">"Keep local"</string>
+ <string name="ui_a8f1ee5d9e04" formatted="false">"A quick heads-up"</string>
+ <string name="ui_0e487f3a6518" formatted="false">"All set"</string>
+ <string name="ui_5b8027fa0e81" formatted="false">"Got it"</string>
+ <string name="ui_9d0925abf762" formatted="false">"Appearance, models and connections."</string>
+ <string name="ui_836a00b5935e" formatted="false">"Tiny · your local brain"</string>
+ <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-350M lives on your phone. Download once, then chat offline. Files are verified before installation."</string>
+ <string name="ui_dac6c3970c50" formatted="false">"Ready for offline use"</string>
+ <string name="ui_c177e4b0aa9f" formatted="false">"Downloading…"</string>
+ <string name="ui_494d36125a4f" formatted="false">"Download · 229 MB"</string>
+ <string name="ui_7dc800e503d4" formatted="false">"Memory that understands meaning"</string>
+ <string name="ui_7c6b4831b8e2" formatted="false">"A small, separate encoder helps find notes by paraphrase. English preview · latest 200 notes. Keyword search works without it."</string>
+ <string name="ui_88fca9cdbc45" formatted="false">"Semantic memory ready"</string>
+ <string name="ui_0565331c9859" formatted="false">"Set up semantic memory · 23 MB"</string>
+ <string name="ui_f127a4feda4a" formatted="false">"Maxx · a little extra reach"</string>
+ <string name="ui_63e99bdf7ed7" formatted="false">"Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider."</string>
+ <string name="ui_d67c24196774" formatted="false">"API key authentication. Browser sign-in is not connected yet."</string>
+ <string name="ui_205f1de31afd" formatted="false">"Uses the general Z.ai API, not the Coding Plan endpoint."</string>
+ <string name="ui_fb2685fbf9ba" formatted="false">"Key stored securely on this device"</string>
+ <string name="ui_ed28e0686e12" formatted="false">"Disconnect"</string>
+ <string name="ui_c7eb22a300df" formatted="false">"Model ID"</string>
+ <string name="ui_a717d92a1154" formatted="false">"Exact model ID from your provider"</string>
+ <string name="ui_07796d389ef2" formatted="false">"Save connection"</string>
+ <string name="ui_869026f56a1a" formatted="false">"No account needed for Tiny. No hidden cloud fallback. Private memory stays here."</string>
+ <string name="ui_9fb0880ee9f3" formatted="false">"0xPaladino 0.1 · Native Android preview\nGoogle companion accelerators are not enabled yet."</string>
+ <string name="ui_380bc20269b5" formatted="false">"Sprite &amp; Widget"</string>
+ <string name="ui_0d6487dfd925" formatted="false">"TinyPet 01 · Personal companion"</string>
+ <string name="ui_8b49198d5f60" formatted="false">"One role. Tiny or Maxx."</string>
+ <string name="ui_eb1ad6b73ef4" formatted="false">"Paladino uses the current conversation’s tools, instructions and permissions. Changing its appearance never changes its access."</string>
+ <string name="ui_991acb7bb5e3" formatted="false">"Close Sprite controls"</string>
+ <string name="ui_c2c9d175c93d" formatted="false">"Manage Sprite &amp; Widget"</string>
+ <string name="ui_12cd87087962" formatted="false">"Show in-app Sprite"</string>
+ <string name="ui_20c5a108eb03" formatted="false">"Animate idle Sprite"</string>
+ <string name="ui_8b86d8ca4c19" formatted="false">"System reduced motion is respected. Animation pauses when this screen leaves the foreground."</string>
+ <string name="ui_bc996ec54bf1" formatted="false">"Sprite size"</string>
+ <string name="ui_c74fd9714e38" formatted="false">"Small"</string>
+ <string name="ui_808d7dca8a74" formatted="false">"Default"</string>
+ <string name="ui_738fd1d2452f" formatted="false">"Large"</string>
+ <string name="ui_7836fed91335" formatted="false">"Floating above other apps"</string>
+ <string name="ui_2eacc5c42fae" formatted="false">"Tap Paladino to chat. Drag to move; the Sprite remembers its position. Allow display over other apps. Notifications provide a Stop control; you can also stop the Sprite here."</string>
+ <string name="ui_00a1fec3d902" formatted="false">"Stop floating Sprite"</string>
+ <string name="ui_9f6bb5694899" formatted="false">"Enable floating Sprite"</string>
+ <string name="ui_c1c9ad05699a" formatted="false">"Home-screen widget"</string>
+ <string name="ui_e5f42e0d1287" formatted="false">"A static Paladino opens Chat. Android launcher widgets do not play this GIF. No background model runs just because a widget is present."</string>
+ <string name="ui_4951b1010cad" formatted="false">"Show widget caption"</string>
+ <string name="ui_3b99f2634262" formatted="false">"Widget conversation"</string>
+ <string name="ui_0ac7d12c4b4f" formatted="false">"Last active conversation"</string>
+ <string name="ui_b6cad6b49d61" formatted="false">"These settings apply to all Paladino home-screen widgets. An archived or missing target falls back to the active conversation."</string>
+ <string name="ui_79b146788b01" formatted="false">"Confirm placement in your launcher. The launcher decides where to place it."</string>
+ <string name="ui_bb6755ae9526" formatted="false">"Open your launcher’s Widgets menu and choose 0xPaladino."</string>
+ <string name="ui_261dcf1423ac" formatted="false">"This launcher does not support pin requests. Long-press the home screen, open Widgets and choose 0xPaladino."</string>
+ <string name="ui_85773bc941e4" formatted="false">"Add to home screen"</string>
+ <string name="ui_e47e804262aa" formatted="false">"Quick actions"</string>
+ <string name="ui_a650c7b8d695" formatted="false">"Message Paladino"</string>
+ <string name="ui_e37b21eecee9" formatted="false">"Save a note"</string>
+ <string name="ui_c45b63db3ed4" formatted="false">"Open Sprite chat"</string>
+ <string name="ui_68bb54dc6b32" formatted="false">"Close bubble"</string>
+ <string name="ui_9ac19e514d35" formatted="false">"I’m here. What would you like to do?"</string>
+ <string name="ui_6758ff887de1" formatted="false">"Send to Paladino"</string>
+ <string name="ui_9a84a438d7cb" formatted="false">"Messages are saved in this app conversation."</string>
+ <string name="ui_f19f3696397d" formatted="false">"Paladino, your TinyPet"</string>
+ <string name="ui_ef108eabdab8" formatted="false">"Separate conversations and private memory. One shared local runtime."</string>
+ <string name="ui_7b6f4e29927d" formatted="false">"Branched conversation · independent memory"</string>
+ <string name="ui_89c8a2851d17" formatted="false">"Memory"</string>
+ <string name="ui_4fa8cc860c52" formatted="false">"Tools"</string>
+ <string name="ui_d06d55570938" formatted="false">"Permissions"</string>
+ <string name="ui_77d5a16fce2f" formatted="false">"Rules &amp; instructions"</string>
+ <string name="ui_5b8745ab3afd" formatted="false">"Skills &amp; MCPs"</string>
+ <string name="ui_a7881cac6e64" formatted="false">"Integrations"</string>
+ <string name="ui_0efc2e6be4c2" formatted="false">"Overview"</string>
+ <string name="ui_1fea4f340ac1" formatted="false">"What Paladino can know"</string>
+ <string name="ui_f028fdb60e9a" formatted="false">"Read this session’s memory"</string>
+ <string name="ui_47105488e71a" formatted="false">"Write memory after approval"</string>
+ <string name="ui_ec62fda4cdf8" formatted="false">"No notes yet. Ask Paladino to ‘Remember that…’ and approve the note."</string>
+ <string name="ui_b3080a1e4983" formatted="false">"Private · this session only"</string>
+ <string name="ui_4867e6d26a8d" formatted="false">"Tool calling"</string>
+ <string name="ui_92e5a8976c49" formatted="false">"Available: search private notes, propose a note, delete a selected note. Every write requires approval. Model tool loops run in Tiny; Maxx is text-only in this preview."</string>
+ <string name="ui_da8e485bf615" formatted="false">"Session access"</string>
+ <string name="ui_659980638c3c" formatted="false">"Allow cloud requests after review"</string>
+ <string name="ui_93e6b5a1938c" formatted="false">"Read memory"</string>
+ <string name="ui_28aaa0e98464" formatted="false">"Use tools"</string>
+ <string name="ui_c756e2597258" formatted="false">"Model setup uses the files/folder you select in Settings. The agent cannot browse those files. No camera, microphone, contacts, calendar, location, accessibility or overlay access is requested."</string>
+ <string name="ui_53eca8081103" formatted="false">"Requests can continue while the floating Sprite is active. Android may end the process; saved conversations remain available."</string>
+ <string name="ui_774be4528c52" formatted="false">"Paladino’s safety rules remain enforced by code. These instructions guide this session’s local responses."</string>
+ <string name="ui_6dd8ecba3c71" formatted="false">"Session instructions"</string>
+ <string name="ui_8e0e26dca59b" formatted="false">"Save instructions"</string>
+ <string name="ui_4dfcb1db4a18" formatted="false">"Private notes and Tiny history are excluded from Maxx. Unsupported tool calls cannot grant access."</string>
+ <string name="ui_887f54a3a4d7" formatted="false">"External skills and MCP servers are not connected in this preview. The bundled Paladino manifest allows only the implemented note tools. Future packages must declare their tools and permissions before activation."</string>
+ <string name="ui_a571111eecb6" formatted="false">"OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default."</string>
+ <string name="ui_9cec8406e878" formatted="false">"Metadata only. API keys and prompt contents are excluded."</string>
+ <string name="ui_9e9fd316797c" formatted="false">"Run a request to see its steps here."</string>
+ <string name="ui_2d1527c658e8" formatted="false">"Model library"</string>
+ <string name="ui_71b584903bd5" formatted="false">"Already downloaded? Select a file or folder. Exact publisher, model and quantization are verified before reuse. Android hides other apps’ private downloads."</string>
+ <string name="ui_439ae7fe13b9" formatted="false">"Reuse copies the verified file into Paladino’s storage; it avoids another network download."</string>
+ <string name="ui_640448e6e132" formatted="false">"Use existing file"</string>
+ <string name="ui_1838a4158f39" formatted="false">"Choose folder"</string>
+ <string name="ui_32137e17497d" formatted="false">"Selected for this session"</string>
+ <string name="ui_e6b2c7ca2a81" formatted="false">"Use in this session"</string>
+ <string name="ui_a4dc233599d1" formatted="false">"Close advanced settings"</string>
+ <string name="ui_b234dca492e3" formatted="false">"Advanced model settings"</string>
+ <string name="ui_4d6993db299b" formatted="false">"Context tokens"</string>
+ <string name="ui_dc95e9b0acb8" formatted="false">"Maximum output tokens"</string>
+ <string name="ui_0e54cf10c1ee" formatted="false">"Reserved tool tokens"</string>
+ <string name="ui_b089630ed734" formatted="false">"Maximum model turns"</string>
+ <string name="ui_4a51e8c0b990" formatted="false">"Maximum tool calls"</string>
+ <string name="ui_e2b4146658bc" formatted="false">"Malformed-call retries"</string>
+ <string name="ui_79b3535b4ce0" formatted="false">"Seconds per model turn"</string>
+ <string name="ui_aeb03c08e09d" formatted="false">"Total execution seconds"</string>
+ <string name="ui_0a9062a9cb51" formatted="false">"Temperature"</string>
+ <string name="ui_3565880223c3" formatted="false">"Repeat penalty"</string>
+ <string name="ui_32fe9f5bda70" formatted="false">"Seed"</string>
+ <string name="ui_56bf097a6d0c" formatted="false">"CPU threads"</string>
+ <string name="ui_672f784922db" formatted="false">"Batch size"</string>
+ <string name="ui_45f4db3a650e" formatted="false">"Micro-batch size"</string>
+ <string name="ui_999889f3729e" formatted="false">"Memory-map model"</string>
+ <string name="ui_250368406dd0" formatted="false">"Automatic summarization, reasoning mode, GPU offload and KV quantization are not exposed until implemented and tested."</string>
+ <string name="ui_316f7393097d" formatted="false">"Values are outside supported limits. Context 1024–8192; output 16–1024; reserve 128–2048. Check timeouts, batch sizes and sampling values."</string>
+ <string name="ui_cfea419c3b4e" formatted="false">"Apply"</string>
+ <string name="ui_7871b34ddab1" formatted="false">"Reset defaults"</string>
+ <string name="ui_3998637be017" formatted="false">"Floating Paladino"</string>
+ <string name="ui_aa1dbc849a88" formatted="false">"Paladino is floating"</string>
+ <string name="ui_1bcc2aea9694" formatted="false">"Tap to chat • drag to move"</string>
+ <string name="ui_3d1d570b6ef2" formatted="false">"Stop Sprite"</string>
+ <string name="ui_d7ecb704f0b1" formatted="false">"Floating Paladino. Tap to chat"</string>
+ <string name="ui_a2855984909c" formatted="false">"Drag Paladino bubble"</string>
+ <string name="ui_9cf188d3a677" formatted="false">"Collapse"</string>
+ <string name="ui_9bc2575c3930" formatted="false">"Send"</string>
+ <string name="ui_9e253470c876" formatted="false">"Stop"</string>
+ <string name="ui_f5f4c98c8626" formatted="false">"Open the app to review this request."</string>
+ <string name="ui_606832f3088c" formatted="false">"A little help, wherever you are."</string>
+ <string name="ui_cc1ebdd04e76" formatted="false">"Idle"</string>
+ <string name="ui_3b4dfc971393" formatted="false">"Working"</string>
+ <string name="ui_9a9d6640d8a0" formatted="false">"Needs input"</string>
+ <string name="ui_7f2f6a15cf8d" formatted="false">"Error"</string>
+ <string name="ui_30bdad018e10" formatted="false">"Open Paladino conversation"</string>
+ <string name="ui_97e12da41a75" formatted="false">"Tap to talk"</string>
+ <string name="ui_89b86ab0e66f" formatted="false">"Language"</string>
+ <string name="ui_e495d541ab55" formatted="false">"Follow the phone language"</string>
+ <string name="ui_455c6b2c6838" formatted="false">"Change app language"</string>
+ <string name="ui_9b493c706d15" formatted="false">"On Android 12, change the phone language in system settings."</string>
+ <string name="ui_5d26b807f84e" formatted="false">"Manage %1$s API keys"</string>
+ <string name="ui_702a13301b4a" formatted="false">"%1$s API key"</string>
+ <string name="ui_bcf96b9e177a" formatted="false">"Maximum %1$s tools across %2$s model turns. Identical tool calls are stopped."</string>
+ <string name="ui_99bcc5f9ea5c" formatted="false">"%1$s · CPU runtime. Defaults are the safe starting point. Changes apply to the next request."</string>
+ <string name="ui_1a90f0133489" formatted="false">"Download %1$s %2$s"</string>
+ <string name="ui_14bb874ce842" formatted="false">" · current"</string>
+ <string name="ui_c4bf6bc53bff" formatted="false">" · execution history"</string>
+ <string name="ui_38c12356b31f" formatted="false">" · experimental; phone validation pending"</string>
+ <string name="ui_c78a20660e2f" formatted="false">" · baseline"</string>
+ <string name="ui_b6951131533c" formatted="false">"First conversation"</string>
+ <string name="ui_62f8b36bd044" formatted="false">"Conversation %1$s"</string>
+ <string name="ui_3ca0b7432d28" formatted="false">"Checking installed models…"</string>
+ <string name="ui_19cee0a21ac8" formatted="false">"%1$s verified models available"</string>
+ <string name="ui_d7735ddb6a04" formatted="false">"Verifying existing model…"</string>
+ <string name="ui_ae7acf21acd4" formatted="false">"Checking selected model folder…"</string>
+ <string name="ui_ff4a332dd604" formatted="false">"Reused %1$s · %2$s. No download."</string>
+ <string name="ui_4595a681bede" formatted="false">"Reused %1$s matching model files. No download."</string>
+ <string name="ui_981d2344d121" formatted="false">"Already installed · %1$s %2$s"</string>
+ <string name="ui_93312006cea9" formatted="false">"Reused %1$s from your selected folder"</string>
+ <string name="ui_a630a8678fdf" formatted="false">"Downloading %1$s · %2$s"</string>
+ <string name="ui_b48c6268419c" formatted="false">"Ready · %1$s %2$s"</string>
+ <string name="ui_13e1ac8ddf32" formatted="false">"At your side."</string>
+ <string name="ui_04984c157c89" formatted="false">"Understanding your request…"</string>
+ <string name="ui_f36518caca8a" formatted="false">"Thinking on your phone…"</string>
+ <string name="ui_c30a73fa2eca" formatted="false">"Thinking with Maxx…"</string>
+ <string name="ui_8a4013a766a3" formatted="false">"Approve this tool action."</string>
+ <string name="ui_a4aef3184027" formatted="false">"Nothing was sent to the cloud."</string>
+ <string name="ui_ce1e90d6eb3f" formatted="false">"Continuing…"</string>
+ <string name="ui_5e0fc94917c6" formatted="false">"Key saved securely. Send a Maxx message to validate access after reviewing the request."</string>
+ <string name="ui_9599364d9498" formatted="false">"Disconnected on this device. Revoke the key in %1$s to invalidate it elsewhere."</string>
+ <string name="ui_7c032300cdb9" formatted="false">"Enter a valid %1$s model ID."</string>
+ <string name="ui_00b3a4115a60" formatted="false">"Connect %1$s in Settings first."</string>
+ <string name="ui_6dda68983931" formatted="false">"Note saved. Search index will retry on next launch."</string>
+ <string name="ui_6a80b3aa0c9d" formatted="false">"Could not save the connection."</string>
+ <string name="ui_ce932f4b7ed4" formatted="false">"Download failed. Retry in Settings."</string>
+ <string name="ui_92702d24bcf6" formatted="false">"Cloud request failed."</string>
+ <string name="ui_bb2ebaad2e0b" formatted="false">"Action failed."</string>
+ <string name="ui_23a01ef04494" formatted="false">"Network permission was revoked."</string>
+ <string name="ui_f3385d82eaf6" formatted="false">"Memory writes are disabled for this session."</string>
+ <string name="ui_7ad83fb1f415" formatted="false">"This file is no longer available."</string>
+ <string name="ui_f309a5431f03" formatted="false">"Could not install verified model."</string>
+</resources>

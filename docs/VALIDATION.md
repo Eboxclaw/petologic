@@ -61,3 +61,7 @@ Rebuilt APK passed 19 JVM and 15 device tests, including actual model replies th
 ## 2026-09-07 — Draggable Sprite UI checkpoint
 
 26 JVM and 16 Android device tests passed. Floating Sprite drag, edge docking and position restoration across service restart are verified alongside actual local inference. Added compact navy/gold bubble, original vector action icons and matching widget surface. See [UI foundation](plans/04-sprite-overlay-foundation.md) and [Liquid baseline](reviews/2026-09-07-liquid-baseline.md). Physical-device and release gates remain open.
+
+## 2026-09-10 — Signed PT/EN and Markdown preview
+
+0.1.3 supersedes earlier distribution/UI gaps: 36 JVM tests, lint/builds, 8 final Android tests and PT flows at normal/200% text passed. Signed update preserved Conversation 2. [Evidence and limits](evidence/2026-09-10-localization/validation.md), [release](releases/0.1.3-preview.md), [installation](INSTALL-ANDROID.md). Physical-device, TalkBack, provider-account and production-readiness gates remain open.

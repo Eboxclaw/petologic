@@ -22,7 +22,7 @@ class SpriteOverlayService:Service(){
  private val app get()=application as PaladinoApplication
  private val positionPrefs by lazy{getSharedPreferences("sprite_position",MODE_PRIVATE)}
  private lateinit var windows:WindowManager
- private var root:LinearLayout?=null
+ private var root:ViewGroup?=null
  private var layout:WindowManager.LayoutParams?=null
  private var animationLoad:Job?=null
  private var animationResource:Int?=null
@@ -37,6 +37,7 @@ class SpriteOverlayService:Service(){
  private var send:ImageButton?=null
  private var observedSession=""
  private var observation:Job?=null
+ private val markdown by lazy{markdownRenderer(this)}
  private val drafts=mutableMapOf<String,String>()
  private val gold=PetPalette.gold
  private val ink=PetPalette.background
@@ -53,10 +54,10 @@ class SpriteOverlayService:Service(){
  override fun onCreate(){
   super.onCreate();windows=getSystemService(WindowManager::class.java)
   val notifications=getSystemService(NotificationManager::class.java)
-  notifications.createNotificationChannel(NotificationChannel("sprite","Floating Paladino",NotificationManager.IMPORTANCE_LOW))
+  notifications.createNotificationChannel(NotificationChannel("sprite",uiText("Floating Paladino"),NotificationManager.IMPORTANCE_LOW))
   val stop=PendingIntent.getService(this,1,Intent(this,SpriteOverlayService::class.java).setAction(STOP),PendingIntent.FLAG_IMMUTABLE)
   val open=PendingIntent.getActivity(this,2,Intent(this,MainActivity::class.java),PendingIntent.FLAG_IMMUTABLE)
-  startForeground(41,Notification.Builder(this,"sprite").setSmallIcon(R.drawable.ic_paladino).setContentTitle("Paladino is floating").setContentText("Tap to chat • drag to move").setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null,"Stop Sprite",stop).build()).build())
+  startForeground(41,Notification.Builder(this,"sprite").setSmallIcon(R.drawable.ic_paladino).setContentTitle(uiText("Paladino is floating")).setContentText(uiText("Tap to chat • drag to move")).setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null,uiText("Stop Sprite"),stop).build()).build())
   val filter=IntentFilter().apply{addAction(Intent.ACTION_SCREEN_OFF);addAction(Intent.ACTION_USER_PRESENT)}
   if(Build.VERSION.SDK_INT>=33)registerReceiver(screenEvents,filter,RECEIVER_NOT_EXPORTED)else registerReceiver(screenEvents,filter)
   scope.launch{app.tinyPets.state.map{it.sizeDp to it.animate}.distinctUntilChanged().drop(1).collect{if(root!=null)render()}}
@@ -121,13 +122,13 @@ class SpriteOverlayService:Service(){
  private fun saveDraft(){input?.let{drafts[observedSession]=it.text.toString()}}
  private fun collapse(){saveDraft();expanded=false;render()}
  private fun icon(id:Int,label:String,filled:Boolean=false,action:()->Unit)=ImageButton(this).apply{
-  setImageResource(id);contentDescription=label;imageTintList=android.content.res.ColorStateList.valueOf(if(filled)ink else gold)
+  setImageResource(id);contentDescription=uiText(label);imageTintList=android.content.res.ColorStateList.valueOf(if(filled)ink else gold)
   background=surface(if(filled)gold else PetPalette.raised,16)
   setPadding(dp(12),dp(12),dp(12),dp(12));filterTouchesWhenObscured=true
   setOnClickListener{action()};layoutParams=LinearLayout.LayoutParams(dp(48),dp(48))
  }
  private fun action(id:Int,label:String,run:()->Unit)=TextView(this).apply{
-  text=label;setTextColor(gold);textSize=12f;gravity=Gravity.CENTER;minHeight=dp(48)
+  text=uiText(label);setTextColor(gold);textSize=12f;gravity=Gravity.CENTER;minHeight=dp(48)
   background=surface(PetPalette.raised,16);setPadding(dp(10),dp(8),dp(10),dp(8))
   setCompoundDrawablesRelativeWithIntrinsicBounds(id,0,0,0);compoundDrawablePadding=dp(6)
   isClickable=true;isFocusable=true;filterTouchesWhenObscured=true;setOnClickListener{run()}
@@ -141,7 +142,7 @@ class SpriteOverlayService:Service(){
    val image=withContext(Dispatchers.IO){runCatching{
     android.graphics.ImageDecoder.decodeDrawable(android.graphics.ImageDecoder.createSource(resources,resource)) as? android.graphics.drawable.AnimatedImageDrawable
    }.getOrNull()}
-   if(root===panel&&animationResource==resource&&image!=null){
+   if((root===panel||root?.getChildAt(0)===panel)&&animationResource==resource&&image!=null){
     animation=image;image.repeatCount=android.graphics.drawable.AnimatedImageDrawable.REPEAT_INFINITE
     sprite.setImageDrawable(image);if(unlocked())image.start()
    }
@@ -153,13 +154,13 @@ class SpriteOverlayService:Service(){
   if(!Settings.canDrawOverlays(this)){stopSelf();return}
   val panel=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(if(expanded)16 else 8),dp(8),dp(if(expanded)16 else 8),dp(8));isFocusableInTouchMode=true}
   if(!expanded){
-   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Floating Paladino. Tap to chat";adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{expanded=true;render()}}
+   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription=uiText("Floating Paladino. Tap to chat");adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{expanded=true;render()}}
    panel.addView(sprite,LinearLayout.LayoutParams(-1,dp(app.tinyPets.state.value.sizeDp)));draggable(sprite)
    val badge=TextView(this).apply{setTextColor(gold);background=surface(ink,10);textSize=10f;gravity=Gravity.CENTER;setOnClickListener{expanded=true;render()}}
    panel.addView(badge)
    observation=scope.launch{app.sessionHub.active.collectLatest{controller->controller.ui.collect{state->
-    val reaction=state.petReaction();showAnimation(sprite,panel,reaction);badge.text=reaction.label;badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
-    sprite.contentDescription="Floating Paladino. Tap to chat. ${reaction.label}";panel.post{clampWindow()}
+    val reaction=state.petReaction();showAnimation(sprite,panel,reaction);badge.text=uiText(reaction.label);badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
+    sprite.contentDescription=uiText("Floating Paladino. Tap to chat")+". "+uiText(reaction.label);panel.post{clampWindow()}
    }}}
 
   }else{
@@ -167,23 +168,24 @@ class SpriteOverlayService:Service(){
    val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
    val headerSprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription="Paladino"}
    header.addView(headerSprite,LinearLayout.LayoutParams(dp(40),dp(44)))
-   title=TextView(this).apply{text="Paladino";setTextColor(Color.WHITE);textSize=16f;setPadding(dp(10),0,dp(6),0);maxLines=2;contentDescription="Drag Paladino bubble"}
+   title=TextView(this).apply{text="Paladino";setTextColor(Color.WHITE);textSize=16f;setPadding(dp(10),0,dp(6),0);maxLines=2;contentDescription=uiText("Drag Paladino bubble")}
    header.addView(title,LinearLayout.LayoutParams(0,dp(52),1f));draggable(title!!)
    header.addView(icon(R.drawable.ic_pet_collapse,"Collapse"){collapse()});panel.addView(header)
    status=TextView(this).apply{setTextColor(gold);textSize=11f;setPadding(0,dp(6),0,dp(10));maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END};panel.addView(status)
    text=TextView(this).apply{setTextColor(PetPalette.text);textSize=14f;maxLines=5;ellipsize=android.text.TextUtils.TruncateAt.END;setPadding(0,0,0,dp(12))};panel.addView(text)
    val composer=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
-   input=EditText(this).apply{hint="Message Paladino";setHintTextColor(PetPalette.muted);setTextColor(Color.WHITE);textSize=14f;maxLines=2;minHeight=dp(48);background=surface(PetPalette.raised,16);setPadding(dp(12),dp(8),dp(12),dp(8));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;filterTouchesWhenObscured=true}
+   input=EditText(this).apply{hint=uiText("Message Paladino");setHintTextColor(PetPalette.muted);setTextColor(Color.WHITE);textSize=14f;maxLines=2;minHeight=dp(48);background=surface(PetPalette.raised,16);setPadding(dp(12),dp(8),dp(12),dp(8));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;filterTouchesWhenObscured=true}
    composer.addView(input,LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
    send=icon(R.drawable.ic_pet_send,"Send",true){
     val controller=app.sessionHub.active.value
     if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
    };composer.addView(send);panel.addView(composer)
-   val actions=LinearLayout(this).apply{setPadding(0,dp(10),0,dp(4))}
+   val largeText=resources.configuration.fontScale>1.3f
+   val actions=LinearLayout(this).apply{orientation=if(largeText)LinearLayout.VERTICAL else LinearLayout.HORIZONTAL;setPadding(0,dp(10),0,dp(4))}
    val newChat=action(R.drawable.ic_pet_new,"New chat"){saveDraft();app.sessionHub.create()}
-   actions.addView(newChat,LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
+   actions.addView(newChat,if(largeText)LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=dp(8)} else LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
    val fullChat=action(R.drawable.ic_pet_open,"Full chat"){collapse();startActivity(Intent(this,MainActivity::class.java).putExtra("open_chat",true).putExtra("widget_session",app.sessionHub.active.value.sessionId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))}
-   actions.addView(fullChat,LinearLayout.LayoutParams(0,-2,1f));panel.addView(actions)
+   actions.addView(fullChat,if(largeText)LinearLayout.LayoutParams(-1,-2) else LinearLayout.LayoutParams(0,-2,1f));panel.addView(actions)
    panel.setOnTouchListener{_,event->if(event.action==MotionEvent.ACTION_OUTSIDE){collapse();true}else false}
    panel.setOnKeyListener{_,key,event->if(key==KeyEvent.KEYCODE_BACK&&event.action==KeyEvent.ACTION_UP){collapse();true}else false}
    observation=scope.launch{app.sessionHub.active.collectLatest{controller->
@@ -191,20 +193,25 @@ class SpriteOverlayService:Service(){
     input?.setText(drafts[observedSession]?:"")
     combine(controller.ui,controller.messages,controller.sessionInfo){state,messages,session->Triple(state,messages,session)}.collect{(state,messages,session)->
      showAnimation(headerSprite,panel,state.petReaction())
-     title?.text="Paladino";status?.text="${state.mode} · ${state.petReaction().label} · ${session.title}"
-     text?.text=replyPreview(when{state.error!=null->state.error;state.action!=null||state.cloud!=null->"Open the app to review this request.";state.busy->state.streaming.ifBlank{state.status};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:"A little help, wherever you are."})
+     title?.text="Paladino";status?.text="${state.mode} · ${uiText(state.petReaction().label)} · ${sessionText(session.title)}"
+     text?.let{markdown.setMarkdown(it,when{state.error!=null->uiText(state.error);state.action!=null||state.cloud!=null->uiText("Open the app to review this request.");state.busy->state.streaming.ifBlank{uiText(state.status)};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:uiText("A little help, wherever you are.")})}
      val reviewing=state.action!=null||state.cloud!=null
-     fullChat.text=if(reviewing)"Open to approve" else "Full chat"
+     fullChat.text=uiText(if(reviewing)"Open to approve" else "Full chat")
      newChat.isEnabled=!state.busy&&!reviewing;newChat.alpha=if(newChat.isEnabled)1f else .4f
-     send?.setImageResource(if(state.busy)R.drawable.ic_pet_stop else R.drawable.ic_pet_send);send?.contentDescription=if(state.busy)"Stop" else "Send"
+     send?.setImageResource(if(state.busy)R.drawable.ic_pet_stop else R.drawable.ic_pet_send);send?.contentDescription=uiText(if(state.busy)"Stop" else "Send")
      send?.isEnabled=state.busy||(state.action==null&&state.cloud==null);send?.alpha=if(send?.isEnabled==true)1f else .4f;input?.isEnabled=!state.busy
      panel.post{clampWindow()}
     }
    }}
   }
-  root=panel;layout=params();if(!unlocked())panel.visibility=View.GONE
+  val windowRoot:ViewGroup=if(expanded)object:ScrollView(this){
+   override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
+    super.onMeasure(widthMeasureSpec,View.MeasureSpec.makeMeasureSpec(workArea().height().coerceAtLeast(dp(48)),View.MeasureSpec.AT_MOST))
+   }
+  }.apply{isFillViewport=false;addView(panel);setOnTouchListener{_,event->if(event.action==MotionEvent.ACTION_OUTSIDE){collapse();true}else false}}else panel
+  root=windowRoot;layout=params();if(!unlocked())windowRoot.visibility=View.GONE
   panel.setOnApplyWindowInsetsListener{_,insets->panel.post{clampWindow()};insets}
-  try{windows.addView(panel,layout);appliedX=layout!!.x;appliedY=layout!!.y;panel.post{clampWindow()}}catch(_:RuntimeException){root=null;stopSelf()}
+  try{windows.addView(windowRoot,layout);appliedX=layout!!.x;appliedY=layout!!.y;panel.post{clampWindow()}}catch(_:RuntimeException){root=null;stopSelf()}
  }
  override fun onDestroy(){
   running.value=false;animation?.stop();scope.cancel();runCatching{unregisterReceiver(screenEvents)};root?.let{runCatching{windows.removeView(it)}};root=null
