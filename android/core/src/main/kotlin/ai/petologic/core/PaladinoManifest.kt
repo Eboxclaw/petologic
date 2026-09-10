@@ -17,7 +17,8 @@ data class PaladinoManifest(val roleId:String,val personaRef:String,val allowedT
    val list=values.getValue("allowedTools")
    require(list.startsWith("[")&&list.endsWith("]"))
    val tools=list.drop(1).dropLast(1).split(',').map{it.trim()}.toSet()
-   require(tools==setOf("notes.search","notes.create","notes.delete")){"Unsupported tool or privilege expansion."}
+   val supported=setOf("notes.search","notes.create","notes.delete","clock.read","alarm.next","calendar.today","weather.current")
+   require(tools.containsAll(setOf("notes.search","notes.create","notes.delete"))&&tools.all{it in supported}){"Unsupported tool or privilege expansion."}
    return PaladinoManifest("paladino","paladino/persona.md",tools)
   }
  }

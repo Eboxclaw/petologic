@@ -32,6 +32,21 @@ internal fun Context.sessionText(title:String):String=when{
 }
 private object UiLabels {
  val ids=mapOf(
+  "Open Android app info" to R.string.ui_f430bbca2509,
+  "This is an Android restriction. Paladino cannot grant it itself. Do not disable Play Protect. The in-app bubble remains available." to R.string.ui_74f665e4d238,
+  "If Android says access was denied, open App info → ⋮ → Allow restricted settings, if available and you trust this installation. Then return and enable Display over other apps. Work/supervised devices may prohibit it." to R.string.ui_0ef8f5fd5e84,
+  "Permission blocked?" to R.string.ui_f84071fa306a,
+  "Email account: not connected. Gmail and Outlook need an authorized provider connection; Android does not expose their inboxes." to R.string.ui_493ab8aec680,
+  "Weather sends this city and its coordinates to Open-Meteo only when requested. No GPS, calendar or conversation is shared. Non-commercial preview API." to R.string.ui_b3f2a3b7e14d,
+  "Allow Open-Meteo weather" to R.string.ui_e18e11b1047a,
+  "Weather city" to R.string.ui_5c291ad2a6e7,
+  "Only calendars synchronized to Android are visible. Up to 20 events for today. Android exposes the next alarm, not every alarm." to R.string.ui_290164d09c5d,
+  "Allow calendar reading" to R.string.ui_8943a06d0d8e,
+  "Calendar reading allowed" to R.string.ui_465d58ad8e74,
+  "Ask: What time is it? · Next alarm · My calendar today · Weather" to R.string.ui_087c279a3039,
+  "Manage phone access" to R.string.ui_67e25ff72d0d,
+  "Clock, next alarm, calendar and weather. Read-only; no messages sent or events changed." to R.string.ui_21558b451f7d,
+  "Phone access" to R.string.ui_6b243276e05e,
   "Set up model" to R.string.ui_07aaec9ace63,
   "Install a model to continue." to R.string.ui_11f47d9c9a06,
   "Discard this message" to R.string.ui_3a3be4b8590d,

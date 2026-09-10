@@ -57,3 +57,11 @@ Em Definições podes ligar uma chave API de OpenRouter, OpenAI ou Z.ai e indica
 - Experimenta rotação, teclado aberto e TalkBack. Se um controlo ficar escondido, envia uma captura e indica o modelo do telemóvel/versão Android.
 
 Os testes em emulador não substituem esta validação num aparelho físico.
+
+## 8. Leituras do telemóvel (0.1.5+)
+
+Em **Definições → Acesso ao telemóvel → Gerir acesso**, permite a leitura do calendário se a quiseres usar. Só aparecem calendários sincronizados com o Android. Para meteorologia, indica a cidade e ativa Open-Meteo; a cidade/coordenadas saem do aparelho apenas quando fazes o pedido.
+
+Experimenta: “Que horas são?”, “Qual é o próximo alarme?”, “Mostra a minha agenda”, “Meteorologia”. São leituras diretas: não criam alarmes, não alteram eventos e não ligam uma conta de email.
+
+Se a sobreposição disser **O acesso foi negado à app**, abre **Informações da app → ⋮ → Permitir definições restritas**, se disponível e se confiares na instalação oficial. Volta à autorização de **Sobrepor a outras apps** e tenta novamente. A app inclui **Autorização bloqueada? → Abrir informações da app no Android**. Não desatives o Play Protect; num aparelho gerido a autorização pode continuar proibida. Usa a bolha interna enquanto resolves a autorização.

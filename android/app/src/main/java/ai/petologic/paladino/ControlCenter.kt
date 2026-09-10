@@ -52,7 +52,7 @@ import ai.petologic.core.*
   Text(sessionLabel(session.title)+" · 0xPaladino",color=Muted)
   if(section!="Overview")TextButton(onClick={section="Overview"}){Text(tr("← All controls"))}
   when(section){
-   "Overview"->listOf("Memory","Tools","Permissions","Rules & instructions","Skills & MCPs","Integrations").forEach{label->OutlinedButton(onClick={section=label},modifier=Modifier.fillMaxWidth()){Text(tr(label))}}
+   "Overview"->listOf("Memory","Tools","Permissions","Rules & instructions","Skills & MCPs","Integrations").forEach{label->OutlinedCard(onClick={section=label},modifier=Modifier.fillMaxWidth()){Row(Modifier.padding(20.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){Text(tr(label),modifier=Modifier.weight(1f),style=MaterialTheme.typography.titleMedium);Text("›",color=Gold,fontSize=24.sp)}}}
    "Memory"->{
     Text(tr("What Paladino can know"),fontSize=20.sp)
     PermissionSwitch("Read this session’s memory",options.memoryRead){vm.updateOptions(options.copy(memoryRead=it))}

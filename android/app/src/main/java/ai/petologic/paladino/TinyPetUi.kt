@@ -51,9 +51,10 @@ import kotlinx.coroutines.withContext
  val context=LocalContext.current
  val app=context.applicationContext as PaladinoApplication
  val overlayRunning by SpriteOverlayService.running.collectAsStateWithLifecycle()
+ var overlayDenied by remember{mutableStateOf(false)}
  val notificationPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()){_->context.startForegroundService(android.content.Intent(context,SpriteOverlayService::class.java))}
  fun startOverlay(){if(android.os.Build.VERSION.SDK_INT>=33&&context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)else context.startForegroundService(android.content.Intent(context,SpriteOverlayService::class.java))}
- val overlayPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()){if(android.provider.Settings.canDrawOverlays(context))startOverlay()}
+ val overlayPermission=androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()){if(android.provider.Settings.canDrawOverlays(context)){overlayDenied=false;startOverlay()}else overlayDenied=true}
  val manager=app.tinyPets
  val prefs by manager.state.collectAsStateWithLifecycle()
  val sessions by vm.hub.sessions.collectAsStateWithLifecycle()
@@ -77,6 +78,7 @@ import kotlinx.coroutines.withContext
     FlowRow{listOf(48 to "Small",64 to "Default",88 to "Large").forEach{(size,name)->FilterChip(prefs.sizeDp==size,{manager.update(prefs.copy(sizeDp=size))},label={Text(tr(name))},modifier=Modifier.padding(end=4.dp))}}
     HorizontalDivider()
     Text(tr("Floating above other apps"),style=MaterialTheme.typography.titleMedium)
+    OverlayHelpCard(overlayDenied)
     Text(tr("Tap Paladino to chat. Drag to move; the Sprite remembers its position. Allow display over other apps. Notifications provide a Stop control; you can also stop the Sprite here."),style=MaterialTheme.typography.bodySmall)
     Button(onClick={if(overlayRunning)context.stopService(android.content.Intent(context,SpriteOverlayService::class.java))else if(android.provider.Settings.canDrawOverlays(context))startOverlay()else overlayPermission.launch(android.content.Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,android.net.Uri.parse("package:"+context.packageName)))}){Text(tr(if(overlayRunning)"Stop floating Sprite" else "Enable floating Sprite"))}
     HorizontalDivider()
@@ -138,7 +140,7 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
     Text(sessionLabel(session.title)+" · "+(if(state.mode==ai.petologic.core.ExecutionMode.TINY)"Tiny" else "Maxx")+" · "+tr(state.petReaction().label),style=MaterialTheme.typography.labelSmall,color=Gold)
     val reply=if(state.busy)state.streaming.ifBlank{tr(state.status)}else messages.lastOrNull{it.sessionId==session.id&&it.speaker=="assistant"}?.text?:tr("I’m here. What would you like to do?")
     MarkdownReply(reply,maxLines=6)
-    Row{TextButton(onClick=onOpen){Text(tr(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation"))};TextButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Text(tr("New conversation"))}}
+    Column(Modifier.fillMaxWidth()){OutlinedButton(onClick=onOpen,modifier=Modifier.fillMaxWidth()){Text(tr(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation"))};TextButton(onClick={vm.hub.create()},modifier=Modifier.fillMaxWidth(),enabled=!state.busy&&state.action==null&&state.cloud==null){Text(tr("New conversation"))}}
     OutlinedTextField(draft,{draft=it},label={Text(tr("Message Paladino"))},modifier=Modifier.fillMaxWidth(),maxLines=3,enabled=!state.busy)
     Button(onClick={if(state.busy)vm.cancel()else{vm.send(draft);draft=""}},enabled=state.busy||draft.isNotBlank(),modifier=Modifier.fillMaxWidth()){
      Text(tr(if(state.busy)"Stop response" else "Send to Paladino"))

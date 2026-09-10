@@ -1,0 +1,5 @@
+Lisbon, Portugal · 2026-09-10T12:30 Europe/Lisbon
+Temperature: 26.2 °C
+Precipitation: 0.0 mm
+Wind: 10.0 km/h
+Source: Open-Meteo model estimate, not a phone sensor.

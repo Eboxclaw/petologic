@@ -77,7 +77,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    activeTaskId=id
    log("request","Mode ${mode.name}; model ${sessionInfo.value.modelId}")
    try{
-    if(mode==ExecutionMode.TINY){
+    if(mode==ExecutionMode.TINY&&phoneReadRequest(request)==null){
      app.modelsReady.await()
      if(sessionInfo.value.modelId !in app.modelLibrary.installed.value){
       ui.update{it.copy(pendingModelMessage=request,status="Install a model to continue.")}
@@ -87,7 +87,17 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
     ui.update{it.copy(pendingModelMessage=null,busy=true,error=null,notice=null,status="Understanding your request…")}
     app.memory.dao.task(TaskRow(id,request,mode.name,"ROUTING",sessionId=sessionId))
     app.memory.dao.message(MessageRow(UUID.randomUUID().toString(),"user",request,mode.name,sessionId=sessionId))
-    when(val route=RoutePolicy().route(request,mode)){
+    val phoneRead=phoneReadRequest(request)
+    if(phoneRead!=null){
+     check(options.value.toolCalls&&options.value.maxToolCalls>0){"Tool calls are disabled for this session."}
+     val toolId=when(phoneRead){PhoneRead.CLOCK->"clock.read";PhoneRead.ALARM->"alarm.next";PhoneRead.CALENDAR->"calendar.today";PhoneRead.WEATHER->"weather.current";else->null}
+     if(toolId!=null){check(toolId in manifest.allowedTools){"Read tool is not allowed by this role."};log("tool_call",toolId)}
+     else log("capabilities","Supported capabilities requested")
+     val pt=Regex("(?i)(que horas|proximo|próximo|meu|minha|quais|meteorologia|previsão|tempo|compromissos)").containsMatchIn(request)
+     val result=PhoneReads(app).read(phoneRead,pt,options.value.network)
+     if(toolId!=null)log("tool_result","$toolId completed; content kept in this session")
+     answer(result,ExecutionMode.TINY)
+    }else when(val route=RoutePolicy().route(request,mode)){
      is Route.Clarify->answer(route.message,mode)
      is Route.Save->{check(options.value.memoryWrite&&options.value.toolCalls){"Memory writes are disabled for this session."};val p=policy.propose("notes.create",route.text);app.memory.propose(p,sessionId);ui.update{it.copy(action=p,status="Your approval is needed.")}}
      is Route.Search->{check(options.value.memoryRead&&options.value.toolCalls){"Memory reads are disabled for this session."};val found=app.memory.search(route.query,sessionId);answer(if(found.isEmpty())"No matching notes yet. Try a word from the note, or save one with ‘Remember that…’." else found.joinToString("\n\n"){"${it.text}\n[Memory · ${it.id.take(8)}]"},ExecutionMode.TINY)}

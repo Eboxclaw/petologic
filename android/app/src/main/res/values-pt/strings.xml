@@ -123,7 +123,7 @@
  <string name="ui_ec62fda4cdf8" formatted="false">"Ainda não há notas. Pede ao Paladino para guardar uma ideia e aprova a nota."</string>
  <string name="ui_b3080a1e4983" formatted="false">"Privado · apenas nesta conversa"</string>
  <string name="ui_4867e6d26a8d" formatted="false">"Chamadas de ferramentas"</string>
- <string name="ui_92e5a8976c49" formatted="false">"Disponível: pesquisar notas privadas, propor uma nota e eliminar uma nota selecionada. Cada escrita exige aprovação. As ferramentas funcionam no Tiny; nesta prévia, o Maxx só responde com texto."</string>
+ <string name="ui_92e5a8976c49" formatted="false">"As notas usam ciclos de ferramentas do modelo em Tiny. Pedidos diretos leem o relógio, próximo alarme, calendário de hoje e meteorologia da cidade configurada. Calendário exige permissão; meteorologia exige adesão. As escritas continuam a exigir aprovação. A conta de email não está ligada."</string>
  <string name="ui_da8e485bf615" formatted="false">"Acessos da conversa"</string>
  <string name="ui_659980638c3c" formatted="false">"Permitir pedidos à cloud após revisão"</string>
  <string name="ui_93e6b5a1938c" formatted="false">"Ler memória"</string>
@@ -134,8 +134,8 @@
  <string name="ui_6dd8ecba3c71" formatted="false">"Instruções da conversa"</string>
  <string name="ui_8e0e26dca59b" formatted="false">"Guardar instruções"</string>
  <string name="ui_4dfcb1db4a18" formatted="false">"As notas privadas e o histórico Tiny ficam excluídos do Maxx. Chamadas de ferramentas não suportadas não concedem acessos."</string>
- <string name="ui_887f54a3a4d7" formatted="false">"As competências externas e os servidores MCP ainda não estão ligados. O manifesto do Paladino só permite as ferramentas de notas implementadas. Os futuros pacotes terão de declarar ferramentas e permissões antes de serem ativados."</string>
- <string name="ui_a571111eecb6" formatted="false">"OpenRouter, OpenAI e Z.ai estão disponíveis nas Definições com a tua chave API. Pesquisa web, integrações com outras apps, visão e aceleradores Google/Pixel estão planeados, sem acessos concedidos por defeito."</string>
+ <string name="ui_887f54a3a4d7" formatted="false">"Skills externos e servidores MCP não estão ligados. O papel incluído permite ferramentas de notas e as leituras implementadas do telemóvel. Pacotes futuros terão de declarar ferramentas e permissões."</string>
+ <string name="ui_a571111eecb6" formatted="false">"As leituras do telemóvel configuram-se em Definições → Acesso ao telemóvel. A conta de email não está ligada. OpenRouter, OpenAI e Z.ai usam a tua chave API. Pesquisa web, visão e aceleradores Pixel continuam planeados."</string>
  <string name="ui_9cec8406e878" formatted="false">"Apenas metadados. As chaves API e o conteúdo dos pedidos ficam excluídos."</string>
  <string name="ui_9e9fd316797c" formatted="false">"Faz um pedido para veres aqui os passos da execução."</string>
  <string name="ui_2d1527c658e8" formatted="false">"Biblioteca de modelos"</string>
@@ -241,4 +241,19 @@
  <string name="ui_3a3be4b8590d" formatted="false">"Descartar esta mensagem"</string>
  <string name="ui_11f47d9c9a06" formatted="false">"Instala um modelo para continuar."</string>
  <string name="ui_07aaec9ace63" formatted="false">"Preparar modelo"</string>
+ <string name="ui_6b243276e05e" formatted="false">"Acesso ao telemóvel"</string>
+ <string name="ui_21558b451f7d" formatted="false">"Relógio, próximo alarme, calendário e meteorologia. Só leitura; não envia mensagens nem altera eventos."</string>
+ <string name="ui_67e25ff72d0d" formatted="false">"Gerir acesso ao telemóvel"</string>
+ <string name="ui_087c279a3039" formatted="false">"Pergunta: Que horas são? · Próximo alarme · Minha agenda · Meteorologia"</string>
+ <string name="ui_465d58ad8e74" formatted="false">"Leitura do calendário permitida"</string>
+ <string name="ui_8943a06d0d8e" formatted="false">"Permitir leitura do calendário"</string>
+ <string name="ui_290164d09c5d" formatted="false">"Só são visíveis calendários sincronizados com o Android. Até 20 eventos de hoje. O Android indica o próximo alarme, não todos os alarmes."</string>
+ <string name="ui_5c291ad2a6e7" formatted="false">"Cidade para meteorologia"</string>
+ <string name="ui_e18e11b1047a" formatted="false">"Permitir meteorologia Open-Meteo"</string>
+ <string name="ui_b3f2a3b7e14d" formatted="false">"A meteorologia envia esta cidade e as coordenadas à Open-Meteo apenas quando pedida. Não partilha GPS, calendário nem conversa. API de prévia não comercial."</string>
+ <string name="ui_493ab8aec680" formatted="false">"Conta de email: não ligada. Gmail e Outlook precisam de uma ligação autorizada ao fornecedor; o Android não expõe as suas caixas de entrada."</string>
+ <string name="ui_f84071fa306a" formatted="false">"Autorização bloqueada?"</string>
+ <string name="ui_0ef8f5fd5e84" formatted="false">"Se o Android disser que o acesso foi negado, abre Informações da app → ⋮ → Permitir definições restritas, se disponível e se confiares nesta instalação. Depois volta e ativa Sobrepor a outras apps. Aparelhos geridos ou supervisionados podem impedir esta opção."</string>
+ <string name="ui_74f665e4d238" formatted="false">"É uma restrição do Android. O Paladino não pode conceder a autorização a si próprio. Não desatives o Play Protect. A bolha dentro da app continua disponível."</string>
+ <string name="ui_f430bbca2509" formatted="false">"Abrir informações da app no Android"</string>
 </resources>

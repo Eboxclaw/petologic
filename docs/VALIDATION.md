@@ -69,3 +69,7 @@ Rebuilt APK passed 19 JVM and 15 device tests, including actual model replies th
 ## 2026-09-10 — Model onboarding and manual updates
 
 Signed 0.1.4 adds missing-model cards, an official-download update button and website brand accents. [Validation](evidence/2026-09-10-onboarding/validation.md), [release](releases/0.1.4-preview.md), [design and flow](plans/07-model-onboarding-updates-brand.md). No automatic updater or durable unsent draft is claimed.
+
+## 2026-09-10 — Phone reads and overlay denial help
+
+37 JVM tests and targeted live read/UI tests passed; see [validation and limitations](evidence/2026-09-10-phone-reads/validation.md) and [release](releases/0.1.5-preview.md). Email account access and physical OEM permission validation remain outstanding.

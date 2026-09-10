@@ -123,7 +123,7 @@
  <string name="ui_ec62fda4cdf8" formatted="false">"No notes yet. Ask Paladino to ‘Remember that…’ and approve the note."</string>
  <string name="ui_b3080a1e4983" formatted="false">"Private · this session only"</string>
  <string name="ui_4867e6d26a8d" formatted="false">"Tool calling"</string>
- <string name="ui_92e5a8976c49" formatted="false">"Available: search private notes, propose a note, delete a selected note. Every write requires approval. Model tool loops run in Tiny; Maxx is text-only in this preview."</string>
+ <string name="ui_92e5a8976c49" formatted="false">"Notes use model tool loops in Tiny. Direct phone requests read the clock, next alarm, today’s calendar and configured-city weather. Calendar needs permission; weather needs opt-in. Writes still require approval. Email account access is not connected."</string>
  <string name="ui_da8e485bf615" formatted="false">"Session access"</string>
  <string name="ui_659980638c3c" formatted="false">"Allow cloud requests after review"</string>
  <string name="ui_93e6b5a1938c" formatted="false">"Read memory"</string>
@@ -134,8 +134,8 @@
  <string name="ui_6dd8ecba3c71" formatted="false">"Session instructions"</string>
  <string name="ui_8e0e26dca59b" formatted="false">"Save instructions"</string>
  <string name="ui_4dfcb1db4a18" formatted="false">"Private notes and Tiny history are excluded from Maxx. Unsupported tool calls cannot grant access."</string>
- <string name="ui_887f54a3a4d7" formatted="false">"External skills and MCP servers are not connected in this preview. The bundled Paladino manifest allows only the implemented note tools. Future packages must declare their tools and permissions before activation."</string>
- <string name="ui_a571111eecb6" formatted="false">"OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default."</string>
+ <string name="ui_887f54a3a4d7" formatted="false">"External skills and MCP servers are not connected. The bundled role allows note tools and the implemented read-only phone tools. Future packages must declare tools and permissions."</string>
+ <string name="ui_a571111eecb6" formatted="false">"Phone reads are configured under Settings → Phone access. Email account access is not connected. OpenRouter, OpenAI and Z.ai use your API key. Web search, vision and Pixel accelerators remain planned."</string>
  <string name="ui_9cec8406e878" formatted="false">"Metadata only. API keys and prompt contents are excluded."</string>
  <string name="ui_9e9fd316797c" formatted="false">"Run a request to see its steps here."</string>
  <string name="ui_2d1527c658e8" formatted="false">"Model library"</string>
@@ -241,4 +241,19 @@
  <string name="ui_3a3be4b8590d" formatted="false">"Discard this message"</string>
  <string name="ui_11f47d9c9a06" formatted="false">"Install a model to continue."</string>
  <string name="ui_07aaec9ace63" formatted="false">"Set up model"</string>
+ <string name="ui_6b243276e05e" formatted="false">"Phone access"</string>
+ <string name="ui_21558b451f7d" formatted="false">"Clock, next alarm, calendar and weather. Read-only; no messages sent or events changed."</string>
+ <string name="ui_67e25ff72d0d" formatted="false">"Manage phone access"</string>
+ <string name="ui_087c279a3039" formatted="false">"Ask: What time is it? · Next alarm · My calendar today · Weather"</string>
+ <string name="ui_465d58ad8e74" formatted="false">"Calendar reading allowed"</string>
+ <string name="ui_8943a06d0d8e" formatted="false">"Allow calendar reading"</string>
+ <string name="ui_290164d09c5d" formatted="false">"Only calendars synchronized to Android are visible. Up to 20 events for today. Android exposes the next alarm, not every alarm."</string>
+ <string name="ui_5c291ad2a6e7" formatted="false">"Weather city"</string>
+ <string name="ui_e18e11b1047a" formatted="false">"Allow Open-Meteo weather"</string>
+ <string name="ui_b3f2a3b7e14d" formatted="false">"Weather sends this city and its coordinates to Open-Meteo only when requested. No GPS, calendar or conversation is shared. Non-commercial preview API."</string>
+ <string name="ui_493ab8aec680" formatted="false">"Email account: not connected. Gmail and Outlook need an authorized provider connection; Android does not expose their inboxes."</string>
+ <string name="ui_f84071fa306a" formatted="false">"Permission blocked?"</string>
+ <string name="ui_0ef8f5fd5e84" formatted="false">"If Android says access was denied, open App info → ⋮ → Allow restricted settings, if available and you trust this installation. Then return and enable Display over other apps. Work/supervised devices may prohibit it."</string>
+ <string name="ui_74f665e4d238" formatted="false">"This is an Android restriction. Paladino cannot grant it itself. Do not disable Play Protect. The in-app bubble remains available."</string>
+ <string name="ui_f430bbca2509" formatted="false">"Open Android app info"</string>
 </resources>
