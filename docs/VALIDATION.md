@@ -73,3 +73,7 @@ Signed 0.1.4 adds missing-model cards, an official-download update button and we
 ## 2026-09-10 — Phone reads and overlay denial help
 
 37 JVM tests and targeted live read/UI tests passed; see [validation and limitations](evidence/2026-09-10-phone-reads/validation.md) and [release](releases/0.1.5-preview.md). Email account access and physical OEM permission validation remain outstanding.
+
+## 2026-09-10 — Sprint 1: Sprite idle pair and transparent overlay
+
+42 JVM tests (incl. new IdleCycleTest, updated PetReactionTest), lintDebug, assembleDebug and a focused instrumented run (TinyPetIntegrationTest OK) passed after replacing the single idle GIF with a two-clip idle sequencer and removing all opaque fills from the floating Sprite; the placeholder clips were rebuilt as transparent animated WebP after decoding proved the old GIF background opaque black. Screenshots and pixel-diff playback proof: [evidence](evidence/2026-09-10-sprite-overlay/validation.md). No release gate claimed: identical placeholder clips await the owner's authored WebPs; physical-device and accessibility passes remain open.

@@ -22,7 +22,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -92,7 +91,7 @@ class MainActivity:ComponentActivity(){
     0->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,tr("Conversations"))}
-      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(48.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(64.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
       Column(Modifier.weight(1f)){Text(tr("Chat"),fontSize=24.sp,fontWeight=FontWeight.Bold);Text(sessionLabel(session.title),color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
       IconButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Icon(painterResource(R.drawable.ic_pet_new),tr("New conversation"),tint=Gold)}
      }
@@ -111,9 +110,9 @@ class MainActivity:ComponentActivity(){
       }
      }else if(messages.isEmpty()){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
-       Spacer(Modifier.height(20.dp))
-       Box(Modifier.fillMaxWidth().height(112.dp).background(Brush.radialGradient(listOf(Raised,Ink))),contentAlignment=Alignment.Center){
-        if(petPrefs.visible)PaladinoSprite(Modifier.size(104.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+       Spacer(Modifier.height(12.dp))
+       Box(Modifier.fillMaxWidth().height(180.dp),contentAlignment=Alignment.Center){
+        if(petPrefs.visible)PaladinoSprite(Modifier.size(168.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
        }
        Text(tr("How can I help?"),fontSize=26.sp,lineHeight=32.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))

@@ -1,5 +1,7 @@
 package ai.petologic.paladino
 
+import ai.petologic.core.IdleCycle
+
 /** Presentation of actual controller state; it cannot grant tools or trigger inference. */
 enum class PetReaction(val label: String, val preferredAnimation: String) {
  IDLE("Idle", "idle"), RUNNING("Working", "thinking"),
@@ -17,5 +19,8 @@ fun petReaction(busy: Boolean, needsInput: Boolean, error: Boolean): PetReaction
 }
 fun PaladinoUiState.petReaction() = petReaction(busy, action != null || cloud != null || pendingModelMessage != null, error != null)
 
-/** Missing reaction assets deliberately fall back to idle. */
-fun PetReaction.animationResource(): Int = if (this == PetReaction.RUNNING) R.raw.paladino_thinking else R.raw.paladino_idle
+/** The idle pair chains two clips (one + two cycles, see [IdleCycle]) for a continuous loop. */
+val idlePair: Pair<Int, Int> = R.raw.paladino_idle1 to R.raw.paladino_idle2
+
+/** Missing reaction assets deliberately fall back to the idle pair. */
+fun PetReaction.animationResource(): Int = if (this == PetReaction.RUNNING) R.raw.paladino_thinking else R.raw.paladino_idle1

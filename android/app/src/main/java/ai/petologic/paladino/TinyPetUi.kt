@@ -3,10 +3,7 @@ package ai.petologic.paladino
 import android.animation.ValueAnimator
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.graphics.ImageDecoder
-import android.graphics.drawable.AnimatedImageDrawable
 import android.widget.ImageView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -23,27 +20,29 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Composable fun PaladinoSprite(modifier:Modifier=Modifier,animated:Boolean=true,label:String="Paladino, your TinyPet",reaction:PetReaction=PetReaction.IDLE){
  val context=LocalContext.current
  val owner=LocalLifecycleOwner.current
- val resource=reaction.animationResource()
- val drawable by produceState<AnimatedImageDrawable?>(null,animated,resource){
-  value=null
-  if(animated&&ValueAnimator.areAnimatorsEnabled())value=withContext(Dispatchers.IO){
-   runCatching{ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources,resource)) as? AnimatedImageDrawable}.getOrNull()?.apply{repeatCount=AnimatedImageDrawable.REPEAT_INFINITE}
-  }
+ val scope=rememberCoroutineScope()
+ val animator=remember{SpriteAnimator(context.resources,scope)}
+ var view by remember{mutableStateOf<ImageView?>(null)}
+ var resumed by remember{mutableStateOf(owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))}
+ DisposableEffect(owner){
+  val observer=LifecycleEventObserver{_,event->when(event){Lifecycle.Event.ON_RESUME->resumed=true;Lifecycle.Event.ON_PAUSE->resumed=false;else->Unit}}
+  owner.lifecycle.addObserver(observer);onDispose{owner.lifecycle.removeObserver(observer);animator.release()}
  }
- DisposableEffect(drawable,owner,animated){
-  val image=drawable
-  fun sync(){if(animated&&ValueAnimator.areAnimatorsEnabled()&&owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))image?.start()else image?.stop()}
-  val observer=LifecycleEventObserver{_,_->sync()};owner.lifecycle.addObserver(observer);sync()
-  onDispose{image?.stop();owner.lifecycle.removeObserver(observer)}
+ DisposableEffect(view,animated,reaction,resumed){
+  animator.gate={animated&&resumed&&ValueAnimator.areAnimatorsEnabled()}
+  view?.let{animator.attach(it)}
+  if(reaction==PetReaction.RUNNING)animator.playLooping(reaction.animationResource())else animator.playIdle(idlePair.first,idlePair.second)
+  onDispose{}
  }
- if(drawable==null)Image(painterResource(R.drawable.paladino_static),context.uiText(label),modifier)
- else AndroidView(factory={ImageView(it).apply{scaleType=ImageView.ScaleType.FIT_CENTER}},modifier=modifier,update={it.setImageDrawable(drawable);it.contentDescription=context.uiText(label)})
+ AndroidView(
+  factory={ImageView(it).apply{scaleType=ImageView.ScaleType.FIT_CENTER;setImageResource(R.drawable.paladino_static)}},
+  modifier=modifier,
+  update={it.contentDescription=context.uiText(label);view=it}
+ )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

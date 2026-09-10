@@ -23,7 +23,7 @@ class TinyPetIntegrationTest {
  }
  @Test fun supplied_idle_asset_is_an_android_animated_drawable(){
   val context=InstrumentationRegistry.getInstrumentation().targetContext
-  for(resource in listOf(R.raw.paladino_idle,R.raw.paladino_thinking)){
+  for(resource in listOf(R.raw.paladino_idle1,R.raw.paladino_idle2,R.raw.paladino_thinking)){
   val image=ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources,resource))
   assertTrue(image is AnimatedImageDrawable)
   assertTrue(image.intrinsicWidth>0&&image.intrinsicHeight>0)
