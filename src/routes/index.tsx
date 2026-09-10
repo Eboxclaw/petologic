@@ -428,6 +428,7 @@ function Index() {
                 <li>Updates are manual. Use Settings → App updates → Update app, or download here. Install over the previous public APK to keep conversations and models. Do not uninstall first.</li>
               </ol>
               <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
+              <p className="mt-3">Download stuck near the end? Retry — every attempt gets a fresh link, and Wi-Fi helps for the 93 MB APK and the 229 MB model.</p>
               <a className="mt-3 inline-block text-cyan underline" href={`${APK_RELEASE}/SHA256SUMS.txt`}>Verify SHA-256 checksum</a>
               <a className="mt-3 ml-4 inline-block text-cyan underline" href={`${APK_RELEASE}/INSTALL-ANDROID.md`}>Guia de instalação em português</a>
             </details>
