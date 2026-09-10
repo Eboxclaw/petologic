@@ -17,8 +17,8 @@ class PortugueseUiTest {
   compose.waitUntil(10000){compose.onAllNodesWithText("Como posso ajudar?").fetchSemanticsNodes().isNotEmpty()}
   device.takeScreenshot(java.io.File(app.filesDir,"pt-chat.png"))
   compose.onNodeWithContentDescription("Definições",useUnmergedTree=true).performClick()
-  compose.onNodeWithText("Idioma").assertIsDisplayed()
-  compose.onNodeWithText("Alterar idioma da app").assertIsDisplayed()
+  compose.onNodeWithText("Idioma").performScrollTo().assertIsDisplayed()
+  compose.onNodeWithText("Alterar idioma da app").performScrollTo().assertIsDisplayed()
   compose.onNodeWithContentDescription("Ações rápidas").performClick()
   compose.onNodeWithText("Mensagem ao Paladino").assertIsDisplayed()
   device.takeScreenshot(java.io.File(app.filesDir,"pt-menu.png"))

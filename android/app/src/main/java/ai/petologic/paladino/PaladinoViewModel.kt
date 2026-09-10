@@ -26,6 +26,8 @@ class PaladinoViewModel(application:Application):AndroidViewModel(application){
  fun importModel(uri:android.net.Uri)=viewModelScope.launch { try { library.import(uri);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Import failed" } }
  fun scanFolder(uri:android.net.Uri)=viewModelScope.launch { try { app.contentResolver.takePersistableUriPermission(uri,android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);library.rememberAndScan(uri);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Folder unavailable" } }
  fun downloadModel(id:String)=viewModelScope.launch { try { library.install(id);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Download failed" } }
+ fun discardModelMessage()=current.discardModelMessage()
+ fun resumeModelMessage()=current.resumeModelMessage()
  fun send(text:String)=current.send(text)
  fun mode(mode:ExecutionMode)=current.mode(mode)
  fun cancel()=current.cancel()

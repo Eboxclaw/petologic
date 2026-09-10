@@ -65,3 +65,7 @@ Rebuilt APK passed 19 JVM and 15 device tests, including actual model replies th
 ## 2026-09-10 — Signed PT/EN and Markdown preview
 
 0.1.3 supersedes earlier distribution/UI gaps: 36 JVM tests, lint/builds, 8 final Android tests and PT flows at normal/200% text passed. Signed update preserved Conversation 2. [Evidence and limits](evidence/2026-09-10-localization/validation.md), [release](releases/0.1.3-preview.md), [installation](INSTALL-ANDROID.md). Physical-device, TalkBack, provider-account and production-readiness gates remain open.
+
+## 2026-09-10 — Model onboarding and manual updates
+
+Signed 0.1.4 adds missing-model cards, an official-download update button and website brand accents. [Validation](evidence/2026-09-10-onboarding/validation.md), [release](releases/0.1.4-preview.md), [design and flow](plans/07-model-onboarding-updates-brand.md). No automatic updater or durable unsent draft is claimed.

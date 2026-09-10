@@ -32,6 +32,19 @@ internal fun Context.sessionText(title:String):String=when{
 }
 private object UiLabels {
  val ids=mapOf(
+  "Set up model" to R.string.ui_07aaec9ace63,
+  "Install a model to continue." to R.string.ui_11f47d9c9a06,
+  "Discard this message" to R.string.ui_3a3be4b8590d,
+  "Already have it? Import a model" to R.string.ui_73f9e2008986,
+  "Install model" to R.string.ui_d9122130b261,
+  "Continue conversation" to R.string.ui_577225a33f9b,
+  "Your message is waiting. Install the model once, then chat on your phone without an account." to R.string.ui_2388566064eb,
+  "Give Paladino a local brain" to R.string.ui_1f71dff76e0a,
+  "Paladino is ready" to R.string.ui_7a974c4277a0,
+  "Opens GitHub in your browser. Android asks you to confirm installation." to R.string.ui_59beff1d59a4,
+  "Update app" to R.string.ui_d577f783cff4,
+  "Updates are manual. Open the official downloads page and install the newer APK over this app. Keep your conversations and models: do not uninstall first." to R.string.ui_162b3bbe2c36,
+  "App updates" to R.string.ui_16213f85d7a6,
   "Chat" to R.string.ui_2ced57f12591,
   "Controls" to R.string.ui_bee75ca77f75,
   "Orchestration" to R.string.ui_6926cb0e99e8,

@@ -15,7 +15,7 @@ import java.util.UUID
 data class PendingCloud(val context:ContextEnvelope,val model:String,val provider:CloudProvider=CloudProvider.OPENROUTER)
 data class PaladinoUiState(
  val mode:ExecutionMode=ExecutionMode.TINY,val busy:Boolean=false,val status:String="At your side.",
- val streaming:String="",val error:String?=null,val action:ActionProposal?=null,
+ val pendingModelMessage:String?=null,val streaming:String="",val error:String?=null,val action:ActionProposal?=null,
  val provider:CloudProvider=CloudProvider.OPENROUTER,val cloud:PendingCloud?=null,val connected:Boolean=false,val model:String="",val notice:String?=null
 )
 class SessionController(private val app:PaladinoApplication,val sessionId:String){
@@ -64,6 +64,8 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
   catch(e:Exception){ui.update{it.copy(error=e.message?:"Could not save the connection.")}}
  }
  fun disconnect(){val provider=ui.value.provider;cancel();app.credentials.disconnect(provider);ui.update{it.copy(connected=false,cloud=null,notice="Disconnected on this device. Revoke the key in ${provider.label} to invalidate it elsewhere.")}}
+ fun discardModelMessage(){ui.update{it.copy(pendingModelMessage=null)}}
+ fun resumeModelMessage(){val pending=ui.value.pendingModelMessage?:return;ui.update{it.copy(pendingModelMessage=null)};send(pending)}
  fun send(input:String){
   if(ui.value.busy || ui.value.action!=null || ui.value.cloud!=null)return
   val request=input.trim();if(request.isEmpty())return
@@ -75,7 +77,14 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    activeTaskId=id
    log("request","Mode ${mode.name}; model ${sessionInfo.value.modelId}")
    try{
-    ui.update{it.copy(busy=true,error=null,notice=null,status="Understanding your request…")}
+    if(mode==ExecutionMode.TINY){
+     app.modelsReady.await()
+     if(sessionInfo.value.modelId !in app.modelLibrary.installed.value){
+      ui.update{it.copy(pendingModelMessage=request,status="Install a model to continue.")}
+      return@launch
+     }
+    }
+    ui.update{it.copy(pendingModelMessage=null,busy=true,error=null,notice=null,status="Understanding your request…")}
     app.memory.dao.task(TaskRow(id,request,mode.name,"ROUTING",sessionId=sessionId))
     app.memory.dao.message(MessageRow(UUID.randomUUID().toString(),"user",request,mode.name,sessionId=sessionId))
     when(val route=RoutePolicy().route(request,mode)){

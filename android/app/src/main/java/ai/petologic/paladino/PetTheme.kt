@@ -5,10 +5,10 @@ import androidx.compose.ui.graphics.Color
 
 /** Shared palette for Compose screens and the native overlay window. */
 internal object PetPalette {
- const val background=0xFF0B1422.toInt()
- const val panel=0xFF142238.toInt()
- const val raised=0xFF20324A.toInt()
- const val gold=0xFFE4BB65.toInt()
+ const val background=0xFF080A18.toInt()
+ const val panel=0xFF141629.toInt()
+ const val raised=0xFF232943.toInt()
+ const val gold=0xFFF0D64B.toInt()
  const val text=0xFFF2F5FA.toInt()
  const val muted=0xFFADBDD1.toInt()
  const val outline=0xFF657B96.toInt()
@@ -21,8 +21,8 @@ internal val Muted=Color(PetPalette.muted)
 internal val Cream=Color(PetPalette.text)
 internal val PetColors=darkColorScheme(
  primary=Gold,onPrimary=Ink,primaryContainer=Raised,onPrimaryContainer=Cream,
- secondary=Gold,onSecondary=Ink,secondaryContainer=Raised,onSecondaryContainer=Cream,
- tertiary=Color(0xFF9ACFFF),onTertiary=Ink,background=Ink,onBackground=Cream,
+ secondary=Color(0xFF67E8E4),onSecondary=Ink,secondaryContainer=Raised,onSecondaryContainer=Cream,
+ tertiary=Color(0xFF67E8E4),onTertiary=Ink,background=Ink,onBackground=Cream,
  surface=Panel,onSurface=Cream,surfaceVariant=Raised,onSurfaceVariant=Muted,
  surfaceContainerLowest=Ink,surfaceContainerLow=Panel,surfaceContainer=Panel,
  surfaceContainerHigh=Raised,surfaceContainerHighest=Raised,

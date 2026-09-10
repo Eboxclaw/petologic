@@ -194,12 +194,12 @@ class SpriteOverlayService:Service(){
     combine(controller.ui,controller.messages,controller.sessionInfo){state,messages,session->Triple(state,messages,session)}.collect{(state,messages,session)->
      showAnimation(headerSprite,panel,state.petReaction())
      title?.text="Paladino";status?.text="${state.mode} · ${uiText(state.petReaction().label)} · ${sessionText(session.title)}"
-     text?.let{markdown.setMarkdown(it,when{state.error!=null->uiText(state.error);state.action!=null||state.cloud!=null->uiText("Open the app to review this request.");state.busy->state.streaming.ifBlank{uiText(state.status)};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:uiText("A little help, wherever you are.")})}
+     text?.let{markdown.setMarkdown(it,when{state.pendingModelMessage!=null->uiText("Install a model to continue.");state.error!=null->uiText(state.error);state.action!=null||state.cloud!=null->uiText("Open the app to review this request.");state.busy->state.streaming.ifBlank{uiText(state.status)};else->messages.lastOrNull{it.speaker=="assistant"}?.text?:uiText("A little help, wherever you are.")})}
      val reviewing=state.action!=null||state.cloud!=null
-     fullChat.text=uiText(if(reviewing)"Open to approve" else "Full chat")
+     fullChat.text=uiText(if(state.pendingModelMessage!=null)"Set up model" else if(reviewing)"Open to approve" else "Full chat")
      newChat.isEnabled=!state.busy&&!reviewing;newChat.alpha=if(newChat.isEnabled)1f else .4f
      send?.setImageResource(if(state.busy)R.drawable.ic_pet_stop else R.drawable.ic_pet_send);send?.contentDescription=uiText(if(state.busy)"Stop" else "Send")
-     send?.isEnabled=state.busy||(state.action==null&&state.cloud==null);send?.alpha=if(send?.isEnabled==true)1f else .4f;input?.isEnabled=!state.busy
+     send?.isEnabled=state.pendingModelMessage==null&&(state.busy||(state.action==null&&state.cloud==null));send?.alpha=if(send?.isEnabled==true)1f else .4f;input?.isEnabled=!state.busy&&state.pendingModelMessage==null
      panel.post{clampWindow()}
     }
    }}

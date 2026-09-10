@@ -11,6 +11,8 @@ Também podes usar a [página oficial de versões](https://github.com/Eboxclaw/p
 
 ## 2. Se já tens uma versão anterior
 
+**Não atualiza automaticamente.** Nas versões 0.1.4 e seguintes, abre **Definições → Atualizações da app → Atualizar app**. O botão abre os downloads oficiais no browser; escolhe o APK mais recente e confirma a atualização no Android. Nas versões anteriores, usa o site para instalar primeiro a 0.1.4 ou superior. Não é uma reinstalação do zero.
+
 As versões públicas assinadas usam a mesma identidade e podem ser atualizadas por cima: **não desinstales primeiro**. As conversas, notas e modelos devem manter-se. O percurso de atualização é testado com uma sessão no emulador; guarda à parte informação insubstituível antes de atualizar uma prévia.
 
 Um APK de desenvolvimento/debug usa outra assinatura e não pode ser atualizado diretamente pelo APK público. Se aparecer “app não instalada” ou conflito de assinatura, não apagues os dados por tentativa: confirma primeiro qual a versão instalada.
@@ -21,6 +23,8 @@ Um APK de desenvolvimento/debug usa outra assinatura e não pode ser atualizado 
 2. Na biblioteca de modelos, descarrega **LFM2.5-350M Q4_K_M** (cerca de 229 MB). Espera pela verificação e pelo estado pronto.
 3. Se já tens o ficheiro exato numa pasta acessível, escolhe **Usar ficheiro existente / Use existing file** ou **Escolher pasta / Choose folder**. A app verifica o modelo e a quantização antes de reutilizar; não lê os ficheiros privados de outras apps.
 4. Volta ao **Chat**, escolhe **Tiny** e escreve “Olá, como estás?”. Depois da instalação do modelo, o Tiny funciona offline.
+
+Se enviares uma mensagem em Tiny antes de teres o modelo escolhido instalado, aparece um cartão com **Instalar modelo**. A mensagem fica à espera enquanto a app está aberta. Após instalar ou importar, toca em **Continuar conversa**; o download não envia a mensagem sozinho.
 
 A memória semântica usa um download opcional separado. O modelo local não vai dentro do APK e não precisa de ser descarregado novamente só porque atualizas a app.
 

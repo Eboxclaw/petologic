@@ -1,0 +1,8 @@
+
+ai.petologic.paladino.OnboardingUiTest:...
+
+Time: 12.828
+
+OK (3 tests)
+
+

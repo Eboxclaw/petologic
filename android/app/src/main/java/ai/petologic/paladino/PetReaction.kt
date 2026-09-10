@@ -15,7 +15,7 @@ fun petReaction(busy: Boolean, needsInput: Boolean, error: Boolean): PetReaction
  busy -> PetReaction.RUNNING
  else -> PetReaction.IDLE
 }
-fun PaladinoUiState.petReaction() = petReaction(busy, action != null || cloud != null, error != null)
+fun PaladinoUiState.petReaction() = petReaction(busy, action != null || cloud != null || pendingModelMessage != null, error != null)
 
 /** Missing reaction assets deliberately fall back to idle. */
 fun PetReaction.animationResource(): Int = if (this == PetReaction.RUNNING) R.raw.paladino_thinking else R.raw.paladino_idle

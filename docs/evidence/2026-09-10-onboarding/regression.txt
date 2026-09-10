@@ -1,0 +1,11 @@
+
+ai.petologic.paladino.OnboardingUiTest:..
+ai.petologic.paladino.PaladinoUiTest:.....
+ai.petologic.paladino.PairedChatSpriteTest:.
+ai.petologic.paladino.OverlayIntegrationTest:.
+
+Time: 82.344
+
+OK (9 tests)
+
+

@@ -52,8 +52,8 @@ const ARP: Array<[number, number]> = [
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
 // Public binary distribution; source code remains in the private application repository.
-const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.3-preview";
-const APK_URL = `${APK_RELEASE}/petologic-0.1.3-preview-arm64.apk`;
+const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.4-preview";
+const APK_URL = `${APK_RELEASE}/petologic-0.1.4-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
@@ -416,7 +416,7 @@ function Index() {
             </div>
 
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Android 12+ · ARM64 · 0.1.3 preview · local model downloads separately (229 MB)
+              Android 12+ · ARM64 · 0.1.4 preview · local model downloads separately (229 MB)
             </p>
             <details className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-white/60">
               <summary className="cursor-pointer text-cyan">Installation steps and checksum</summary>
@@ -425,7 +425,7 @@ function Index() {
                 <li>If Android asks, allow this browser to install apps, then confirm installation.</li>
                 <li>Open Paladino and download or import LFM2.5-350M Q4_K_M in Settings (229 MB). Choose Tiny to chat locally.</li>
                 <li>In Settings → Sprite and widget, enable the floating Sprite and grant display-over-apps access. Tap Paladino to chat or drag to move.</li>
-                <li>Updating a previous public APK? Install over it to keep your conversations and models. Do not uninstall first.</li>
+                <li>Updates are manual. Use Settings → App updates → Update app, or download here. Install over the previous public APK to keep conversations and models. Do not uninstall first.</li>
               </ol>
               <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
               <a className="mt-3 inline-block text-cyan underline" href={`${APK_RELEASE}/SHA256SUMS.txt`}>Verify SHA-256 checksum</a>

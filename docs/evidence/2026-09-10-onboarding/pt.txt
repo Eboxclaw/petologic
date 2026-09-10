@@ -1,0 +1,8 @@
+
+ai.petologic.paladino.PortugueseUiTest:.
+
+Time: 11.381
+
+OK (1 test)
+
+

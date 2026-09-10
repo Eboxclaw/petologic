@@ -228,4 +228,17 @@
  <string name="ui_f3385d82eaf6" formatted="false">"A escrita na memória está desativada nesta conversa."</string>
  <string name="ui_7ad83fb1f415" formatted="false">"Este ficheiro já não está disponível."</string>
  <string name="ui_f309a5431f03" formatted="false">"Não foi possível instalar o modelo verificado."</string>
+ <string name="ui_16213f85d7a6" formatted="false">"Atualizações da app"</string>
+ <string name="ui_162b3bbe2c36" formatted="false">"As atualizações são manuais. Abre a página oficial de downloads e instala o APK mais recente por cima desta app. Mantém as conversas e modelos: não desinstales primeiro."</string>
+ <string name="ui_d577f783cff4" formatted="false">"Atualizar app"</string>
+ <string name="ui_59beff1d59a4" formatted="false">"Abre o GitHub no browser. O Android pede confirmação para instalar."</string>
+ <string name="ui_7a974c4277a0" formatted="false">"O Paladino está pronto"</string>
+ <string name="ui_1f71dff76e0a" formatted="false">"Dá um cérebro local ao Paladino"</string>
+ <string name="ui_2388566064eb" formatted="false">"A tua mensagem está à espera. Instala o modelo uma vez e conversa no telemóvel sem precisares de uma conta."</string>
+ <string name="ui_577225a33f9b" formatted="false">"Continuar conversa"</string>
+ <string name="ui_d9122130b261" formatted="false">"Instalar modelo"</string>
+ <string name="ui_73f9e2008986" formatted="false">"Já tens o ficheiro? Importa um modelo"</string>
+ <string name="ui_3a3be4b8590d" formatted="false">"Descartar esta mensagem"</string>
+ <string name="ui_11f47d9c9a06" formatted="false">"Instala um modelo para continuar."</string>
+ <string name="ui_07aaec9ace63" formatted="false">"Preparar modelo"</string>
 </resources>

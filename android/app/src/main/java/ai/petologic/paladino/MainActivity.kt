@@ -84,8 +84,8 @@ class MainActivity:ComponentActivity(){
  }){padding->
   Column(Modifier.fillMaxSize().padding(padding).imePadding()){
    Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=8.dp),verticalAlignment=Alignment.CenterVertically){
-    Box(Modifier.size(9.dp).background(Gold,CircleShape));Spacer(Modifier.width(9.dp))
-    Text(tr("PETOLOGIC"),fontSize=13.sp,fontWeight=FontWeight.Bold,letterSpacing=2.sp)
+    BrandGem(Modifier.size(22.dp));Spacer(Modifier.width(9.dp))
+    Text(tr("PETOLOGIC"),fontSize=15.sp,fontWeight=FontWeight.Bold,letterSpacing=2.sp,fontFamily=androidx.compose.ui.text.font.FontFamily.Monospace,color=Gold)
     Spacer(Modifier.weight(1f));Text(tr("EARLY ACCESS"),fontSize=10.sp,letterSpacing=1.sp,color=Muted)
    }
    when(tab){
@@ -101,11 +101,15 @@ class MainActivity:ComponentActivity(){
       Surface(color=Panel,shape=RoundedCornerShape(24.dp)){Row(Modifier.padding(4.dp)){
        ExecutionMode.entries.forEach{mode->
         val selected=mode==state.mode
-        TextButton(onClick={vm.mode(mode)},enabled=!state.busy&&state.action==null&&state.cloud==null,colors=ButtonDefaults.textButtonColors(containerColor=if(selected)Gold else Color.Transparent,contentColor=if(selected)Ink else Muted),contentPadding=PaddingValues(horizontal=12.dp)) {Text(tr(if(mode==ExecutionMode.TINY)"Tiny" else "Maxx"),fontWeight=FontWeight.Bold)}
+        TextButton(onClick={vm.mode(mode)},enabled=!state.busy&&state.action==null&&state.cloud==null&&state.pendingModelMessage==null,colors=ButtonDefaults.textButtonColors(containerColor=if(selected)Gold else Color.Transparent,contentColor=if(selected)Ink else Muted),contentPadding=PaddingValues(horizontal=12.dp)) {Text(tr(if(mode==ExecutionMode.TINY)"Tiny" else "Maxx"),fontWeight=FontWeight.Bold)}
        }
       }}
      }
-     if(messages.isEmpty()){
+     if(state.pendingModelMessage!=null){
+      Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)){
+       ModelSetupCard(vm,onManage={tab=3})
+      }
+     }else if(messages.isEmpty()){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
        Spacer(Modifier.height(20.dp))
        Box(Modifier.fillMaxWidth().height(112.dp).background(Brush.radialGradient(listOf(Raised,Ink))),contentAlignment=Alignment.Center){
@@ -138,8 +142,8 @@ class MainActivity:ComponentActivity(){
      Column(Modifier.padding(horizontal=20.dp,vertical=8.dp)){
       if(state.mode==ExecutionMode.MAXX)Text(tr("Cloud mode · you review every request before sending"),fontSize=10.sp,color=Muted,modifier=Modifier.padding(bottom=8.dp))
       Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
-       OutlinedTextField(value=draft,onValueChange={draft=it},placeholder={Text(tr("What’s on your mind?"),fontSize=14.sp)},modifier=Modifier.weight(1f),shape=RoundedCornerShape(24.dp),maxLines=4,enabled=!state.busy,colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=Color(PetPalette.outline)))
-       FilledIconButton(onClick={if(state.busy)vm.cancel() else if(draft.isNotBlank()){vm.send(draft);draft=""}},modifier=Modifier.size(50.dp),enabled=state.busy||draft.isNotBlank()){
+       OutlinedTextField(value=draft,onValueChange={draft=it},placeholder={Text(tr("What’s on your mind?"),fontSize=14.sp)},modifier=Modifier.weight(1f),shape=RoundedCornerShape(24.dp),maxLines=4,enabled=!state.busy&&state.pendingModelMessage==null,colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=Color(PetPalette.outline)))
+       FilledIconButton(onClick={if(state.busy)vm.cancel() else if(draft.isNotBlank()){vm.send(draft);draft=""}},modifier=Modifier.size(50.dp),enabled=state.pendingModelMessage==null&&(state.busy||draft.isNotBlank())){
         Icon(if(state.busy)Icons.Outlined.Stop else Icons.Outlined.ArrowUpward,if(state.busy)tr("Stop response") else tr("Send message"))
        }
       }
@@ -177,6 +181,7 @@ class MainActivity:ComponentActivity(){
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
   Text(tr("Settings"),fontSize=30.sp,fontWeight=FontWeight.Bold)
   Text(tr("Appearance, models and connections."),color=Muted)
+  AppUpdateCard()
   LanguageSettings()
   TinyPetSettings(vm)
   ModelManager(vm)

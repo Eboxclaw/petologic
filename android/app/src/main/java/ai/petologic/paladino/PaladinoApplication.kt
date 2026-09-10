@@ -15,6 +15,7 @@ class PaladinoApplication:Application(){
  lateinit var agent:PaladinoAgent;private set
  lateinit var sessionHub:SessionHub;private set
  val ready=CompletableDeferred<Unit>()
+ val modelsReady=CompletableDeferred<Unit>()
  val scope=CoroutineScope(SupervisorJob()+Dispatchers.IO)
  override fun onCreate(){
   super.onCreate()
@@ -26,7 +27,7 @@ class PaladinoApplication:Application(){
   agent=PaladinoAgent(local,OpenRouterTransport(),credentials)
   sessionHub=SessionHub(this)
   scope.launch{try{memory.dao.recoverTasks();memory.dao.cancelPending();if(memory.dao.session("default")==null)memory.dao.session(SessionRow("default","First conversation"));ready.complete(Unit);try{memory.reconcile()}catch(_:Exception){}}catch(e:Exception){ready.completeExceptionally(e)}}
-  scope.launch{modelLibrary.verifyAll();local.verify();embedder.verify()}
+  scope.launch{try{modelLibrary.verifyAll();modelsReady.complete(Unit);local.verify();embedder.verify()}catch(e:Exception){modelsReady.completeExceptionally(e)}}
  }
  override fun onTrimMemory(level:Int){super.onTrimMemory(level);if(level>=TRIM_MEMORY_UI_HIDDEN)scope.launch{local.unload();embedder.unload()}}
 }

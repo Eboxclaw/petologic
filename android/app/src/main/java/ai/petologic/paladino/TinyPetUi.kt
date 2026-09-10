@@ -130,6 +130,7 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
  val session by vm.session.collectAsStateWithLifecycle()
  val messages by vm.messages.collectAsStateWithLifecycle()
  var draft by androidx.compose.runtime.saveable.rememberSaveable(session.id){mutableStateOf(initialDraft)}
+ LaunchedEffect(state.pendingModelMessage){if(state.pendingModelMessage!=null)onOpen()}
  androidx.compose.ui.window.Dialog(onDismissRequest=onDismiss){
   Surface(shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),color=Panel){
    Column(Modifier.fillMaxWidth().heightIn(max=520.dp).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
