@@ -274,4 +274,13 @@
  <string name="ui_c1f3a8e7d5b2" formatted="false">"Everything on this phone is erased: conversations, notes, settings, models and keys. Nothing leaves the device. This cannot be undone."</string>
  <string name="ui_d2a3f8e1c7b5" formatted="false">"Delete everything"</string>
  <string name="ui_e3b5a2f7d8c1" formatted="false">"Working…"</string>
+ <string name="ui_a1c5e8f2b4d7" formatted="false">"Skills"</string>
+ <string name="ui_b2d6f9a3c5e8" formatted="false">"Skills teach Paladino what it can do. Auto wakes a skill only when a message needs it."</string>
+ <string name="ui_c3e7a2b4d6f9" formatted="false">"Memory"</string>
+ <string name="ui_d4f8b3c5e7a2" formatted="false">"Off"</string>
+ <string name="ui_e5a9c4d6f8b3" formatted="false">"Auto"</string>
+ <string name="ui_f6b2d5e7a9c4" formatted="false">"Always"</string>
+ <string name="ui_a7c3e6f8b2d5" formatted="false">"Search private notes"</string>
+ <string name="ui_b8d4f7a9c3e6" formatted="false">"Propose a note"</string>
+ <string name="ui_c9e5a8b2d4f7" formatted="false">"Idle ~0 tokens · active ~%1$s tokens · %2$s tools exposed"</string>
 </resources>

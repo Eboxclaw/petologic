@@ -305,7 +305,16 @@ private object UiLabels {
   "Start from zero?" to R.string.ui_b9e3d7f2c5a1,
   "Everything on this phone is erased: conversations, notes, settings, models and keys. Nothing leaves the device. This cannot be undone." to R.string.ui_c1f3a8e7d5b2,
   "Delete everything" to R.string.ui_d2a3f8e1c7b5,
-  "Working…" to R.string.ui_e3b5a2f7d8c1
+  "Working…" to R.string.ui_e3b5a2f7d8c1,
+  "Skills" to R.string.ui_a1c5e8f2b4d7,
+  "Skills teach Paladino what it can do. Auto wakes a skill only when a message needs it." to R.string.ui_b2d6f9a3c5e8,
+  "Memory" to R.string.ui_c3e7a2b4d6f9,
+  "Off" to R.string.ui_d4f8b3c5e7a2,
+  "Auto" to R.string.ui_e5a9c4d6f8b3,
+  "Always" to R.string.ui_f6b2d5e7a9c4,
+  "Search private notes" to R.string.ui_a7c3e6f8b2d5,
+  "Propose a note" to R.string.ui_b8d4f7a9c3e6,
+  "Idle ~0 tokens · active ~%1\$s tokens · %2\$s tools exposed" to R.string.ui_c9e5a8b2d4f7
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

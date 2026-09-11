@@ -31,19 +31,21 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
  internal var responseObserver:((String)->Unit)?=null
  internal var toolResultObserver:((String,String)->Unit)?=null
  suspend fun run(context:ContextEnvelope,mode:ExecutionMode,modelId:String,consent:CloudConsent?=null,
-  options:SessionOptions=SessionOptions(),tools:AgentTools=AgentTools(),
+  options:SessionOptions=SessionOptions(),tools:AgentTools=AgentTools(),skillStubs:String="",
   onEvent:suspend(String,String)->Unit={_,_->},onText:(String)->Unit):String=withTimeout(options.validate().totalTimeoutSeconds*1000L) {
   val budget=LoopBudget(options)
   var searchPerformed=false
+  // Null lambdas mean the tool does not exist this turn: skill state, per-tool toggles and session
+  // capabilities were already resolved by the caller. Nothing merely "asks" the model to behave.
   val registry=ToolRegistry {
    if(mode==ExecutionMode.TINY&&options.toolCalls){
-    if(options.memoryRead&&tools.search!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
+    if(tools.search!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
      override suspend fun execute(args:NoteToolArgs):String {
       budget.tool("notes_search",args.argument);onEvent("tool_call","notes_search #${budget.calls}")
       return tools.search.invoke(args.argument).take(4000).also{searchPerformed=true;toolResultObserver?.invoke("notes_search",it);onEvent("tool_result","notes_search returned ${it.length} characters")}
      }
     })
-    if(options.memoryWrite&&tools.save!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
+    if(tools.save!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
      override suspend fun execute(args:NoteToolArgs):String {
       budget.tool("notes_save",args.argument);onEvent("tool_call","notes_save #${budget.calls}")
       return tools.save.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("notes_save",it);onEvent("tool_result","notes_save completed with a bounded result")}
@@ -62,12 +64,9 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
      val text=checkNotNull(cloud).generate(context,modelId,checkNotNull(credentials?.read(provider)){"Connect ${provider.label} first."},grant,provider,onText)
      return Message.Assistant(text,metaInfo=ResponseMetaInfo.create(KoogClock.System))
     }
-    val definitions=buildJsonArray{tools.forEach{descriptor->add(buildJsonObject{
-     put("name",descriptor.name);put("description",descriptor.description)
-     put("parameters",buildJsonObject{put("type","object");put("properties",buildJsonObject{put("argument",buildJsonObject{put("type","string")})});put("required",buildJsonArray{add("argument")})})
-    })}}
+    val definitions=LfmToolDescriptorSchemer.definitions(tools)
     val toolInstructions=if(tools.isEmpty())"" else "\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. When the current request explicitly asks to search notes, you must call notes_search now even if the answer appears in the conversation history. History is not a new search result. Never say a search was performed unless its tool result exists in this turn. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
-    val system=context.system+"\nSession instructions: "+options.instructions+toolInstructions
+    val system=context.system+skillStubs+"\nSession instructions: "+options.instructions+toolInstructions
     val turns=context.history+prompt.messages.filterNot{it is Message.System}.flatMap{message->message.parts.mapNotNull{part->when(part){
      is MessagePart.Text->ChatTurn(if(message is Message.Assistant)"assistant" else "user",part.text)
      is MessagePart.Tool.Call->ChatTurn("assistant","<|tool_call_start|>"+buildJsonObject{put("name",part.tool);put("arguments",part.args)}+"<|tool_call_end|>")
@@ -86,8 +85,9 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
      result=generate("No notes_search has run in this turn. Call notes_search now with a concise search query. Return only the tool call; no prose. Conversation history is not a search result.",true).also{responseObserver?.invoke(it)}
     }
     if(looksLikeToolCall(result)&&tools.isNotEmpty()){
+     val allowed=tools.map{it.name}.toSet()
      while(true){
-      val call=runCatching{parseNoteToolCall(result)}.getOrNull()
+      val call=runCatching{LfmToolCallParser.parse(result,allowed)}.getOrNull()
       if(call!=null){
        check(!freshSearchRequired||call.first=="notes_search"){"A note search was requested; no other action was authorized."}
        check(tools.any{it.name==call.first}){"The model requested a tool that this session cannot use."}

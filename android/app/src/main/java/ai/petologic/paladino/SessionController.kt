@@ -123,16 +123,22 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  }
  private suspend fun generate(context:ContextEnvelope,mode:ExecutionMode,model:String,consent:CloudConsent?){
   ui.update{it.copy(busy=true,status=if(mode==ExecutionMode.TINY)"Thinking on your phone…" else "Thinking with Maxx…",streaming="")}
+  val simpleGreeting=RoutePolicy().isSimpleGreeting(context.user)
+  // Skills resolve per turn: OFF/AUTO/PINNED state, per-tool toggles and Android permissions
+  // decide here which tools exist for this request; the agent never sees the rest.
+  val activations=if(simpleGreeting)emptyList() else ai.petologic.paladino.skills.SkillRegistry.activationsFor(app,context.user)
+  val skillToolIds=activations.flatMap{it.tools}.map{it.id}.toSet()
+  val skillStubs=activations.joinToString("\n"){it.skill.promptStub}
   val result=app.agent.run(context,mode,if(mode==ExecutionMode.TINY)sessionInfo.value.modelId else model,consent,options.value,
-   if(RoutePolicy().isSimpleGreeting(context.user)) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
-    search={query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}},
-    save={text->
+   if(simpleGreeting) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
+    search=if("notes_search" in skillToolIds)({query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}}) else null,
+    save=if("notes_save" in skillToolIds)({text->
      check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."}
      val proposal=policy.propose("notes.create",text);app.memory.propose(proposal,sessionId)
      val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
      try{if(approval.await()){check(options.value.memoryWrite){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
-    }
-   ),onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
+    }) else null
+   ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
   app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
   answer(result,mode)
  }

@@ -180,6 +180,7 @@ class MainActivity:ComponentActivity(){
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
   Text(tr("Settings"),fontSize=30.sp,fontWeight=FontWeight.Bold)
   Text(tr("Appearance, models and connections."),color=Muted)
+  SkillsCard()
   PhoneAccessCard()
   AppUpdateCard()
   UserCopyCard()
