@@ -425,10 +425,10 @@ function Index() {
                 <li>If Android asks, allow this browser to install apps, then confirm installation.</li>
                 <li>Open Paladino and download or import LFM2.5-350M Q4_K_M in Settings (229 MB). Choose Tiny to chat locally.</li>
                 <li>In Settings → Sprite and widget, enable the floating Sprite and grant display-over-apps access. Tap Paladino to chat or drag to move.</li>
-                <li>Updates are manual. Use Settings → App updates → Update app, or download here. Install over the previous public APK to keep conversations and models. Do not uninstall first.</li>
+                <li>Coming from 0.1.5 or earlier? Uninstall first — this release changed its signing key and Android blocks the in-place update. From 0.1.6 on, updates install over and keep everything. Use Settings → User copy to carry your data.</li>
               </ol>
               <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
-              <p className="mt-3">Download stuck near the end? Retry — every attempt gets a fresh link, and Wi-Fi helps for the 93 MB APK and the 229 MB model.</p>
+              <p className="mt-3">Download stuck near the end? Retry — every attempt gets a fresh link, and Wi-Fi helps for the 96 MB APK and the 229 MB model.</p>
               <a className="mt-3 inline-block text-cyan underline" href={`${APK_RELEASE}/SHA256SUMS.txt`}>Verify SHA-256 checksum</a>
               <a className="mt-3 ml-4 inline-block text-cyan underline" href={`${APK_RELEASE}/INSTALL-ANDROID.md`}>Guia de instalação em português</a>
             </details>
