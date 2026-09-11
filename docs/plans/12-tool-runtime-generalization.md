@@ -1,6 +1,6 @@
 # Plan 12 · Tool-runtime generalization and the Android capability layer
 
-Source: external architecture audit provided by the user (2026-09-11, ChatGPT) auditing `main` at `4b963d0`, cross-checked against the code the same day. This doc normalizes it into repo conventions and records the build order. It amends the capability drafts in `docs/capabilities/` where noted. Implementation happens in later sprints after user sign-off — nothing in this plan changes app behavior on its own.
+Source: external architecture audit provided by the user (2026-09-11, ChatGPT) auditing `main` at `4b963d0`, cross-checked against the code the same day. This doc normalizes it into repo conventions and records the build order. It amends the capability drafts in `docs/capabilities/` where noted. Implementation happens in later sprints after user sign-off — nothing in this plan changes app behavior on its own. Extended by [plan 13](13-skill-registry-and-security-skill-pack.md): the skill registry and per-turn activation layer, with the Security Guard pack as the first skill built on this runtime.
 
 ## 1. Verified current state (code, 2026-09-11)
 
