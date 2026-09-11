@@ -287,7 +287,25 @@ private object UiLabels {
   "Network permission was revoked." to R.string.ui_23a01ef04494,
   "Memory writes are disabled for this session." to R.string.ui_f3385d82eaf6,
   "This file is no longer available." to R.string.ui_7ad83fb1f415,
-  "Could not install verified model." to R.string.ui_f309a5431f03
+  "Could not install verified model." to R.string.ui_f309a5431f03,
+  "User copy" to R.string.ui_5c5f7d24a1b3,
+  "Save your conversations, notes and settings as one file in the place you choose. Downloaded models and API keys are not included." to R.string.ui_7a91c2e84f06,
+  "Save user copy" to R.string.ui_2f6d94b1c7a8,
+  "User copy saved." to R.string.ui_9e4b72f0d1c5,
+  "Load user copy" to R.string.ui_3b8a51d6e297,
+  "Loading a user copy replaces everything now in the app, then Paladino restarts." to R.string.ui_8d17f4a9b2e6,
+  "Replace app content with this copy?" to R.string.ui_4c9e17a3f8b2,
+  "Load and restart" to R.string.ui_6a2d83f5c1e9,
+  "User copy loaded. Paladino is restarting." to R.string.ui_b1f6e3a8d249,
+  "This user copy comes from a newer app version. Update the app first." to R.string.ui_c8a2f5d7b3e1,
+  "This file is not a Paladino user copy." to R.string.ui_d3b7a1e6f4c2,
+  "Could not save the user copy." to R.string.ui_e5c3b8f2a7d1,
+  "Could not load the user copy." to R.string.ui_f7d4c1a3b8e5,
+  "Delete everything and start over" to R.string.ui_a8f2c5d7b1e3,
+  "Start from zero?" to R.string.ui_b9e3d7f2c5a1,
+  "Everything on this phone is erased: conversations, notes, settings, models and keys. Nothing leaves the device. This cannot be undone." to R.string.ui_c1f3a8e7d5b2,
+  "Delete everything" to R.string.ui_d2a3f8e1c7b5,
+  "Working…" to R.string.ui_e3b5a2f7d8c1
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

@@ -256,4 +256,22 @@
  <string name="ui_0ef8f5fd5e84" formatted="false">"If Android says access was denied, open App info → ⋮ → Allow restricted settings, if available and you trust this installation. Then return and enable Display over other apps. Work/supervised devices may prohibit it."</string>
  <string name="ui_74f665e4d238" formatted="false">"This is an Android restriction. Paladino cannot grant it itself. Do not disable Play Protect. The in-app bubble remains available."</string>
  <string name="ui_f430bbca2509" formatted="false">"Open Android app info"</string>
+ <string name="ui_5c5f7d24a1b3" formatted="false">"User copy"</string>
+ <string name="ui_7a91c2e84f06" formatted="false">"Save your conversations, notes and settings as one file in the place you choose. Downloaded models and API keys are not included."</string>
+ <string name="ui_2f6d94b1c7a8" formatted="false">"Save user copy"</string>
+ <string name="ui_9e4b72f0d1c5" formatted="false">"User copy saved."</string>
+ <string name="ui_3b8a51d6e297" formatted="false">"Load user copy"</string>
+ <string name="ui_8d17f4a9b2e6" formatted="false">"Loading a user copy replaces everything now in the app, then Paladino restarts."</string>
+ <string name="ui_4c9e17a3f8b2" formatted="false">"Replace app content with this copy?"</string>
+ <string name="ui_6a2d83f5c1e9" formatted="false">"Load and restart"</string>
+ <string name="ui_b1f6e3a8d249" formatted="false">"User copy loaded. Paladino is restarting."</string>
+ <string name="ui_c8a2f5d7b3e1" formatted="false">"This user copy comes from a newer app version. Update the app first."</string>
+ <string name="ui_d3b7a1e6f4c2" formatted="false">"This file is not a Paladino user copy."</string>
+ <string name="ui_e5c3b8f2a7d1" formatted="false">"Could not save the user copy."</string>
+ <string name="ui_f7d4c1a3b8e5" formatted="false">"Could not load the user copy."</string>
+ <string name="ui_a8f2c5d7b1e3" formatted="false">"Delete everything and start over"</string>
+ <string name="ui_b9e3d7f2c5a1" formatted="false">"Start from zero?"</string>
+ <string name="ui_c1f3a8e7d5b2" formatted="false">"Everything on this phone is erased: conversations, notes, settings, models and keys. Nothing leaves the device. This cannot be undone."</string>
+ <string name="ui_d2a3f8e1c7b5" formatted="false">"Delete everything"</string>
+ <string name="ui_e3b5a2f7d8c1" formatted="false">"Working…"</string>
 </resources>

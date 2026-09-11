@@ -256,4 +256,22 @@
  <string name="ui_0ef8f5fd5e84" formatted="false">"Se o Android disser que o acesso foi negado, abre Informações da app → ⋮ → Permitir definições restritas, se disponível e se confiares nesta instalação. Depois volta e ativa Sobrepor a outras apps. Aparelhos geridos ou supervisionados podem impedir esta opção."</string>
  <string name="ui_74f665e4d238" formatted="false">"É uma restrição do Android. O Paladino não pode conceder a autorização a si próprio. Não desatives o Play Protect. A bolha dentro da app continua disponível."</string>
  <string name="ui_f430bbca2509" formatted="false">"Abrir informações da app no Android"</string>
+ <string name="ui_5c5f7d24a1b3" formatted="false">"Cópia pessoal"</string>
+ <string name="ui_7a91c2e84f06" formatted="false">"Guarda as tuas conversas, notas e definições num único ficheiro, no local que escolheres. Os modelos descarregados e as chaves de API não são incluídos."</string>
+ <string name="ui_2f6d94b1c7a8" formatted="false">"Guardar cópia"</string>
+ <string name="ui_9e4b72f0d1c5" formatted="false">"Cópia pessoal guardada."</string>
+ <string name="ui_3b8a51d6e297" formatted="false">"Carregar cópia"</string>
+ <string name="ui_8d17f4a9b2e6" formatted="false">"Carregar uma cópia substitui tudo o que está agora na app e o Paladino reinicia."</string>
+ <string name="ui_4c9e17a3f8b2" formatted="false">"Substituir o conteúdo da app por esta cópia?"</string>
+ <string name="ui_6a2d83f5c1e9" formatted="false">"Carregar e reiniciar"</string>
+ <string name="ui_b1f6e3a8d249" formatted="false">"Cópia carregada. O Paladino está a reiniciar."</string>
+ <string name="ui_c8a2f5d7b3e1" formatted="false">"Esta cópia foi feita numa versão mais recente da app. Atualiza a app primeiro."</string>
+ <string name="ui_d3b7a1e6f4c2" formatted="false">"Este ficheiro não é uma cópia pessoal do Paladino."</string>
+ <string name="ui_e5c3b8f2a7d1" formatted="false">"Não foi possível guardar a cópia pessoal."</string>
+ <string name="ui_f7d4c1a3b8e5" formatted="false">"Não foi possível carregar a cópia pessoal."</string>
+ <string name="ui_a8f2c5d7b1e3" formatted="false">"Apagar tudo e recomeçar"</string>
+ <string name="ui_b9e3d7f2c5a1" formatted="false">"Começar do zero?"</string>
+ <string name="ui_c1f3a8e7d5b2" formatted="false">"Tudo neste telemóvel é apagado: conversas, notas, definições, modelos e chaves. Nada sai do aparelho. Não pode ser desfeito."</string>
+ <string name="ui_d2a3f8e1c7b5" formatted="false">"Apagar tudo"</string>
+ <string name="ui_e3b5a2f7d8c1" formatted="false">"A trabalhar…"</string>
 </resources>

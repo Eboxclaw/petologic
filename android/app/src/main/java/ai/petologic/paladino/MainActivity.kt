@@ -182,6 +182,7 @@ class MainActivity:ComponentActivity(){
   Text(tr("Appearance, models and connections."),color=Muted)
   PhoneAccessCard()
   AppUpdateCard()
+  UserCopyCard()
   LanguageSettings()
   TinyPetSettings(vm)
   ModelManager(vm)
