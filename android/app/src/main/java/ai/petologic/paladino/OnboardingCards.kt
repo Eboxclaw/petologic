@@ -2,6 +2,7 @@ package ai.petologic.paladino
 
 import ai.petologic.core.ModelCatalog
 import ai.petologic.paladino.data.UserCopy
+import ai.petologic.paladino.runtime.AppUpdateState
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -42,19 +43,59 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
 }
 
 @Composable internal fun AppUpdateCard(){
+ val context=androidx.compose.ui.platform.LocalContext.current
+ val app=context.applicationContext as PaladinoApplication
+ val updater=app.appUpdater
+ val state by updater.state.collectAsStateWithLifecycle()
+ val status by updater.status.collectAsStateWithLifecycle()
+ val progress by updater.progress.collectAsStateWithLifecycle()
  val browser=LocalUriHandler.current
+ val scope=rememberCoroutineScope()
+ // One check when the card opens; the button forces a re-check. No background polling.
+ androidx.compose.runtime.LaunchedEffect(Unit){updater.check()}
  Surface(color=Panel,shape=RoundedCornerShape(12.dp),border=BorderStroke(1.dp,Gold.copy(alpha=.6f))){
   Column(Modifier.fillMaxWidth().padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
    Row(horizontalArrangement=Arrangement.spacedBy(10.dp)){
     Icon(Icons.Outlined.SystemUpdate,null,tint=Gold)
     Text(tr("App updates"),style=MaterialTheme.typography.titleMedium)
    }
-   Text("PETOLOGIC · ${BuildConfig.VERSION_NAME}",fontFamily=FontFamily.Monospace,color=Gold)
-   Text(tr("Updates are manual. Open the official downloads page and install the newer APK over this app. Keep your conversations and models: do not uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
-   Button(onClick={browser.openUri(PublicUpdatesUrl)},modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(12.dp)){
-    Text(tr("Update app"))
+   Text("PETOLOGIC · ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",fontFamily=FontFamily.Monospace,color=Gold)
+   when(val s=state){
+    is AppUpdateState.Checking->{
+     Text(tr("Checking the official updates page…"),color=Muted)
+     LinearProgressIndicator(Modifier.fillMaxWidth())
+    }
+    is AppUpdateState.UpToDate->{
+     Text(tr("You're on the latest release."),color=Muted)
+     TextButton(onClick={browser.openUri(PublicUpdatesUrl)}){Text(tr("Open release history in browser"))}
+    }
+    is AppUpdateState.Available->{
+     Text(tr("%1\$s is available",s.release.tag),fontFamily=FontFamily.Monospace,color=Gold,fontWeight=FontWeight.Bold)
+     if(s.release.notes.isNotBlank())Text(s.release.notes,style=MaterialTheme.typography.bodyMedium,color=Muted)
+     Text("${s.release.apkName} · ${s.release.apkSize/1_000_000} MB",fontFamily=FontFamily.Monospace,color=Muted)
+     if(progress!=null){LinearProgressIndicator(progress={progress?:0f},modifier=Modifier.fillMaxWidth());Text(tr(status.ifEmpty{"Downloading…"}),color=Muted)}
+     Button(onClick={scope.launch{updater.download(s.release)}},enabled=progress==null,modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(12.dp)){
+      Text(tr(if(progress!=null)"Downloading…" else "Download update"))
+     }
+    }
+    is AppUpdateState.Ready->{
+     Text(tr("Update verified and ready to install."),color=Gold)
+     Text(tr("Android will confirm the installation. Your conversations, notes and models stay — never uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
+     Button(onClick={
+      if(updater.canInstall)context.startActivity(updater.installIntent(s.file))
+      else context.startActivity(updater.permissionIntent())
+     },modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(12.dp)){
+      Text(tr(if(updater.canInstall)"Install update" else "Allow Paladino to install apps"))
+     }
+     if(!updater.canInstall)Text(tr("One-time system permission. After allowing it, tap install again."),style=MaterialTheme.typography.bodySmall,color=Muted)
+    }
+    is AppUpdateState.Failed->{
+     Text(tr(s.message),color=MaterialTheme.colorScheme.error)
+     TextButton(onClick={scope.launch{updater.check(true)}}){Text(tr("Try again"))}
+    }
+    else->Unit
    }
-   Text(tr("Opens GitHub in your browser. Android asks you to confirm installation."),style=MaterialTheme.typography.bodySmall,color=Muted)
+   Text(tr("Updates install over this app with the same signature; a check needs the internet, the download resumes on its own."),style=MaterialTheme.typography.bodySmall,color=Muted)
   }
  }
 }

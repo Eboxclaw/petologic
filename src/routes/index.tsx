@@ -6,6 +6,8 @@ import paladinIdle from "../assets/pets/paladino_idle.gif";
 import mewsashiAsset from "../assets/pets/mewsashi.png";
 import monkaiAsset from "../assets/pets/Monkai.png";
 import darktwinAsset from "../assets/pets/darktwin.png";
+import { ApkDownloadButton } from "../components/ApkDownload";
+import { APK_RELEASE } from "../lib/apkDownload";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,10 +52,6 @@ const ARP: Array<[number, number]> = [
 ];
 
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
-
-// Public binary distribution; source code remains in the private application repository.
-const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.2.1-preview";
-const APK_URL = `${APK_RELEASE}/petologic-0.2.1-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
@@ -398,15 +396,8 @@ function Index() {
               <li><span className="text-cyan">&gt;</span> Every action logged in your quest log</li>
               <li><span className="text-cyan">&gt;</span> Cloud models are a summon, never a leash</li>
             </ul>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <a
-                href={APK_URL}
-                rel="noopener"
-                className="pixel-border-gold group bg-royal px-6 py-4 text-center font-display text-xs tracking-wide transition-all hover:bg-royal/90 active:translate-y-1 sm:px-8 sm:text-sm"
-              >
-                DOWNLOAD APK{" "}
-                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-              </a>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:gap-4">
+              <ApkDownloadButton />
               <a
                 href="#roster"
                 className="pixel-border bg-card px-6 py-4 text-center font-display text-xs text-cyan transition-all hover:bg-card/70 active:translate-y-1 sm:px-8 sm:text-sm"
@@ -416,7 +407,7 @@ function Index() {
             </div>
 
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Android 12+ · ARM64 · 0.2.1 preview · local model downloads separately (219 MB)
+              Android 12+ · ARM64 · 0.2.2 preview · local model downloads separately (219 MB)
             </p>
             <details className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-white/60">
               <summary className="cursor-pointer text-cyan">Installation steps and checksum</summary>
@@ -428,7 +419,14 @@ function Index() {
                 <li>On 0.1.6 or later? Just install over — conversations and settings stay. Downloads now auto-resume from where the connection dies instead of getting stuck near the end. On 0.1.5 or earlier, uninstall first, then install this build.</li>
               </ol>
               <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
-              <p className="mt-3">Download stuck near the end? Retry — every attempt gets a fresh link, and Wi-Fi helps for the 96 MB APK and the 229 MB model.</p>
+              <p className="mt-3">
+                The DOWNLOAD APK button streams the file with auto-resume: if the connection stalls, it continues from where it
+                stopped instead of hanging or restarting. Prefer the classic way?{" "}
+                <a className="text-cyan underline" href={`${APK_RELEASE}/petologic-0.2.2-preview-arm64.apk`} rel="noopener">
+                  Direct download link
+                </a>
+                . Wi-Fi still helps for the 96 MB APK and the 229 MB model.
+              </p>
               <a className="mt-3 inline-block text-cyan underline" href={`${APK_RELEASE}/SHA256SUMS.txt`}>Verify SHA-256 checksum</a>
               <a className="mt-3 ml-4 inline-block text-cyan underline" href={`${APK_RELEASE}/INSTALL-ANDROID.md`}>Guia de instalação em português</a>
             </details>

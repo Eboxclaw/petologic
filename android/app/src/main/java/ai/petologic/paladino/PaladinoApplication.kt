@@ -14,6 +14,7 @@ class PaladinoApplication:Application(){
  lateinit var credentials:CredentialStore;private set
  lateinit var agent:PaladinoAgent;private set
  lateinit var sessionHub:SessionHub;private set
+ val appUpdater by lazy{AppUpdater(this)}
  val ready=CompletableDeferred<Unit>()
  val modelsReady=CompletableDeferred<Unit>()
  val scope=CoroutineScope(SupervisorJob()+Dispatchers.IO)
