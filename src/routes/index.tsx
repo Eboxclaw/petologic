@@ -52,8 +52,8 @@ const ARP: Array<[number, number]> = [
 const midiToFreq = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
 // Public binary distribution; source code remains in the private application repository.
-const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.6-preview";
-const APK_URL = `${APK_RELEASE}/petologic-0.1.6-preview-arm64.apk`;
+const APK_RELEASE = "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.1.7-preview";
+const APK_URL = `${APK_RELEASE}/petologic-0.1.7-preview-arm64.apk`;
 
 function startChiptune(ctx: AudioContext) {
   const master = ctx.createGain();
@@ -416,7 +416,7 @@ function Index() {
             </div>
 
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Android 12+ · ARM64 · 0.1.6 preview · local model downloads separately (229 MB)
+              Android 12+ · ARM64 · 0.1.7 preview · local model downloads separately (229 MB)
             </p>
             <details className="mt-3 max-w-xl font-mono text-xs leading-relaxed text-white/60">
               <summary className="cursor-pointer text-cyan">Installation steps and checksum</summary>
@@ -425,7 +425,7 @@ function Index() {
                 <li>If Android asks, allow this browser to install apps, then confirm installation.</li>
                 <li>Open Paladino and download or import LFM2.5-350M Q4_K_M in Settings (229 MB). Choose Tiny to chat locally.</li>
                 <li>In Settings → Sprite and widget, enable the floating Sprite and grant display-over-apps access. Tap Paladino to chat or drag to move.</li>
-                <li>Coming from 0.1.5 or earlier? Uninstall first — this release changed its signing key and Android blocks the in-place update. From 0.1.6 on, updates install over and keep everything. Use Settings → User copy to carry your data.</li>
+                <li>On 0.1.6 or later? Just install over — conversations and models stay. On 0.1.5 or earlier, uninstall first (the signing key changed in 0.1.6), then install this build.</li>
               </ol>
               <p className="mt-3">Preview software. A developer debug build uses a different signature and cannot be updated with this APK; keep any important data before changing installations.</p>
               <p className="mt-3">Download stuck near the end? Retry — every attempt gets a fresh link, and Wi-Fi helps for the 96 MB APK and the 229 MB model.</p>
