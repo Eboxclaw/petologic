@@ -22,8 +22,8 @@ data class InferenceMetrics(val modelId:String,val contextTokens:Int,val loadMs:
 
 class LocalModel(private val context:Context,private val library:ModelLibrary){
  companion object {
-  const val FILE_NAME="LFM2.5-350M-Q4_K_M.gguf"
-  const val SHA256="7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4"
+  const val FILE_NAME="LFM2.5-350M-QAD-Q4_0.gguf"
+  const val SHA256="3d10b6ab8fc91a919534b9558e266255aca0bbc7f6d015963599aa9e74e05b1d"
  }
  val file get()=library.file("lfm350")
  val status=library.status

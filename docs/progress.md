@@ -77,3 +77,7 @@ Plan-12 step ② opened: the Device domain's `device_query` shipped as the third
 ## 2026-09-12 — Plan 14: light SFX and haptics
 
 [Plan 14](plans/14-sfx-haptics.md) added a quiet personality layer: water-drop and 8-bit feedback on send/reply/approval/error/sprite interactions, Sounds + Vibration toggles in Sprite & Widget, battery-saver and silent-ringer respected. Companion research notes ([reviews/2026-09-12-research-notes.md](reviews/2026-09-12-research-notes.md)) answer the graph-RAG/vector-store/MiniLM/sub-agent/tool-weight/battery questions with code-verified facts.
+
+## 2026-09-12 — 0.2.0 semi-public: QAD everywhere, 230M sub-agent slot, VL registered
+
+[Plan 15](plans/15-subagent-foundation.md) shipped the sub-agent foundation — `SubAgent.worker` with the small-model fallback rule and auto-titling as its first job — and the catalog moved to Liquid's QAD-Q4_0 quants across every family that has them (350M main brain swapped; 2.6B Q4_K_M dropped; 230M added as the sub-agent brain). LFM2.5-VL-450M + mmproj registered vision-pending for the native multimodal phase. Version 0.2.0-preview marks the semi-public milestone. 81 JVM tests green; [release record](releases/0.2.0-preview.md).

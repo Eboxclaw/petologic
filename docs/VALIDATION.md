@@ -101,3 +101,7 @@ Plan-12 step ② first slice: third registry skill with a read-only `device_quer
 ## 2026-09-12 — Plan 14: light SFX and haptics
 
 Four synthesized water/8-bit effects + subtle haptics wired to send/reply/approval/error/sprite events through a pure gated vocabulary and an app-scoped SoundPool player. Sounds respect the user toggle, silent ringer and battery saver; haptics use platform constants without new permissions. `FeedbackMappingTest` + full suite: 73 JVM tests green; emulator smoke clean. [Evidence](evidence/2026-09-12-sfx-haptics/validation.md).
+
+## 2026-09-12 — Plan 15 + QAD swap + 0.2.0 semi-public
+
+Sub-agent foundation: `SubAgent.worker` (bounded, tool-free turn) with the user's fallback rule (230M QAD when installed, else a 350M turn), catalog slot `lfm230-qad` (149 MB, pinned), and auto-titling as the first consumer (silent-skip on busy/model-missing). Catalog moved to all-QAD: main brain swapped to `LFM2.5-350M-QAD-Q4_0` (LocalModel pins updated — one-time model re-download for 0.1.7 users), 2.6B Q4_K_M dropped in favor of QAD, VL-450M + mmproj registered `visionPending` and hidden from selection. 81 JVM tests green (5 new catalog tests); signed 0.2.0-preview installs over and runs clean; model library shows the all-QAD lineup. Evidence: [evidence/2026-09-12-device-query](evidence/2026-09-12-device-query/validation.md) and release record.

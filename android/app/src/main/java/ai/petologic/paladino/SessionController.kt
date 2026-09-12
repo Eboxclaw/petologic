@@ -48,7 +48,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private suspend fun finishTask(status:String){activeTaskId?.let{app.memory.dao.taskStatus(it,status)}}
  fun mode(mode:ExecutionMode){if(!ui.value.busy && ui.value.cloud==null && ui.value.action==null){ui.update{it.copy(mode=mode,error=null)};scope.launch{initialized.await();val row=sessionInfo.value.copy(mode=mode.name);app.memory.dao.session(row);sessionInfo.value=row}}}
  fun updateOptions(value:SessionOptions){try{value.validate();if(ui.value.busy){cancel()};options.value=value;scope.launch{initialized.await();options.value=value;val row=sessionInfo.value.copy(optionsJson=kotlinx.serialization.json.Json.encodeToString(value));app.memory.dao.session(row);sessionInfo.value=row;log("settings","Session settings updated")}}catch(e:Exception){ui.update{it.copy(error=e.message?:"Invalid settings")}}}
- fun selectModel(id:String){if(ui.value.busy)return;require(ModelCatalog.artifacts.any{it.id==id&&it.id!="minilm"});scope.launch{initialized.await();val row=sessionInfo.value.copy(modelId=id);app.memory.dao.session(row);sessionInfo.value=row}}
+ fun selectModel(id:String){if(ui.value.busy)return;require(ModelCatalog.selectable().any{it.id==id});scope.launch{initialized.await();val row=sessionInfo.value.copy(modelId=id);app.memory.dao.session(row);sessionInfo.value=row}}
  suspend fun log(type:String,detail:String){app.memory.dao.event(ExecutionEventRow(UUID.randomUUID().toString(),sessionId,activeTaskId?:"session",type,detail.take(1000)))}
  fun clearError(){ui.update{it.copy(error=null,notice=null)}}
  fun install(){if(downloadProgress.value!=null)return;scope.launch{try{app.local.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Download failed. Retry in Settings.")}}}}
@@ -166,6 +166,26 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
   app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
   answer(result,mode)
+  maybeAutoTitle(context.user)
+ }
+
+ /** Sub-agent job: name the conversation once, using the small model when downloaded (else 350M). */
+ private suspend fun maybeAutoTitle(firstUser:String){
+  val current=sessionInfo.value
+  if(current.title!="First conversation"&&!Regex("Conversation [0-9]+").matches(current.title))return
+  if(ui.value.busy||current.modelId !in app.modelLibrary.installed.value)return
+  val history=app.memory.dao.recentMessages(sessionId)
+  val user=history.lastOrNull{it.speaker=="user"}?.text?:firstUser
+  val assistant=history.lastOrNull{it.speaker=="assistant"}?.text?:""
+  val proposed=runCatching{
+   ai.petologic.paladino.runtime.SubAgent.worker(app.local,
+    ai.petologic.paladino.runtime.SubAgent.modelId(app.modelLibrary.installed.value),
+    "You name short chat titles. Reply with the title only: no quotes, no ending punctuation.",
+    "First message: $user\n\nPaladino's reply: $assistant\n\nA 3-6 word title:")
+  }.getOrNull()?.trim()?.trim('.')?.take(60)?:return
+  if(proposed.isBlank())return
+  val row=current.copy(title=proposed)
+  app.memory.dao.session(row);sessionInfo.value=row;log("subagent","session titled")
  }
  private suspend fun answer(text:String,mode:ExecutionMode){log("response","${text.length} characters; ${mode.name}");app.memory.dao.message(MessageRow(UUID.randomUUID().toString(),"assistant",text,mode.name,sessionId=sessionId));ui.update{it.copy(status="At your side.",streaming="")}}
  fun approveCloud(){

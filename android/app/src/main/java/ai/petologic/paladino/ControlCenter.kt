@@ -184,7 +184,7 @@ private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(
   Text(tr("Reuse copies the verified file into Paladino’s storage; it avoids another network download."),fontSize=12.sp,color=Muted)
   Row{TextButton(onClick={filePicker.launch(arrayOf("*/*"))},enabled=progress==null){Text(tr("Use existing file"))};TextButton(onClick={folderPicker.launch(null)},enabled=progress==null){Text(tr("Choose folder"))}}
   Text(tr(status),fontSize=12.sp,color=Gold)
-  ModelCatalog.artifacts.filter{it.id!="minilm"}.forEach{artifact->
+  ModelCatalog.selectable().forEach{artifact->
    HorizontalDivider()
    Text(artifact.model+" · "+artifact.quantization,fontWeight=FontWeight.Bold)
    Text(tr("${artifact.size/1_000_000} MB"+(if(artifact.id!="lfm350")tr(" · experimental; phone validation pending") else tr(" · baseline"))),fontSize=12.sp,color=Muted)
