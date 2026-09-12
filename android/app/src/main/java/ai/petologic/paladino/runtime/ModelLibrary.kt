@@ -21,6 +21,7 @@ class ModelLibrary(private val context:Context){
  val progress=MutableStateFlow<Float?>(null)
  private val lock=Mutex()
  private val prefs=context.getSharedPreferences("model_library",Context.MODE_PRIVATE)
+ private val downloader=ModelDownloader(status,progress)
  fun file(id:String)=File(directory,ModelCatalog.get(id).filename)
  suspend fun verifyAll()=lock.withLock{withContext(Dispatchers.IO){
   installed.value=ModelCatalog.artifacts.filter{val f=file(it.id);f.exists()&&f.length()==it.size&&hash(f)==it.sha256}.map{it.id}.toSet()
@@ -55,20 +56,26 @@ class ModelLibrary(private val context:Context){
   prefs.getString("folder",null)?.let{folder->try{scan(Uri.parse(folder))}catch(_:SecurityException){}catch(_:IllegalArgumentException){}}
   if(id in installed.value){status.value="Reused ${artifact.model} from your selected folder";return@withContext}
   require(directory.usableSpace>artifact.size*2){"Free at least ${artifact.size*2/1_000_000} MB to install safely."}
-  progress.value=0f;status.value="Downloading ${artifact.model} · ${artifact.quantization}"
   val partial=File(directory,"${artifact.filename}.partial")
   try{
-   val offset=partial.takeIf{it.length()<artifact.size}?.length()?:0
-   val call=OkHttpClient.Builder().callTimeout(30,TimeUnit.MINUTES).readTimeout(60,TimeUnit.SECONDS).build().newCall(Request.Builder().url(artifact.url).apply{if(offset>0)header("Range","bytes=$offset-")}.build())
-   call.execute().use{response->
-    check(response.isSuccessful){"Download failed (${response.code})."};val append=offset>0&&response.code==206;var count=if(append)offset else 0
-    response.body.byteStream().use{input->java.io.FileOutputStream(partial,append).use{output->val buf=ByteArray(65536);while(true){ensureActive();val n=input.read(buf);if(n<0)break;count+=n;check(count<=artifact.size);output.write(buf,0,n);progress.value=count.toFloat()/artifact.size}}}
+   // A leftover file that finished downloading but never got verified is hashed first:
+   // a valid one installs without any network; only a corrupt one is deleted and refetched.
+   if(partial.length()==artifact.size){
+    status.value="Verifying the previous download before continuing…"
+    if(hash(partial)==artifact.sha256){finishInstall(partial,id,artifact);return@withContext}
+    partial.delete()
    }
+   progress.value=0f
+   downloader.downloadTo(partial,artifact.url,artifact.size,"${artifact.model} · ${artifact.quantization}")
    status.value="Verifying ${artifact.model} · ${artifact.quantization}"
    check(partial.length()==artifact.size&&hash(partial)==artifact.sha256){"Model checksum mismatch. Retry or select the official file."}
-   check(partial.renameTo(file(id))){"Could not install verified model."};installed.update{it+id};status.value="Ready · ${artifact.model} ${artifact.quantization}"
+   finishInstall(partial,id,artifact)
   }finally{progress.value=null}
  }}
+ private fun finishInstall(partial:File,id:String,artifact:ModelArtifact){
+  check(partial.renameTo(file(id))){"Could not install verified model."}
+  installed.update{it+id};status.value="Ready · ${artifact.model} ${artifact.quantization}"
+ }
  private fun copyVerified(input:InputStream):ModelArtifact {
   val partial=File(directory,"import.partial");val md=MessageDigest.getInstance("SHA-256");var count=0L
   input.use{source->partial.outputStream().use{output->val buf=ByteArray(65536);while(true){val n=source.read(buf);if(n<0)break;count+=n;require(count<=ModelCatalog.artifacts.maxOf{it.size}){"Not a recognized model file."};md.update(buf,0,n);output.write(buf,0,n)}}}

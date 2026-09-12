@@ -81,3 +81,7 @@ Plan-12 step ② opened: the Device domain's `device_query` shipped as the third
 ## 2026-09-12 — 0.2.0 semi-public: QAD everywhere, 230M sub-agent slot, VL registered
 
 [Plan 15](plans/15-subagent-foundation.md) shipped the sub-agent foundation — `SubAgent.worker` with the small-model fallback rule and auto-titling as its first job — and the catalog moved to Liquid's QAD-Q4_0 quants across every family that has them (350M main brain swapped; 2.6B Q4_K_M dropped; 230M added as the sub-agent brain). LFM2.5-VL-450M + mmproj registered vision-pending for the native multimodal phase. Version 0.2.0-preview marks the semi-public milestone. 81 JVM tests green; [release record](releases/0.2.0-preview.md).
+
+## 2026-09-12 — Downloads never restart from zero anymore
+
+The recurring "stuck at 99%" model-download complaint is fixed at the root: a new downloader resumes from the exact byte the connection died at (20 s silence timeout, 4 automatic attempts), verifies leftover complete partials before touching the network, and every failure message tells the user a retry continues from where it stopped. Proven with local server tests and a live 1.6 GB kill-and-resume on the release build.

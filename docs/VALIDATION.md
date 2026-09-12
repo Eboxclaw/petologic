@@ -105,3 +105,7 @@ Four synthesized water/8-bit effects + subtle haptics wired to send/reply/approv
 ## 2026-09-12 — Plan 15 + QAD swap + 0.2.0 semi-public
 
 Sub-agent foundation: `SubAgent.worker` (bounded, tool-free turn) with the user's fallback rule (230M QAD when installed, else a 350M turn), catalog slot `lfm230-qad` (149 MB, pinned), and auto-titling as the first consumer (silent-skip on busy/model-missing). Catalog moved to all-QAD: main brain swapped to `LFM2.5-350M-QAD-Q4_0` (LocalModel pins updated — one-time model re-download for 0.1.7 users), 2.6B Q4_K_M dropped in favor of QAD, VL-450M + mmproj registered `visionPending` and hidden from selection. 81 JVM tests green (5 new catalog tests); signed 0.2.0-preview installs over and runs clean; model library shows the all-QAD lineup. Evidence: [evidence/2026-09-12-device-query](evidence/2026-09-12-device-query/validation.md) and release record.
+
+## 2026-09-12 — Download stall fix ("stuck at 99%")
+
+`ModelDownloader` added: 20 s idle timeout with up to 4 automatic Range-resume attempts, pre-verification of size-complete leftover partials (no more from-zero restart after an interrupted verify), and continue-not-restart failure messaging. Covered by 6 MockWebServer tests (87 JVM total); live release-build test on the emulator: 230M completed end-to-end and the 1.6 GB 2.6B download force-stopped mid-transfer resumed from its offset. [Evidence](evidence/2026-09-12-download-resume/validation.md).
