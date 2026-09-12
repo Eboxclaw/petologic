@@ -28,7 +28,7 @@ class EngineCollisionTest{
   app.local.verify()
   assertTrue("pinned 350M must be installed",app.local.ready.value)
   val llama=LlamaCppBackend(app.local)
-  val leap=LeapBackend(app.modelLibrary)
+  val leap=LeapBackend(app,app.modelLibrary)
   val options=SessionOptions(contextTokens=2048,outputTokens=32)
   repeat(10){cycle->
    val a=llama.generate(LocalGenerationRequest("You are concise.","Cycle $cycle: reply with the single word LLAMA.","lfm350",options)){}

@@ -20,8 +20,8 @@ ships as default, the two-slot work is unnecessary; llama.cpp stays single-slot 
 | Gate | Result |
 |---|---|
 | QAD GGUF sideload (no .bundle) | ✅ 230M cold 2.0 s / warm 1.1 s; 350M loads alongside |
-| Two resident runners + concurrency | ✅ 350M+230M resident, concurrent generate ok, peak ~1.09–1.55 GB |
-| Unload/cancel | ✅ unload 91 ms (1.55 GB→124 MB); cancel 46 ms (llama 5 ms) |
+| Two resident runners + concurrency | ✅ 350M+230M resident, concurrent generate ok; at the user's 8192 standard: **1.00 GB both resident** (see Memory review below; the earlier "1.55 GB" was the benchmark's leftover context buckets) |
+| Unload/cancel | ✅ unload 143 ms at 8192 (1.00 GB→613 MB); cancel 46 ms (llama 5 ms) |
 | JNI collision (llama.cpp + LEAP same process) | ✅ 10 alternating cycles, all correct, stable PSS — the iOS symbol-collision class does **not** reproduce on Android |
 | Real-model e2e through Koog agent | ✅ `RealModelTest` passes on BOTH flavors ("Hello Paladino") |
 | Streaming + token stats | ✅ flow-based, `GenerationStats` feeds `InferenceMetrics` |
@@ -29,7 +29,7 @@ ships as default, the two-slot work is unnecessary; llama.cpp stays single-slot 
 | Tool calling, PT-PT tool requests | llama forced-text 0/5 · LEAP forced-text 0/5 · **LEAP native FC 5/5** (search+save, incl. MIXED) |
 | Runtime speed (emulator, 350M@4096) | warm reply ~0.66 s/TTFT ~0.3 s (LEAP) vs ~1.0 s/~0.75 s (llama); 3600-char prompt TTFT 2.25 s vs 5.24 s |
 | Model switching | LEAP: instant after both resident (0.78 s) but 350→230 first-touch 2.16 s; llama: reload every switch (0.94 s / 1.72 s) |
-| Memory (emulator PSS) | 350M@4096: LEAP ~0.66 GB vs llama ~0.43 GB; LEAP keeps runners resident (350M+230M ≈ 1.5 GB); llama single-slot ≈ 0.43 GB constant |
+| Memory (emulator PSS) | 350M@4096 single: LEAP ~0.66 GB vs llama ~0.43 GB; at 8192 both resident LEAP = **1.00 GB** vs llama single-slot ~0.48 GB — residency is the trade for instant switching |
 | APK size | leap flavor adds the leap-sdk native libs + deps (see flavors build); llama-only flavor unchanged |
 
 ## The PT result is the product headline
@@ -65,6 +65,45 @@ with a repair loop (one extra hop, slower and still weaker in PT).
 | LFM2.5 weights (.gguf) | LiquidAI model license (pinned HF revisions) |
 | LEAP SDK 0.10.9 | proprietary "Leap Terms" — free of charge, object-code redistribution inside an app, NOT open source |
 | This app with LEAP | **not** "fully open source" while LEAP is linked |
+
+## Memory review (2026-09-12, user-challenged numbers)
+
+The benchmark table's "1.55 GB" was an artifact of the benchmark itself: the runtime sweep left
+**three 350M context-buckets (2048/4096/8192) plus 230M resident** in the backend's runner cache.
+Re-measured with the production policy the user set — **every model loaded once at 8192**
+(`LeapMemoryTest`, logcat `LEAPMEM`):
+
+| State | PSS |
+|---|---|
+| App baseline, no model | 75 MB |
+| 350M@8192 resident | 688 MB (model cost ~614 MB over baseline) |
+| **+230M@8192 (both resident)** | **1 004 MB ≈ 1.0 GB** |
+| Steady state after more generations | 1 000 MB (no growth — no leak) |
+| Worker unload | 143 ms → 613 MB |
+
+So "350M + 230M under 1 GB" is essentially exact (1.00 GB including the whole app). MiniLM is a
+separate ONNX encoder (+~23–30 MB), unrelated to the engine numbers.
+
+## Policy changes from the docs review (docs.liquid.ai model-loading + changelog)
+
+1. **Fixed 8192 runners** — one runner per model, no context-bucket keying (was the artifact).
+2. **Manifest sampling by default** — docs: models are trained against manifest sampling and
+   overriding "can significantly degrade output quality"; `SessionOptions` sampling now passes
+   through only when the user actually changed it.
+3. **Persistent KV-prefix reuse enabled** (`EngineOptions.CacheOptions(enabled=true)` under
+   `cacheDir/leap-kv/<model>`) — docs: prefill avoidance for multi-turn/agent loops.
+4. **Thinking disabled** (`enableThinking=false`): LEAP's default-on LFM2.5 reasoning silently
+   consumed the output budget (empty replies), stretched emulator generations past the UI's 90 s
+   window, and has no llama.cpp counterpart — parity until a deliberate thinking UX exists.
+5. Under manifest sampling, **forced-text tool protocols on LEAP dropped to 6/12** (thinking +
+   different sampling); LEAP **native FC stays the recommended tool-turn path** (9/12, and it was
+   already measured under manifest sampling). Realizing it in-app needs the interface to carry the
+   tool list so `LeapBackend` can register `LeapFunction`s — next step, not yet wired.
+6. In-app verification: manual chat on the leap flavor streams fine end-to-end; the bundle-format
+   probe line (`BundleProcessor … zip END header not found`) in logcat is LEAP's normal
+   format-detection fallback to GGUF, harmless. `RealToolConversationTest` on the leap flavor
+   times out only on the emulator (first in-app turn under the full production prompt exceeds its
+   90 s window) — rerun on the phone with the thermal pass.
 
 ## Acceptance-gate checklist (for a future DEFAULT = LEAP flip)
 

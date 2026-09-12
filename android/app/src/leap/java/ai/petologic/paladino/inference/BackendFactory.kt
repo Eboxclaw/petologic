@@ -11,5 +11,5 @@ import android.content.Context
  * collision experiment — it is NOT wired into the agent here.
  */
 object BackendFactory{
- fun create(context:Context,local:LocalModel,library:ModelLibrary):LocalInferenceBackend=LeapBackend(library)
+ fun create(context:Context,local:LocalModel,library:ModelLibrary):LocalInferenceBackend=LeapBackend(context,library)
 }
