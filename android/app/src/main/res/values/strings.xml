@@ -283,4 +283,11 @@
  <string name="ui_a7c3e6f8b2d5" formatted="false">"Search private notes"</string>
  <string name="ui_b8d4f7a9c3e6" formatted="false">"Propose a note"</string>
  <string name="ui_c9e5a8b2d4f7" formatted="false">"Idle ~0 tokens · active ~%1$s tokens · %2$s tools exposed"</string>
+ <string name="ui_e2b5c8d1f4a7" formatted="false">"← All skills"</string>
+ <string name="ui_f3c6d9e2a5b8" formatted="false">"Granted"</string>
+ <string name="ui_a4d7e2f5b8c1" formatted="false">"Not granted"</string>
+ <string name="ui_b5e8f3a6c9d2" formatted="false">"Tools skills can register"</string>
+ <string name="ui_c6f9a4b7d2e5" formatted="false">"Never registered"</string>
+ <string name="ui_d7a2b5c8e1f4" formatted="false">"Activates automatically when a message matches"</string>
+ <string name="ui_e8b3c6d9f2a5" formatted="false">"Always available in Tiny sessions"</string>
 </resources>

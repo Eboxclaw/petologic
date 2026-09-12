@@ -59,3 +59,5 @@ Plan 11 ([plans/11](plans/11-user-copy-and-reset.md)) shipped a Settings "User c
 ## 2026-09-11 — Sprint A: SkillRegistry and the generalized tool runtime
 
 Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint A on the [plan 12](plans/12-tool-runtime-generalization.md) refactor: `NoteToolProtocol` gave way to `LfmToolCallParser` (registry-derived allowlist, native LFM call syntax primary) and `LfmToolDescriptorSchemer`; skills arrived with OFF/AUTO/PINNED states, per-tool toggles, permission gating and a per-turn temporary Koog registry — Memory is the first resident skill and a new Settings card exposes states, tool toggles and a token estimate. The Security Guard pack (Sprint B) now only needs to register as a second skill. 50 JVM tests green; emulator UI evidence in [evidence/2026-09-11-skills-registry](evidence/2026-09-11-skills-registry/validation.md).
+
+Skills management moved into the Controls tab per user direction: the Skills & MCPs submenu gained real drill-ins (mode, per-tool toggles, permission rows, token estimate) and the Tools submenu shows which tools each skill can register and when.

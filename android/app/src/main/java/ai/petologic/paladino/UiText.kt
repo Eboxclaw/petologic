@@ -314,7 +314,14 @@ private object UiLabels {
   "Always" to R.string.ui_f6b2d5e7a9c4,
   "Search private notes" to R.string.ui_a7c3e6f8b2d5,
   "Propose a note" to R.string.ui_b8d4f7a9c3e6,
-  "Idle ~0 tokens · active ~%1\$s tokens · %2\$s tools exposed" to R.string.ui_c9e5a8b2d4f7
+  "Idle ~0 tokens · active ~%1\$s tokens · %2\$s tools exposed" to R.string.ui_c9e5a8b2d4f7,
+  "← All skills" to R.string.ui_e2b5c8d1f4a7,
+  "Granted" to R.string.ui_f3c6d9e2a5b8,
+  "Not granted" to R.string.ui_a4d7e2f5b8c1,
+  "Tools skills can register" to R.string.ui_b5e8f3a6c9d2,
+  "Never registered" to R.string.ui_c6f9a4b7d2e5,
+  "Activates automatically when a message matches" to R.string.ui_d7a2b5c8e1f4,
+  "Always available in Tiny sessions" to R.string.ui_e8b3c6d9f2a5
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

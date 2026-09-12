@@ -27,3 +27,7 @@ Implements plan 13 Sprint A on top of the plan-12 runtime refactor.
 ## Limits
 
 No real-model regression run on the emulator this sprint (its LFM model was wiped by the 0.1.6 release smoke test; JVM `KoogLoopTest` covers the agent loop with a scripted turn). Security Guard (Sprint B) will be the first AUTO-default skill and the first consumer of the per-turn activation beyond the notes resident.
+
+## Update (same day) — skills UI moved into Orchestration per user direction
+
+The Skills card left Settings; skills now live in the Controls tab's existing drill-in structure. The "Skills & MCPs" submenu lists each skill with its current state and drills into mode chips, per-tool switches, Android-permission rows (Granted/Not granted) and the token estimate. The "Tools" submenu gained a "Tools skills can register" block showing, per skill, its tools and when they register (always in Tiny sessions / per matching message / never). `settings-skills-*.png` screenshots predate the move and are kept for history; current UI: `orchestration-skill-detail.png`, `orchestration-tools-registration.png`.
