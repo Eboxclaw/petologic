@@ -178,7 +178,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
   val user=history.lastOrNull{it.speaker=="user"}?.text?:firstUser
   val assistant=history.lastOrNull{it.speaker=="assistant"}?.text?:""
   val proposed=runCatching{
-   ai.petologic.paladino.runtime.SubAgent.worker(app.local,
+   ai.petologic.paladino.runtime.SubAgent.worker(app.inference,
     ai.petologic.paladino.runtime.SubAgent.modelId(app.modelLibrary.installed.value),
     "You name short chat titles. Reply with the title only: no quotes, no ending punctuation.",
     "First message: $user\n\nPaladino's reply: $assistant\n\nA 3-6 word title:")

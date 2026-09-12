@@ -1,7 +1,8 @@
 package ai.petologic.paladino.runtime
 
-import ai.petologic.core.ChatTurn
 import ai.petologic.core.SessionOptions
+import ai.petologic.paladino.inference.LocalGenerationRequest
+import ai.petologic.paladino.inference.LocalInferenceBackend
 
 /**
  * The sub-agent: a bounded worker turn with no tools, for background jobs like titling.
@@ -20,8 +21,8 @@ object SubAgent{
   maxHops=1,maxToolCalls=0,maxRetries=0,hopTimeoutSeconds=30,totalTimeoutSeconds=60)
 
  /** One bounded worker turn; throws when the model is missing (callers fail silent). */
- suspend fun worker(local:LocalModel,modelId:String,system:String,task:String):String=
-  local.generate(system,task,modelId,workerOptions(),emptyList<ChatTurn>()){}
+ suspend fun worker(inference:LocalInferenceBackend,modelId:String,system:String,task:String):String=
+  inference.generate(LocalGenerationRequest(system,task,modelId,workerOptions())){}
 
  /** A short human-usable title from the first exchange; empty input stays empty. */
  fun titleFrom(firstUser:String,firstAssistant:String):String{

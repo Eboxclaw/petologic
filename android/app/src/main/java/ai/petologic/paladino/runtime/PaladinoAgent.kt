@@ -27,7 +27,7 @@ data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspe
  val notificationQuery:(suspend(String)->String)?=null,val deviceQuery:(suspend(String)->String)?=null)
 
 /** Koog's singleRunStrategy owns model → tool → observation → model transitions. */
-class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
+class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalInferenceBackend?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
  private val testTurn:(suspend(String,String)->String)?=null) {
  /** Test-scoped observer; unset in normal use. Never persist raw model text in production logs. */
  internal var responseObserver:((String)->Unit)?=null
@@ -108,7 +108,7 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
     val transcript=turns.joinToString("\n\n"){it.speaker+": "+it.text}
     val hardBytes=(options.contextTokens-options.outputTokens-options.toolReserve)*3
     check((system+transcript).toByteArray().size<hardBytes){"Session context is full. Start a new session or compress its history before continuing."}
-    suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(local).generate(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,if(repair)turns+ChatTurn("user",user) else turns){text->if(tools.isEmpty())onText(text)}}
+    suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(inference).generate(ai.petologic.paladino.inference.LocalGenerationRequest(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,if(repair)turns+ChatTurn("user",user) else turns)){text->if(tools.isEmpty())onText(text)}}
     var result=generate(transcript).also{responseObserver?.invoke(it)}
     val freshSearchRequired=requiresFreshNoteSearch(context.user)&&tools.any{it.name=="notes_search"}&&!searchPerformed
     if(freshSearchRequired&&!looksLikeToolCall(result)){

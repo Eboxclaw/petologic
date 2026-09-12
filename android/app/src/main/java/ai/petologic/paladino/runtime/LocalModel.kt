@@ -3,6 +3,7 @@ package ai.petologic.paladino.runtime
 import android.content.Context
 import android.os.Debug
 import ai.petologic.core.*
+import ai.petologic.paladino.inference.InferenceMetrics
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -18,7 +19,6 @@ class NativeLfm {
  external fun unload()
 }
 fun interface TokenCallback{fun onToken(bytes:ByteArray)}
-data class InferenceMetrics(val modelId:String,val contextTokens:Int,val loadMs:Long,val promptTokens:Long,val outputTokens:Long,val prefillMicros:Long,val decodeMicros:Long,val peakSampledPssKb:Long,val endPssKb:Long)
 
 class LocalModel(private val context:Context,private val library:ModelLibrary){
  companion object {

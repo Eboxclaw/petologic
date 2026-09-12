@@ -14,6 +14,7 @@ class PaladinoApplication:Application(){
  lateinit var credentials:CredentialStore;private set
  lateinit var agent:PaladinoAgent;private set
  lateinit var sessionHub:SessionHub;private set
+ val inference:ai.petologic.paladino.inference.LocalInferenceBackend by lazy{ai.petologic.paladino.inference.llama.LlamaCppBackend(local)}
  val appUpdater by lazy{AppUpdater(this)}
  val ready=CompletableDeferred<Unit>()
  val modelsReady=CompletableDeferred<Unit>()
@@ -25,10 +26,10 @@ class PaladinoApplication:Application(){
   modelLibrary=ModelLibrary(this)
   embedder=SmallEmbedder(this,modelLibrary)
   memory=MemoryRepository(this,db,embedder);local=LocalModel(this,modelLibrary);credentials=CredentialStore(this)
-  agent=PaladinoAgent(local,OpenRouterTransport(),credentials)
+  agent=PaladinoAgent(inference,OpenRouterTransport(),credentials)
   sessionHub=SessionHub(this)
   scope.launch{try{memory.dao.recoverTasks();memory.dao.cancelPending();if(memory.dao.session("default")==null)memory.dao.session(SessionRow("default","First conversation"));ready.complete(Unit);try{memory.reconcile()}catch(_:Exception){}}catch(e:Exception){ready.completeExceptionally(e)}}
   scope.launch{try{modelLibrary.verifyAll();modelsReady.complete(Unit);local.verify();embedder.verify()}catch(e:Exception){modelsReady.completeExceptionally(e)}}
  }
- override fun onTrimMemory(level:Int){super.onTrimMemory(level);if(level>=TRIM_MEMORY_UI_HIDDEN)scope.launch{local.unload();embedder.unload()}}
+ override fun onTrimMemory(level:Int){super.onTrimMemory(level);if(level>=TRIM_MEMORY_UI_HIDDEN)scope.launch{inference.unload();embedder.unload()}}
 }
