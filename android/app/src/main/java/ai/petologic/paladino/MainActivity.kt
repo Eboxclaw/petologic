@@ -37,7 +37,7 @@ class MainActivity:ComponentActivity(){
  private var openChatRequest by mutableIntStateOf(0)
  override fun onStop(){super.onStop();if(!isChangingConfigurations)(application as PaladinoApplication).sessionHub.onUiHidden()}
  override fun onNewIntent(intent:android.content.Intent){super.onNewIntent(intent);setIntent(intent);openWidgetSession(intent)}
- private fun openWidgetSession(intent:android.content.Intent){if(intent.getBooleanExtra("open_chat",false))openChatRequest++;intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
+ private fun openWidgetSession(intent:android.content.Intent){if(intent.getBooleanExtra("open_chat",false)){openChatRequest++;FeedbackPlayer.play(this,ai.petologic.paladino.skills.FeedbackEvent.WIDGET_OPEN)};intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
  override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);openWidgetSession(intent);enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),navigationBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT));setContent{
   MaterialTheme(colorScheme=PetColors){
    PaladinoScreen(openChatRequest=openChatRequest)
@@ -48,6 +48,7 @@ class MainActivity:ComponentActivity(){
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
 @Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel(),openChatRequest:Int=0){
  val petApp=androidx.compose.ui.platform.LocalContext.current.applicationContext as PaladinoApplication
+ val feedback=rememberFeedback()
  val petPrefs by petApp.tinyPets.state.collectAsStateWithLifecycle()
  val state by vm.ui.collectAsStateWithLifecycle()
  val messages by vm.messages.collectAsStateWithLifecycle()
@@ -57,6 +58,12 @@ class MainActivity:ComponentActivity(){
  val progress by vm.downloadProgress.collectAsStateWithLifecycle()
  var tab by rememberSaveable{mutableIntStateOf(0)}
  LaunchedEffect(openChatRequest){if(openChatRequest>0)tab=0}
+ var wasBusy by remember{mutableStateOf(false)}
+ LaunchedEffect(state.busy){
+  if(wasBusy&&!state.busy&&state.error==null&&state.action==null&&!messages.isEmpty())feedback.on(ai.petologic.paladino.skills.FeedbackEvent.REPLY_DONE)
+  wasBusy=state.busy
+ }
+ LaunchedEffect(state.action){if(state.action!=null)feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_ASKED)}
  val drawer=rememberDrawerState(DrawerValue.Closed)
  val uiScope=rememberCoroutineScope()
  val session by vm.session.collectAsStateWithLifecycle()
@@ -91,7 +98,7 @@ class MainActivity:ComponentActivity(){
     0->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,tr("Conversations"))}
-      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(64.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+      if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(64.dp).clickable{feedback.on(ai.petologic.paladino.skills.FeedbackEvent.SPRITE_TAP);spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
       Column(Modifier.weight(1f)){Text(tr("Chat"),fontSize=24.sp,fontWeight=FontWeight.Bold);Text(sessionLabel(session.title),color=Muted,fontSize=12.sp,maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)}
       IconButton(onClick={vm.hub.create()},enabled=!state.busy&&state.action==null&&state.cloud==null){Icon(painterResource(R.drawable.ic_pet_new),tr("New conversation"),tint=Gold)}
      }
@@ -112,7 +119,7 @@ class MainActivity:ComponentActivity(){
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
        Spacer(Modifier.height(12.dp))
        Box(Modifier.fillMaxWidth().height(180.dp),contentAlignment=Alignment.Center){
-        if(petPrefs.visible)PaladinoSprite(Modifier.size(168.dp).clickable{spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
+        if(petPrefs.visible)PaladinoSprite(Modifier.size(168.dp).clickable{feedback.on(ai.petologic.paladino.skills.FeedbackEvent.SPRITE_TAP);spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
        }
        Text(tr("How can I help?"),fontSize=26.sp,lineHeight=32.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))
@@ -142,7 +149,7 @@ class MainActivity:ComponentActivity(){
       if(state.mode==ExecutionMode.MAXX)Text(tr("Cloud mode · you review every request before sending"),fontSize=10.sp,color=Muted,modifier=Modifier.padding(bottom=8.dp))
       Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
        OutlinedTextField(value=draft,onValueChange={draft=it},placeholder={Text(tr("What’s on your mind?"),fontSize=14.sp)},modifier=Modifier.weight(1f),shape=RoundedCornerShape(24.dp),maxLines=4,enabled=!state.busy&&state.pendingModelMessage==null,colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=Color(PetPalette.outline)))
-       FilledIconButton(onClick={if(state.busy)vm.cancel() else if(draft.isNotBlank()){vm.send(draft);draft=""}},modifier=Modifier.size(50.dp),enabled=state.pendingModelMessage==null&&(state.busy||draft.isNotBlank())){
+       FilledIconButton(onClick={if(state.busy)vm.cancel() else if(draft.isNotBlank()){feedback.on(ai.petologic.paladino.skills.FeedbackEvent.MESSAGE_SENT);vm.send(draft);draft=""}},modifier=Modifier.size(50.dp),enabled=state.pendingModelMessage==null&&(state.busy||draft.isNotBlank())){
         Icon(if(state.busy)Icons.Outlined.Stop else Icons.Outlined.ArrowUpward,if(state.busy)tr("Stop response") else tr("Send message"))
        }
       }
@@ -160,14 +167,14 @@ class MainActivity:ComponentActivity(){
  state.action?.let{action->AlertDialog(onDismissRequest=vm::denyAction,title={Text(tr(if(action.tool=="notes.create")"Keep this in memory?" else "Delete this note?"))},text={Column{
   Text(if(action.tool=="notes.create")action.argument else notes.find{it.id==action.argument}?.text?:"Selected note")
   Spacer(Modifier.height(12.dp));Text(tr("This action happens only on your phone."),color=Muted,fontSize=12.sp)
- }},confirmButton={TextButton(onClick=vm::approveAction){Text(tr(if(action.tool=="notes.create")"Save note" else "Delete note"))}},dismissButton={TextButton(onClick=vm::denyAction){Text(tr("Cancel"))}})}
+ }},confirmButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_OK);vm.approveAction()}){Text(tr(if(action.tool=="notes.create")"Save note" else "Delete note"))}},dismissButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_NO);vm.denyAction()}){Text(tr("Cancel"))}})}
  state.cloud?.let{pending->AlertDialog(onDismissRequest=vm::denyCloud,title={Text(tr("Let Paladino use Maxx?"))},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
   Text(tr("${pending.provider.label} · ${pending.model}"),fontWeight=FontWeight.Bold)
   Text(tr("This request and Paladino’s instructions will leave your phone. Your private notes and Tiny history are excluded. Up to 512 output tokens; your provider may charge for usage."),color=Muted,modifier=Modifier.padding(vertical=12.dp))
   Text(tr("REQUEST"),fontSize=10.sp,color=Gold);Text(pending.context.user,modifier=Modifier.padding(vertical=8.dp))
   Text(tr("PALADINO INSTRUCTIONS"),fontSize=10.sp,color=Gold);Text(pending.context.system,fontSize=12.sp,color=Muted)
- }},confirmButton={TextButton(onClick=vm::approveCloud){Text(tr("Send to Maxx"))}},dismissButton={TextButton(onClick=vm::denyCloud){Text(tr("Keep local"))}})}
- if(state.error!=null||state.notice!=null)AlertDialog(onDismissRequest=vm::clearError,title={Text(tr(if(state.error!=null)"A quick heads-up" else "All set"))},text={Text(tr(state.error?:state.notice?:""))},confirmButton={TextButton(onClick=vm::clearError){Text(tr("Got it"))}})
+ }},confirmButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_OK);vm.approveCloud()}){Text(tr("Send to Maxx"))}},dismissButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_NO);vm.denyCloud()}){Text(tr("Keep local"))}})}
+ if(state.error!=null||state.notice!=null)AlertDialog(onDismissRequest=vm::clearError,title={Text(tr(if(state.error!=null)"A quick heads-up" else "All set"))},text={Text(tr(state.error?:state.notice?:""))},confirmButton={TextButton(onClick={if(state.error!=null)feedback.on(ai.petologic.paladino.skills.FeedbackEvent.ERROR);vm.clearError()}){Text(tr("Got it"))}})
 }
 
 @OptIn(ExperimentalLayoutApi::class)

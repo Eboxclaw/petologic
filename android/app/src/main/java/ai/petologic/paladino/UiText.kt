@@ -330,7 +330,10 @@ private object UiLabels {
   "Notification monitoring" to R.string.ui_e4bcf0d8a639,
   "Device" to R.string.ui_f5cda1e9b742,
   "Battery, connection and phone status." to R.string.ui_a6deb2fac853,
-  "Battery, connection and status" to R.string.ui_b7efc3ab9640
+  "Battery, connection and status" to R.string.ui_b7efc3ab9640,
+  "Sounds" to R.string.ui_c8fae1ac0751,
+  "Vibration" to R.string.ui_d9abf2bd1846,
+  "Quiet water drops and 8-bit blips accompany actions. Sounds pause in silent mode and battery saver." to R.string.ui_eabca3ce2957
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

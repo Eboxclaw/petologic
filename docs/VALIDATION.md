@@ -97,3 +97,7 @@ Opt-in `NotificationListenerService` feeds `security_query("notifications | …"
 ## 2026-09-12 — Device skill: device_query (battery, connectivity, phone)
 
 Plan-12 step ② first slice: third registry skill with a read-only `device_query` (battery level/charging, active-network transport/metered/VPN, device identity), pure formatters, envelope responses, AUTO default. 69 JVM + instrumented real-read tests green; UI in [evidence](evidence/2026-09-12-device-query/validation.md). No release gate claimed.
+
+## 2026-09-12 — Plan 14: light SFX and haptics
+
+Four synthesized water/8-bit effects + subtle haptics wired to send/reply/approval/error/sprite events through a pure gated vocabulary and an app-scoped SoundPool player. Sounds respect the user toggle, silent ringer and battery saver; haptics use platform constants without new permissions. `FeedbackMappingTest` + full suite: 73 JVM tests green; emulator smoke clean. [Evidence](evidence/2026-09-12-sfx-haptics/validation.md).

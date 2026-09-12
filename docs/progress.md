@@ -73,3 +73,7 @@ Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint B:
 ## 2026-09-12 — Device skill: battery and connectivity
 
 Plan-12 step ② opened: the Device domain's `device_query` shipped as the third skill (AUTO, read-only) — battery level and charging state, active connection (Wi-Fi/mobile data, metered, VPN), and phone identity — with pure formatters and envelope responses in the same gated per-turn registry.
+
+## 2026-09-12 — Plan 14: light SFX and haptics
+
+[Plan 14](plans/14-sfx-haptics.md) added a quiet personality layer: water-drop and 8-bit feedback on send/reply/approval/error/sprite interactions, Sounds + Vibration toggles in Sprite & Widget, battery-saver and silent-ringer respected. Companion research notes ([reviews/2026-09-12-research-notes.md](reviews/2026-09-12-research-notes.md)) answer the graph-RAG/vector-store/MiniLM/sub-agent/tool-weight/battery questions with code-verified facts.

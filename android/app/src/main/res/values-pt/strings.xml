@@ -299,4 +299,7 @@
  <string name="ui_f5cda1e9b742" formatted="false">"Aparelho"</string>
  <string name="ui_a6deb2fac853" formatted="false">"Estado da bateria, ligação e aparelho."</string>
  <string name="ui_b7efc3ab9640" formatted="false">"Bateria, ligação e estado"</string>
+ <string name="ui_c8fae1ac0751" formatted="false">"Sons"</string>
+ <string name="ui_d9abf2bd1846" formatted="false">"Vibração"</string>
+ <string name="ui_eabca3ce2957" formatted="false">"Gotas de água e blips 8-bit discretos acompanham as ações. Os sons pausam no modo silencioso e com economia de bateria."</string>
 </resources>

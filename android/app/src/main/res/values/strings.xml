@@ -299,4 +299,7 @@
  <string name="ui_f5cda1e9b742" formatted="false">"Device"</string>
  <string name="ui_a6deb2fac853" formatted="false">"Battery, connection and phone status."</string>
  <string name="ui_b7efc3ab9640" formatted="false">"Battery, connection and status"</string>
+ <string name="ui_c8fae1ac0751" formatted="false">"Sounds"</string>
+ <string name="ui_d9abf2bd1846" formatted="false">"Vibration"</string>
+ <string name="ui_eabca3ce2957" formatted="false">"Quiet water drops and 8-bit blips accompany actions. Sounds pause in silent mode and battery saver."</string>
 </resources>

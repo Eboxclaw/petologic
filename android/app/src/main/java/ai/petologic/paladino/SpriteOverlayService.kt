@@ -154,7 +154,7 @@ class SpriteOverlayService:Service(){
   if(!Settings.canDrawOverlays(this)){stopSelf();return}
   val panel=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(if(expanded)16 else 8),dp(8),dp(if(expanded)16 else 8),dp(8));isFocusableInTouchMode=true}
   if(!expanded){
-   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription=uiText("Floating Paladino. Tap to chat");adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{expanded=true;render()}}
+   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription=uiText("Floating Paladino. Tap to chat");adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{FeedbackPlayer.combined(this@SpriteOverlayService,it,ai.petologic.paladino.skills.FeedbackEvent.SPRITE_TAP);expanded=true;render()}}
    panel.addView(sprite,LinearLayout.LayoutParams(-1,dp(app.tinyPets.state.value.sizeDp)));draggable(sprite);startAnimation(sprite)
    val badge=TextView(this).apply{floatText(gold,10f);gravity=Gravity.CENTER;setPadding(dp(4),dp(2),dp(4),dp(2));setOnClickListener{expanded=true;render()}}
    panel.addView(badge)
@@ -177,7 +177,7 @@ class SpriteOverlayService:Service(){
    composer.addView(input,LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
    send=icon(R.drawable.ic_pet_send,"Send",true){
     val controller=app.sessionHub.active.value
-    if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
+    if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){FeedbackPlayer.combined(this@SpriteOverlayService,send!!,ai.petologic.paladino.skills.FeedbackEvent.MESSAGE_SENT);controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
    };composer.addView(send);panel.addView(composer)
    panel.addView(View(this).apply{setBackgroundColor(0x40F0D64B)},LinearLayout.LayoutParams(-1,dp(1)).apply{topMargin=dp(2)})
    val largeText=resources.configuration.fontScale>1.3f
