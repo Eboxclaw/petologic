@@ -137,6 +137,23 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
      val proposal=policy.propose("notes.create",text);app.memory.propose(proposal,sessionId)
      val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
      try{if(approval.await()){check(options.value.memoryWrite){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
+    }) else null,
+    securityQuery=if("security_query" in skillToolIds)({argument->
+     check("security.query" in manifest.allowedTools){"Security inspection is not allowed by this role."}
+     ai.petologic.skills.security.android.SecurityFacade.query(app,argument)
+    }) else null,
+    securityScan=if("security_scan" in skillToolIds)({argument->
+     check("security.scan" in manifest.allowedTools){"Security scanning is not allowed by this role."}
+     ai.petologic.skills.security.android.SecurityFacade.scan(app,argument)
+    }) else null,
+    securityAction=if("security_action" in skillToolIds)({argument->
+     check("security.action" in manifest.allowedTools){"Security actions are not allowed by this role."}
+     val proposal=policy.propose("security.action",argument);app.memory.propose(proposal,sessionId)
+     val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
+     try{
+      if(approval.await())ai.petologic.skills.security.android.SecurityFacade.executeAction(app,argument)
+      else{app.memory.cancel(proposal.id);"User declined. Nothing was opened or changed."}
+     }finally{toolApproval=null;ui.update{it.copy(action=null)}}
     }) else null
    ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
   app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}

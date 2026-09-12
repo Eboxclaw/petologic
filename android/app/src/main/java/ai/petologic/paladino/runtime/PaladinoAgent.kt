@@ -21,8 +21,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import java.util.UUID
 
-@Serializable data class NoteToolArgs(val argument:String)
-data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspend(String)->String)?=null)
+@Serializable data class LfmToolArgs(val argument:String)
+data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspend(String)->String)?=null,
+ val securityQuery:(suspend(String)->String)?=null,val securityScan:(suspend(String)->String)?=null,val securityAction:(suspend(String)->String)?=null)
 
 /** Koog's singleRunStrategy owns model → tool → observation → model transitions. */
 class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
@@ -39,16 +40,34 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
   // capabilities were already resolved by the caller. Nothing merely "asks" the model to behave.
   val registry=ToolRegistry {
    if(mode==ExecutionMode.TINY&&options.toolCalls){
-    if(tools.search!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
-     override suspend fun execute(args:NoteToolArgs):String {
+    if(tools.search!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"notes_search","Search this session's private notes. argument is a concise search query."){
+     override suspend fun execute(args:LfmToolArgs):String {
       budget.tool("notes_search",args.argument);onEvent("tool_call","notes_search #${budget.calls}")
       return tools.search.invoke(args.argument).take(4000).also{searchPerformed=true;toolResultObserver?.invoke("notes_search",it);onEvent("tool_result","notes_search returned ${it.length} characters")}
      }
     })
-    if(tools.save!=null)tool(object:SimpleTool<NoteToolArgs>(typeToken<NoteToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
-     override suspend fun execute(args:NoteToolArgs):String {
+    if(tools.save!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"notes_save","Propose saving a note in this session. The user must approve before writing. argument is the note text."){
+     override suspend fun execute(args:LfmToolArgs):String {
       budget.tool("notes_save",args.argument);onEvent("tool_call","notes_save #${budget.calls}")
       return tools.save.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("notes_save",it);onEvent("tool_result","notes_save completed with a bounded result")}
+     }
+    })
+    if(tools.securityQuery!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_query","Inspect device and app security state without changing anything. argument: device_status · app | package.name · apps | suspicious · vpn_status · notification_access · call_screening_status"){
+     override suspend fun execute(args:LfmToolArgs):String {
+      budget.tool("security_query",args.argument);onEvent("tool_call","security_query #${budget.calls}")
+      return tools.securityQuery.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("security_query",it);onEvent("tool_result","security_query completed with a bounded result")}
+     }
+    })
+    if(tools.securityScan!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_scan","Analyze a link, message or app for scam patterns. argument: url | link · text | message · app | package.name · installed_apps"){
+     override suspend fun execute(args:LfmToolArgs):String {
+      budget.tool("security_scan",args.argument);onEvent("tool_call","security_scan #${budget.calls}")
+      return tools.securityScan.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("security_scan",it);onEvent("tool_result","security_scan completed with a bounded result")}
+     }
+    })
+    if(tools.securityAction!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_action","Propose a security action the user must approve in the app. argument: open_app_settings | package.name · uninstall_handoff | package.name"){
+     override suspend fun execute(args:LfmToolArgs):String {
+      budget.tool("security_action",args.argument);onEvent("tool_call","security_action #${budget.calls}")
+      return tools.securityAction.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("security_action",it);onEvent("tool_result","security_action completed with a bounded result")}
      }
     })
    }

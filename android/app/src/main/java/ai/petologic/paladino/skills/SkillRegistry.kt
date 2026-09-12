@@ -21,14 +21,13 @@ object MemorySkill {
 
 /** Definitions plus persisted states and per-tool toggles. Pure activation lives in [activateSkills]. */
 object SkillRegistry {
- val definitions:List<SkillDefinition> = listOf(MemorySkill.definition)
+ val definitions:List<SkillDefinition> = listOf(MemorySkill.definition,ai.petologic.skills.security.SecuritySkill.definition)
  private const val PREFS="skills"
 
  fun states(context:Context):Map<String,SkillState>{
   val prefs=context.getSharedPreferences(PREFS,Context.MODE_PRIVATE)
-  // Default PINNED preserves pre-registry behavior: notes tools were always available to capable sessions.
   return definitions.associate{skill->
-   skill.id to runCatching{SkillState.valueOf(prefs.getString("state.${skill.id}",SkillState.PINNED.name)?:SkillState.PINNED.name)}.getOrDefault(SkillState.PINNED)
+   skill.id to runCatching{SkillState.valueOf(prefs.getString("state.${skill.id}",skill.defaultState.name)?:skill.defaultState.name)}.getOrDefault(skill.defaultState)
   }
  }
 

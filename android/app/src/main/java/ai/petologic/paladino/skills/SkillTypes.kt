@@ -14,7 +14,9 @@ data class SkillDefinition(
  val routerTerms:List<String>,
  /** The entire skill manual injected only while active — no pages of instructions. */
  val promptStub:String,
- val tools:List<SkillToolSpec>
+ val tools:List<SkillToolSpec>,
+ /** Fresh installs start here. PINNED preserves pre-registry behavior; AUTO wakes per message. */
+ val defaultState:SkillState=SkillState.PINNED
 )
 
 data class SkillActivation(val skill:SkillDefinition,val tools:List<SkillToolSpec>)

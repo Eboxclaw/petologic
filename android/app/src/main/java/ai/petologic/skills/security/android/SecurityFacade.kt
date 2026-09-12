@@ -1,0 +1,68 @@
+package ai.petologic.skills.security.android
+
+import ai.petologic.skills.security.ToolResultEnvelope
+import ai.petologic.skills.security.analysis.MessageAnalyzer
+import ai.petologic.skills.security.analysis.UrlAnalyzer
+import ai.petologic.skills.security.findingEnvelope
+import ai.petologic.skills.security.parseSecurityCommand
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+
+/**
+ * The only surface the three model-facing tools call. Query and scan are pure reads; actions are
+ * handoffs (Android opens the screen, the user decides) and are always reached through the
+ * existing ActionProposal approval flow in SessionController.
+ */
+object SecurityFacade {
+ fun query(context:Context,argument:String):String=runCatching{
+  val cmd=parseSecurityCommand(argument)
+  when(cmd.subject){
+   "device_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.deviceStatus(context))
+   "vpn_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.vpnStatus(context))
+   "notification_access"->ToolResultEnvelope.ok("security.query",SecurityQueries.notificationAccess(context))
+   "call_screening_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.callScreeningStatus(context))
+   "app"->findingEnvelope("security.query",AppInspector.inspect(context,cmd.argument))
+   "apps"->{
+    val findings=AppInspector.suspiciousApps(context)
+    ToolResultEnvelope.ok("security.query",if(findings.isEmpty())"No apps with higher-risk capabilities are visible to Paladino."
+     else findings.joinToString(" || "){it.render()})
+   }
+   else->ToolResultEnvelope.error("unsupported_command","security_query subjects: device_status, app | pkg, apps | suspicious, vpn_status, notification_access, call_screening_status")
+  }
+ }.getOrElse{ToolResultEnvelope.error("invalid_command",it.message?:"Could not read the command.")}
+
+ fun scan(context:Context,argument:String):String=runCatching{
+  val cmd=parseSecurityCommand(argument)
+  when(cmd.subject){
+   "url"->findingEnvelope("security.scan",UrlAnalyzer.scanUrl(cmd.argument))
+   "text"->findingEnvelope("security.scan",MessageAnalyzer.scanMessage(cmd.argument))
+   "app"->findingEnvelope("security.scan",AppInspector.inspect(context,cmd.argument))
+   "installed_apps"->{
+    val findings=AppInspector.suspiciousApps(context)
+    ToolResultEnvelope.ok("security.scan",if(findings.isEmpty())"No apps with higher-risk capabilities are visible to Paladino."
+     else findings.joinToString(" || "){it.render()})
+   }
+   else->ToolResultEnvelope.error("unsupported_command","security_scan subjects: url | link, text | message, app | pkg, installed_apps")
+  }
+ }.getOrElse{ToolResultEnvelope.error("invalid_command",it.message?:"Could not read the command.")}
+
+ /** Runs only after the user approved the ActionProposal. Android owns the outcome. */
+ fun executeAction(context:Context,argument:String):String{
+  val cmd=runCatching{parseSecurityCommand(argument)}.getOrElse{
+   return ToolResultEnvelope.error("invalid_command",it.message?:"Could not read the command.")
+  }
+  if(cmd.subject!="open_app_settings"&&cmd.subject!="uninstall_handoff")
+   return ToolResultEnvelope.error("unsupported_command","security_action supports open_app_settings | pkg and uninstall_handoff | pkg. Notification and call actions arrive in later releases.")
+  val action=if(cmd.subject=="open_app_settings")android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS else Intent.ACTION_DELETE
+  return try{
+   context.startActivity(Intent(action,Uri.parse("package:${cmd.argument}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+   if(cmd.subject=="open_app_settings")
+    ToolResultEnvelope.ok("security.action","Opened Android's app settings for ${cmd.argument}. Handoff: Android shows the screen; nothing was changed by Paladino.")
+   else
+    ToolResultEnvelope.ok("security.action","Opened Android's uninstall screen for ${cmd.argument}. Uninstall happens only if you confirm it in Android.")
+  }catch(_:Exception){
+   ToolResultEnvelope.error("handoff_failed","Android refused to open that screen for ${cmd.argument}.")
+  }
+ }
+}

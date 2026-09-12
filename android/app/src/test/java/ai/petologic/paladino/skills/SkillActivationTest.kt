@@ -4,16 +4,7 @@ import org.junit.Assert.*
 
 class SkillActivationTest {
  private val memory=MemorySkill.definition
- private fun security()=SkillDefinition(
-  id="security_guard",name="Security Guard",description="Spam, phishing, app and device checks",
-  routerTerms=listOf("spam","scam","phishing","malware","suspicious link","virus"),
-  promptStub="SECURITY GUARD: security_query inspects; security_scan analyses; security_action needs approval.",
-  tools=listOf(
-   SkillToolSpec("security_query","Security status"),
-   SkillToolSpec("security_scan","Scan suspicious text/link"),
-   SkillToolSpec("security_action","Approved security actions",androidPermission="android.permission.CAMERA")
-  )
- )
+ private val security=ai.petologic.skills.security.SecuritySkill.definition
 
  @Test fun off_removes_prompt_and_tools_even_when_pinned_by_history(){
   val states=mapOf(memory.id to SkillState.OFF)
@@ -34,24 +25,25 @@ class SkillActivationTest {
   assertTrue(activateSkills(listOf(memory),auto,emptySet(),emptySet(),"denoted symmetrical design").isEmpty())
  }
 
- @Test fun tool_toggles_and_permissions_gate_registration(){
-  val security=security()
+ @Test fun security_guard_auto_default_wakes_on_security_questions_only(){
+  // Fresh installs start from the definition's default state: AUTO for Security Guard.
+  assertEquals(SkillState.AUTO,security.defaultState)
+  val on=activateSkills(listOf(security),mapOf(security.id to security.defaultState),emptySet(),emptySet(),"Is this link suspicious? http://193.42.11.7")
+  assertEquals(listOf("security_query","security_scan","security_action"),on.first().tools.map{it.id})
+  // Plan 13 acceptance gate: an unrelated topic must wake nothing.
+  assertTrue(activateSkills(listOf(security),mapOf(security.id to SkillState.AUTO),emptySet(),emptySet(),"what is a black hole").isEmpty())
+ }
+
+ @Test fun tool_toggles_gate_registration(){
   val pinnedAll=mapOf(memory.id to SkillState.PINNED,security.id to SkillState.PINNED)
-  // Camera permission not granted: security_action must not exist in the registry.
-  val withoutCamera=activateSkills(listOf(memory,security),pinnedAll,emptySet(),emptySet(),"anything")
-  val sec=withoutCamera.first{it.skill.id=="security_guard"}
-  assertEquals(listOf("security_query","security_scan"),sec.tools.map{it.id})
-  // With the permission granted, all three tools appear.
-  val withCamera=activateSkills(listOf(memory,security),pinnedAll,emptySet(),setOf("android.permission.CAMERA"),"anything")
-  assertEquals(3,withCamera.first{it.skill.id=="security_guard"}.tools.size)
-  // A disabled tool disappears from the registry, not just from the prompt.
-  val scanned=activateSkills(listOf(security),mapOf(security.id to SkillState.AUTO),setOf("security_scan"),emptySet(),"is this a scam message")
-  assertEquals(listOf("security_query"),scanned.first().tools.map{it.id})
+  val withoutAction=activateSkills(listOf(memory,security),pinnedAll,setOf("security_action"),emptySet(),"anything at all")
+  assertEquals(listOf("security_query","security_scan"),withoutAction.first{it.skill.id=="security_guard"}.tools.map{it.id})
+  val scanned=activateSkills(listOf(security),mapOf(security.id to SkillState.AUTO),setOf("security_scan"),emptySet(),"is this message a scam")
+  assertEquals(listOf("security_query","security_action"),scanned.first().tools.map{it.id})
  }
 
  @Test fun activation_never_leaks_other_context(){
-  // The acceptance gate in plan 13: an unrelated topic wakes nothing on AUTO.
-  val skills=listOf(memory,security())
-  assertTrue(activateSkills(skills,mapOf(memory.id to SkillState.AUTO,security().id to SkillState.AUTO),emptySet(),emptySet(),"what is a black hole").isEmpty())
+  val skills=listOf(memory,security)
+  assertTrue(activateSkills(skills,mapOf(memory.id to SkillState.AUTO,security.id to SkillState.AUTO),emptySet(),emptySet(),"what is a black hole").isEmpty())
  }
 }

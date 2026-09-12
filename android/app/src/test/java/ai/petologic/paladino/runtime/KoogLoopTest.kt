@@ -38,4 +38,14 @@ class KoogLoopTest{
  @Test fun `negation and mentions do not force search`(){
   assertFalse(requiresFreshNoteSearch("Do not search my notes"));assertFalse(requiresFreshNoteSearch("Explica como pesquisar notas"));assertFalse(requiresFreshNoteSearch("Consulta as notas sem ferramentas"))
  }
+ @Test fun `security scan tool result reaches the model and returns to the user`()=runTest{
+  val observed=mutableListOf<String>()
+  val agent=PaladinoAgent(null,null,null){_,prompt->observed+=prompt.toString();if(observed.size==1)"{\"tool\":\"security_scan\",\"argument\":\"url | http://193.42.11.7/login\"}" else "That link looks risky."}
+  var scanned=""
+  val answer=agent.run(ContextBroker("Paladino").build("Is this link suspicious?",ExecutionMode.TINY,emptyList()),ExecutionMode.TINY,"",
+   tools=AgentTools(securityScan={scanned=it;ai.petologic.skills.security.ToolResultEnvelope.ok("security.scan","Link verdict: HIGH_ATTENTION — The link does not use HTTPS.")})){}
+  assertEquals("url | http://193.42.11.7/login",scanned)
+  assertTrue(observed.any{it.contains("OK|security.scan|")&&it.contains("HIGH_ATTENTION")})
+  assertTrue(answer.contains("risky"))
+ }
 }

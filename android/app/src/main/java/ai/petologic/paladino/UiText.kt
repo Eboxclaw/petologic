@@ -321,7 +321,12 @@ private object UiLabels {
   "Tools skills can register" to R.string.ui_b5e8f3a6c9d2,
   "Never registered" to R.string.ui_c6f9a4b7d2e5,
   "Activates automatically when a message matches" to R.string.ui_d7a2b5c8e1f4,
-  "Always available in Tiny sessions" to R.string.ui_e8b3c6d9f2a5
+  "Always available in Tiny sessions" to R.string.ui_e8b3c6d9f2a5,
+  "Security Guard" to R.string.ui_f9c7d5e3a1b8,
+  "Spam, phishing, app and device security checks." to R.string.ui_a0d8e6f4b2c9,
+  "Security status" to R.string.ui_b1e9f7a5c3d0,
+  "Scan suspicious text/link" to R.string.ui_c2fad8b6d4e1,
+  "Approved security actions" to R.string.ui_d3abe9c7e5f2
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

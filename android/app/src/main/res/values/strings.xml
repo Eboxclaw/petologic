@@ -290,4 +290,9 @@
  <string name="ui_c6f9a4b7d2e5" formatted="false">"Never registered"</string>
  <string name="ui_d7a2b5c8e1f4" formatted="false">"Activates automatically when a message matches"</string>
  <string name="ui_e8b3c6d9f2a5" formatted="false">"Always available in Tiny sessions"</string>
+ <string name="ui_f9c7d5e3a1b8" formatted="false">"Security Guard"</string>
+ <string name="ui_a0d8e6f4b2c9" formatted="false">"Spam, phishing, app and device security checks."</string>
+ <string name="ui_b1e9f7a5c3d0" formatted="false">"Security status"</string>
+ <string name="ui_c2fad8b6d4e1" formatted="false">"Scan suspicious text/link"</string>
+ <string name="ui_d3abe9c7e5f2" formatted="false">"Approved security actions"</string>
 </resources>
