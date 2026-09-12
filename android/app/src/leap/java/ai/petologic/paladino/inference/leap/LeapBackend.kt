@@ -5,6 +5,10 @@ import ai.liquid.leap.LeapClient
 import ai.liquid.leap.ModelLoadingOptions
 import ai.liquid.leap.ModelRunner
 import ai.liquid.leap.inferenceengine.EngineOptions
+import ai.liquid.leap.function.LFMFunctionCallParser
+import ai.liquid.leap.function.LeapFunction
+import ai.liquid.leap.function.LeapFunctionParameter
+import ai.liquid.leap.function.LeapFunctionParameterType
 import ai.liquid.leap.message.ChatMessage
 import ai.liquid.leap.message.MessageResponse
 import ai.petologic.core.ModelCatalog
@@ -41,7 +45,7 @@ import java.io.File
 class LeapBackend(private val context:Context,private val library:ModelLibrary):LocalInferenceBackend{
  override val ready=MutableStateFlow(false)
  override val metrics=MutableStateFlow<InferenceMetrics?>(null)
- override val capabilities=BackendCapabilities(streaming=true,cancellation=true,multiModel=true)
+ override val capabilities=BackendCapabilities(streaming=true,cancellation=true,multiModel=true,nativeFunctionCalling=true)
  private val lock=Mutex()
  private val runners=mutableMapOf<String,ModelRunner>()
 
@@ -80,12 +84,20 @@ class LeapBackend(private val context:Context,private val library:ModelLibrary):
    history.add(ChatMessage(ChatMessage.Role.SYSTEM,request.system))
    request.turns.forEach{turn->history.add(ChatMessage(when(turn.speaker){"assistant"->ChatMessage.Role.ASSISTANT;"tool"->ChatMessage.Role.TOOL;else->ChatMessage.Role.USER},turn.text))}
    val conversation=runner.createConversationFromHistory(history)
+   // Native function calling: declare tools on the conversation and let LEAP's LFM parser
+   // surface calls as FunctionCalls responses (materialized below) — no forced-text protocol.
+   if(request.tools.isNotEmpty()){
+    request.tools.forEach{tool->conversation.registerFunction(LeapFunction(tool.name,tool.description,
+     listOf(LeapFunctionParameter("argument",LeapFunctionParameterType.LeapStr(),tool.parameterDescription,false))))}
+   }
    val job=currentCoroutineContext()[Job]!!
    var peakPss=Debug.getPss()
    val watcher=launch{while(true){if(!job.isActive)break;peakPss=maxOf(peakPss,Debug.getPss());delay(50)}}
    val begin=System.nanoTime()
    try{
-    val options=generationOptions(request.options)
+    val options=generationOptions(request.options).let{opts->
+     if(request.tools.isNotEmpty()){opts.functionCallParser=LFMFunctionCallParser()};opts
+    }
     val out=StringBuilder();val reasoning=StringBuilder();var ttftMicros=0L
     conversation.generateResponse(request.user,options).collect{response->
      if(!job.isActive)return@collect

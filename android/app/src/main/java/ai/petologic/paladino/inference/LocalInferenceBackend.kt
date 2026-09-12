@@ -9,11 +9,16 @@ data class LocalGenerationRequest(
  val user:String,
  val modelId:String="lfm350",
  val options:SessionOptions=SessionOptions(),
- val turns:List<ChatTurn> = emptyList()
+ val turns:List<ChatTurn> = emptyList(),
+ /** Declared tools for backends with native function calling; prompt-protocol backends ignore them. */
+ val tools:List<LocalToolSpec> = emptyList()
 )
 
+/** One declared tool; Petologic tools are single-argument by design (TOOL_SPEC). */
+data class LocalToolSpec(val name:String,val description:String,val parameterDescription:String)
+
 /** What a runtime can honestly do; the agent layer never assumes. */
-data class BackendCapabilities(val streaming:Boolean,val cancellation:Boolean,val multiModel:Boolean)
+data class BackendCapabilities(val streaming:Boolean,val cancellation:Boolean,val multiModel:Boolean,val nativeFunctionCalling:Boolean=false)
 
 data class InferenceMetrics(val modelId:String,val contextTokens:Int,val loadMs:Long,val promptTokens:Long,val outputTokens:Long,val prefillMicros:Long,val decodeMicros:Long,val peakSampledPssKb:Long,val endPssKb:Long)
 

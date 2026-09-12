@@ -97,7 +97,14 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
      return Message.Assistant(text,metaInfo=ResponseMetaInfo.create(KoogClock.System))
     }
     val definitions=LfmToolDescriptorSchemer.definitions(tools)
-    val toolInstructions=if(tools.isEmpty())"" else "\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. When the current request explicitly asks to search notes, you must call notes_search now even if the answer appears in the conversation history. History is not a new search result. Never say a search was performed unless its tool result exists in this turn. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
+    // Backends with native function calling (LEAP) receive the tool list through the request and
+    // get their schemas injected by the SDK; forced-text instruction stays for prompt-protocol engines.
+    val nativeFC=inference?.capabilities?.nativeFunctionCalling==true
+    val toolInstructions=when{
+     tools.isEmpty()->""
+     nativeFC->"\nTools are available as functions; call them through function calling. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. When the current request explicitly asks to search notes, you must call notes_search now even if the answer appears in the conversation history. History is not a new search result. Never say a search was performed unless its tool result exists in this turn. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
+     else->"\nList of tools: $definitions\nOutput function calls as JSON. For a tool call use {\"name\":\"tool_name\",\"arguments\":{\"argument\":\"text\"}}. A greeting needs no tool: answer normally. Saving uses notes_save, searching uses notes_search. When the current request explicitly asks to search notes, you must call notes_search now even if the answer appears in the conversation history. History is not a new search result. Never say a search was performed unless its tool result exists in this turn. Wait for the tool result before describing what happened. After a successful result, give a natural-language final answer."
+    }
     val system=context.system+skillStubs+"\nSession instructions: "+options.instructions+toolInstructions
     val turns=context.history+prompt.messages.filterNot{it is Message.System}.flatMap{message->message.parts.mapNotNull{part->when(part){
      is MessagePart.Text->ChatTurn(if(message is Message.Assistant)"assistant" else "user",part.text)
@@ -108,7 +115,13 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
     val transcript=turns.joinToString("\n\n"){it.speaker+": "+it.text}
     val hardBytes=(options.contextTokens-options.outputTokens-options.toolReserve)*3
     check((system+transcript).toByteArray().size<hardBytes){"Session context is full. Start a new session or compress its history before continuing."}
-    suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){testTurn?.invoke(system,user)?:checkNotNull(inference).generate(ai.petologic.paladino.inference.LocalGenerationRequest(system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,if(repair)turns+ChatTurn("user",user) else turns)){text->if(tools.isEmpty())onText(text)}}
+    suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){
+     testTurn?.invoke(system,user)?:checkNotNull(inference).generate(ai.petologic.paladino.inference.LocalGenerationRequest(
+      system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,
+      if(repair)turns+ChatTurn("user",user) else turns,
+      if(nativeFC)tools.map{ai.petologic.paladino.inference.LocalToolSpec(it.name,it.description,"argument")}else emptyList()
+     )){text->if(tools.isEmpty())onText(text)}
+    }
     var result=generate(transcript).also{responseObserver?.invoke(it)}
     val freshSearchRequired=requiresFreshNoteSearch(context.user)&&tools.any{it.name=="notes_search"}&&!searchPerformed
     if(freshSearchRequired&&!looksLikeToolCall(result)){
