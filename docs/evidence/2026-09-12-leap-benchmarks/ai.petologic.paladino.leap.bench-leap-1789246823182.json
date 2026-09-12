@@ -1,0 +1,239 @@
+[
+ {
+  "label": "cold_load_350M_4096",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 400,
+  "wallMs": 1892,
+  "ttftMs": 1426,
+  "replyWords": 12,
+  "peakPssKb": 666299
+ },
+ {
+  "label": "cold_wall_total",
+  "model": "lfm350",
+  "wallMs": 1905,
+  "peakPssKb": 666391
+ },
+ {
+  "label": "warm_0",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 400,
+  "wallMs": 662,
+  "ttftMs": 360,
+  "replyWords": 12,
+  "peakPssKb": 659217
+ },
+ {
+  "label": "warm_1",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 400,
+  "wallMs": 999,
+  "ttftMs": 405,
+  "replyWords": 12,
+  "peakPssKb": 659233
+ },
+ {
+  "label": "warm_2",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 400,
+  "wallMs": 770,
+  "ttftMs": 348,
+  "replyWords": 12,
+  "peakPssKb": 659273
+ },
+ {
+  "label": "prompt_900c",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 900,
+  "wallMs": 2436,
+  "ttftMs": 992,
+  "replyWords": 12,
+  "peakPssKb": 668419
+ },
+ {
+  "label": "prompt_1800c",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 1800,
+  "wallMs": 1393,
+  "ttftMs": 1212,
+  "replyWords": 4,
+  "peakPssKb": 674286
+ },
+ {
+  "label": "prompt_3600c",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 3600,
+  "wallMs": 2674,
+  "ttftMs": 2252,
+  "replyWords": 12,
+  "peakPssKb": 673794
+ },
+ {
+  "label": "context_2048",
+  "model": "lfm350",
+  "context": 2048,
+  "promptChars": 400,
+  "wallMs": 1496,
+  "ttftMs": 1158,
+  "replyWords": 12,
+  "peakPssKb": 953808
+ },
+ {
+  "label": "context_8192",
+  "model": "lfm350",
+  "context": 8192,
+  "promptChars": 400,
+  "wallMs": 1339,
+  "ttftMs": 846,
+  "replyWords": 12,
+  "peakPssKb": 1228654
+ },
+ {
+  "label": "switch_to_230M",
+  "model": "lfm230-qad",
+  "context": 2048,
+  "promptChars": 400,
+  "wallMs": 2140,
+  "ttftMs": 1336,
+  "replyWords": 13,
+  "peakPssKb": 1545374
+ },
+ {
+  "label": "switch_350_to_230",
+  "wallMs": 2157,
+  "peakPssKb": 1545378
+ },
+ {
+  "label": "switch_back_350M",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 400,
+  "wallMs": 761,
+  "ttftMs": 313,
+  "replyWords": 12,
+  "peakPssKb": 1538542
+ },
+ {
+  "label": "switch_230_to_350",
+  "wallMs": 781,
+  "peakPssKb": 1538546
+ },
+ {
+  "label": "consecutive_0",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 776,
+  "ttftMs": 232,
+  "replyWords": 12,
+  "peakPssKb": 1538574
+ },
+ {
+  "label": "consecutive_1",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 1083,
+  "ttftMs": 323,
+  "replyWords": 12,
+  "peakPssKb": 1538809
+ },
+ {
+  "label": "consecutive_2",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 948,
+  "ttftMs": 350,
+  "replyWords": 12,
+  "peakPssKb": 1538819
+ },
+ {
+  "label": "consecutive_3",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 697,
+  "ttftMs": 365,
+  "replyWords": 12,
+  "peakPssKb": 1538871
+ },
+ {
+  "label": "consecutive_4",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 710,
+  "ttftMs": 267,
+  "replyWords": 12,
+  "peakPssKb": 1538883
+ },
+ {
+  "label": "consecutive_5",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 565,
+  "ttftMs": 314,
+  "replyWords": 12,
+  "peakPssKb": 1538931
+ },
+ {
+  "label": "consecutive_6",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 563,
+  "ttftMs": 255,
+  "replyWords": 12,
+  "peakPssKb": 1539063
+ },
+ {
+  "label": "consecutive_7",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 2133,
+  "ttftMs": 233,
+  "replyWords": 12,
+  "peakPssKb": 1508493
+ },
+ {
+  "label": "consecutive_8",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 830,
+  "ttftMs": 252,
+  "replyWords": 12,
+  "peakPssKb": 1508505
+ },
+ {
+  "label": "consecutive_9",
+  "model": "lfm350",
+  "context": 4096,
+  "promptChars": 200,
+  "wallMs": 688,
+  "ttftMs": 250,
+  "replyWords": 12,
+  "peakPssKb": 1508797
+ },
+ {
+  "label": "consecutive_10_total",
+  "wallMs": 9241,
+  "peakPssKb": 1508797
+ },
+ {
+  "label": "cancellation",
+  "wallMs": 46,
+  "clean": true,
+  "peakPssKb": 1511263
+ }
+]

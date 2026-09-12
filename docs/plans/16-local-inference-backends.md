@@ -68,3 +68,12 @@ and the final recommendation.
 memory ≤ current + acceptable overhead · no native conflicts · download/load lifecycle intact ·
 APK impact documented · no SkillRegistry/Koog/approval regression. Performance does not need to
 win every metric; halving custom native code with ≤~5% slowdown is a valid win.
+
+## Outcome (executed 2026-09-12, same day)
+
+All stages executed on the emulator. **DEFAULT = LLAMA_CPP for production today; LEAP becomes the
+supported experimental engine; LEAP native function calling is the recommended engine for tool
+turns (PT-first win); plan 15 S2 retired in favor of LEAP for workers.** Full tables, gates and
+licensing: [docs/reviews/2026-09-12-leap-sdk-evaluation.md](../reviews/2026-09-12-leap-sdk-evaluation.md).
+Raw data: `docs/evidence/2026-09-12-leap-benchmarks/`. Remaining open item before any default
+flip: `ThermalSoakTest` + absolute numbers on real hardware over USB.

@@ -76,11 +76,22 @@ class LeapBackend(private val library:ModelLibrary):LocalInferenceBackend{
      temperature=request.options.temperature,topP=request.options.topP,topK=request.options.topK,
      repetitionPenalty=request.options.repeatPenalty,rngSeed=request.options.seed.toLong(),
      maxTokens=request.options.outputTokens)
-    val out=StringBuilder();var ttftMicros=0L
+    val out=StringBuilder();val reasoning=StringBuilder();var ttftMicros=0L
     conversation.generateResponse(request.user,options).collect{response->
      if(!job.isActive)return@collect
      when(response){
       is MessageResponse.Chunk->{if(ttftMicros==0L)ttftMicros=(System.nanoTime()-begin)/1000;out.append(response.text);onText(out.toString())}
+      is MessageResponse.ReasoningChunk->reasoning.append(response.reasoning)
+      is MessageResponse.FunctionCalls->
+       // LEAP extracts native tool calls when the model emits LFM call tokens; materialize
+       // them back into our pythonic form so the agent-layer parser sees one protocol.
+       response.functionCalls.forEach{call->
+        val args=call.arguments.entries.joinToString(", "){(k,v)->
+         val rendered=if(v is String)'"'+v.replace("\\","\\\\").replace("\"","\\\"")+'"' else v.toString()
+         "$k=$rendered"}
+        if(ttftMicros==0L)ttftMicros=(System.nanoTime()-begin)/1000
+        out.append("[${call.name}($args)]");onText(out.toString())
+       }
       is MessageResponse.Complete->{
        val s=response.stats
        metrics.value=InferenceMetrics(modelId,request.options.contextTokens,loadMs,
@@ -93,7 +104,9 @@ class LeapBackend(private val library:ModelLibrary):LocalInferenceBackend{
      }
     }
     currentCoroutineContext().ensureActive()
-    out.toString()
+    // LFM2.5 thinking runs in separate reasoning chunks; when a reply is all reasoning and no
+    // content, the reasoning IS the answer — surface it instead of returning an empty string.
+    if(out.isBlank()&&reasoning.isNotBlank()){onText(reasoning.toString());reasoning.toString().trim()}else out.toString()
    }finally{watcher.cancel()}
   }
  }
