@@ -24,7 +24,7 @@ import java.util.UUID
 @Serializable data class LfmToolArgs(val argument:String)
 data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspend(String)->String)?=null,
  val securityQuery:(suspend(String)->String)?=null,val securityScan:(suspend(String)->String)?=null,val securityAction:(suspend(String)->String)?=null,
- val notificationQuery:(suspend(String)->String)?=null)
+ val notificationQuery:(suspend(String)->String)?=null,val deviceQuery:(suspend(String)->String)?=null)
 
 /** Koog's singleRunStrategy owns model → tool → observation → model transitions. */
 class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
@@ -75,6 +75,12 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
      override suspend fun execute(args:LfmToolArgs):String {
       budget.tool("notification_query",args.argument);onEvent("tool_call","notification_query #${budget.calls}")
       return tools.notificationQuery.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("notification_query",it);onEvent("tool_result","notification_query completed with a bounded result")}
+     }
+    })
+    if(tools.deviceQuery!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"device_query","Read battery, connection and phone status without changing anything. argument: battery · connectivity · device"){
+     override suspend fun execute(args:LfmToolArgs):String {
+      budget.tool("device_query",args.argument);onEvent("tool_call","device_query #${budget.calls}")
+      return tools.deviceQuery.invoke(args.argument).take(2000).also{toolResultObserver?.invoke("device_query",it);onEvent("tool_result","device_query completed with a bounded result")}
      }
     })
    }

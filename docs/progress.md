@@ -69,3 +69,7 @@ Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint B:
 ## 2026-09-12 — Sprint C: notifications
 
 [Plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint C: Paladino can now read recent on-device notifications the user explicitly allowed (notification access, off by default) through Security Guard's `notification_query`, and dismiss a single notification after approval. Capability gating extended beyond Android permissions to app-level capabilities, reusing the same registration gates.
+
+## 2026-09-12 — Device skill: battery and connectivity
+
+Plan-12 step ② opened: the Device domain's `device_query` shipped as the third skill (AUTO, read-only) — battery level and charging state, active connection (Wi-Fi/mobile data, metered, VPN), and phone identity — with pure formatters and envelope responses in the same gated per-turn registry.

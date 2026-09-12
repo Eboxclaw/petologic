@@ -48,4 +48,13 @@ class KoogLoopTest{
   assertTrue(observed.any{it.contains("OK|security.scan|")&&it.contains("HIGH_ATTENTION")})
   assertTrue(answer.contains("risky"))
  }
+ @Test fun `device query loops through koog with its envelope`()=runTest{
+  var turns=0
+  val agent=PaladinoAgent(null,null,null){_,_->if(++turns==1)"{\"tool\":\"device_query\",\"argument\":\"battery\"}" else "Your battery is at 88%."}
+  var asked=""
+  val answer=agent.run(ContextBroker("Paladino").build("How is my battery?",ExecutionMode.TINY,emptyList()),ExecutionMode.TINY,"",
+   tools=AgentTools(deviceQuery={asked=it;ai.petologic.skills.security.ToolResultEnvelope.ok("device.query","Battery at 88%.")})){}
+  assertEquals("battery",asked)
+  assertTrue(answer.contains("88%"))
+ }
 }

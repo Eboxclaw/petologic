@@ -59,4 +59,14 @@ class SkillActivationTest {
   val skills=listOf(memory,security)
   assertTrue(activateSkills(skills,mapOf(memory.id to SkillState.AUTO,security.id to SkillState.AUTO),emptySet(),emptySet(),"what is a black hole").isEmpty())
  }
+
+ @Test fun device_skill_wakes_on_battery_and_connection_questions(){
+  val device=DeviceSkill.definition
+  assertEquals(SkillState.AUTO,device.defaultState)
+  assertEquals(1,device.tools.size)
+  val on=activateSkills(listOf(device),mapOf(device.id to SkillState.AUTO),emptySet(),emptySet(),"Is my battery ok?")
+  assertEquals(listOf("device_query"),on.first().tools.map{it.id})
+  assertTrue(activateSkills(listOf(device),mapOf(device.id to SkillState.AUTO),emptySet(),emptySet(),"does my wifi look suspicious").isNotEmpty())
+  assertTrue(activateSkills(listOf(device),mapOf(device.id to SkillState.AUTO),emptySet(),emptySet(),"write a poem about the sea").isEmpty())
+ }
 }

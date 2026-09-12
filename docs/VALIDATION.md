@@ -93,3 +93,7 @@ Three model-facing security tools (query/scan/action) landed as the second regis
 ## 2026-09-12 — Sprint C: notification awareness for Security Guard
 
 Opt-in `NotificationListenerService` feeds `security_query("notifications | …")` and the now-active `dismiss_notification` action; the new `notification_query` tool is the first capability-gated registry entry (`cap.notification_listener`, toggle default OFF) and fails closed to a permission error without access. 62 JVM + instrumented tests green in both listener states on the emulator, including a live read of a posted notification; UI in [evidence](evidence/2026-09-12-sprint-c-notifications/validation.md). RemoteInput replies deferred.
+
+## 2026-09-12 — Device skill: device_query (battery, connectivity, phone)
+
+Plan-12 step ② first slice: third registry skill with a read-only `device_query` (battery level/charging, active-network transport/metered/VPN, device identity), pure formatters, envelope responses, AUTO default. 69 JVM + instrumented real-read tests green; UI in [evidence](evidence/2026-09-12-device-query/validation.md). No release gate claimed.

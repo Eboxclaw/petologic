@@ -296,4 +296,7 @@
  <string name="ui_c2fad8b6d4e1" formatted="false">"Scan suspicious text/link"</string>
  <string name="ui_d3abe9c7e5f2" formatted="false">"Approved security actions"</string>
  <string name="ui_e4bcf0d8a639" formatted="false">"Notification monitoring"</string>
+ <string name="ui_f5cda1e9b742" formatted="false">"Device"</string>
+ <string name="ui_a6deb2fac853" formatted="false">"Battery, connection and phone status."</string>
+ <string name="ui_b7efc3ab9640" formatted="false">"Battery, connection and status"</string>
 </resources>

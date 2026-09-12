@@ -296,4 +296,7 @@
  <string name="ui_c2fad8b6d4e1" formatted="false">"Analisar texto/link suspeito"</string>
  <string name="ui_d3abe9c7e5f2" formatted="false">"Ações de segurança aprovadas"</string>
  <string name="ui_e4bcf0d8a639" formatted="false">"Monitorização de notificações"</string>
+ <string name="ui_f5cda1e9b742" formatted="false">"Aparelho"</string>
+ <string name="ui_a6deb2fac853" formatted="false">"Estado da bateria, ligação e aparelho."</string>
+ <string name="ui_b7efc3ab9640" formatted="false">"Bateria, ligação e estado"</string>
 </resources>

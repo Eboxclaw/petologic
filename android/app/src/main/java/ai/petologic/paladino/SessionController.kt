@@ -158,6 +158,10 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
     notificationQuery=if("notification_query" in skillToolIds)({argument->
      check("security.query" in manifest.allowedTools){"Notification reading is not allowed by this role."}
      ai.petologic.skills.security.android.SecurityFacade.query(app,if(argument.startsWith("notifications"))argument else "notifications | $argument")
+    }) else null,
+    deviceQuery=if("device_query" in skillToolIds)({argument->
+     check("device.query" in manifest.allowedTools){"Device status is not allowed by this role."}
+     ai.petologic.paladino.skills.DeviceStatusReader.query(app,argument)
     }) else null
    ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
   app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}

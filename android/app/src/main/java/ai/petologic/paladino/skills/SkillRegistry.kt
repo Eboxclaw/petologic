@@ -21,7 +21,7 @@ object MemorySkill {
 
 /** Definitions plus persisted states and per-tool toggles. Pure activation lives in [activateSkills]. */
 object SkillRegistry {
- val definitions:List<SkillDefinition> = listOf(MemorySkill.definition,ai.petologic.skills.security.SecuritySkill.definition)
+ val definitions:List<SkillDefinition> = listOf(MemorySkill.definition,ai.petologic.skills.security.SecuritySkill.definition,DeviceSkill.definition)
  private const val PREFS="skills"
 
  fun states(context:Context):Map<String,SkillState>{
