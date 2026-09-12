@@ -14,7 +14,7 @@ class PaladinoApplication:Application(){
  lateinit var credentials:CredentialStore;private set
  lateinit var agent:PaladinoAgent;private set
  lateinit var sessionHub:SessionHub;private set
- val inference:ai.petologic.paladino.inference.LocalInferenceBackend by lazy{ai.petologic.paladino.inference.llama.LlamaCppBackend(local)}
+ val inference:ai.petologic.paladino.inference.LocalInferenceBackend by lazy{ai.petologic.paladino.inference.BackendFactory.create(this,local,modelLibrary)}
  val appUpdater by lazy{AppUpdater(this)}
  val ready=CompletableDeferred<Unit>()
  val modelsReady=CompletableDeferred<Unit>()
