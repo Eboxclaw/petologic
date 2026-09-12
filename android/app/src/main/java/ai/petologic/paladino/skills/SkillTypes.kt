@@ -3,8 +3,9 @@ package ai.petologic.paladino.skills
 /** OFF keeps a skill out of routing, prompts and registries; AUTO needs the router to match; PINNED is always on. */
 enum class SkillState{ OFF, AUTO, PINNED }
 
-/** One tool a skill can expose. [androidPermission] gates registration on a granted Android permission. */
-data class SkillToolSpec(val id:String,val label:String,val androidPermission:String?=null)
+/** One tool a skill can expose. [androidPermission] gates registration on a granted Android permission
+ *  (or a "cap.*" capability resolved by the registry); [defaultEnabled] seeds the user toggle. */
+data class SkillToolSpec(val id:String,val label:String,val androidPermission:String?=null,val defaultEnabled:Boolean=true)
 
 data class SkillDefinition(
  val id:String,

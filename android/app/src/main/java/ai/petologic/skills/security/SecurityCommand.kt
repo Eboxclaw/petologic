@@ -18,12 +18,13 @@ fun parseSecurityCommand(argument:String):SecurityCommand{
  val payload=parts.getOrNull(1)?:""
  return when(subject){
   "device_status","vpn_status","notification_access","call_screening_status"->SecurityCommand("query",subject,"")
+  "notifications"->SecurityCommand("query","notifications",payload.also{require(it.isNotBlank()){"Use notifications | all or notifications | package.name"}})
   "app"->SecurityCommand("query","app",payload.also{require(it.isNotBlank()){"Name the app package, e.g. app | com.example"} })
   "apps"->SecurityCommand("query","apps",payload.also{require(it=="suspicious"){"Supported: apps | suspicious"}})
   "url"->SecurityCommand("scan","url",payload.also{require(it.isNotBlank()){"Provide the link, e.g. url | https://example.com"}})
   "text"->SecurityCommand("scan","text",payload.also{require(it.isNotBlank()){"Provide the message text after text |"}})
   "installed_apps"->SecurityCommand("scan","installed_apps","")
-  "open_app_settings","uninstall_handoff"->SecurityCommand("action",subject,payload.also{require(it.isNotBlank()){"Name the app package"}})
+  "open_app_settings","uninstall_handoff","dismiss_notification"->SecurityCommand("action",subject,payload.also{require(it.isNotBlank()){"Name the target: a package or notification id"}})
   else->throw IllegalArgumentException("Unknown security command '$subject'. Supported: device_status, app | pkg, apps | suspicious, vpn_status, notification_access, call_screening_status, url | link, text | message, installed_apps, open_app_settings | pkg, uninstall_handoff | pkg")
  }
 }

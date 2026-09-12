@@ -31,4 +31,12 @@ class SecurityIntegrationTest {
   val bad=SecurityFacade.query(context,"format_device")
   assertTrue(bad,bad.startsWith("ERROR|invalid_command|"))
  }
+ @Test fun notifications_fail_closed_without_listener_access(){
+  val access=ai.petologic.skills.security.android.NotificationListener.accessGranted(context)
+  val result=SecurityFacade.query(context,"notifications | all")
+  if(access)assertTrue(result,result.startsWith("OK|security.query|"))
+  else assertTrue(result,result.startsWith("ERROR|permission_required|"))
+  val dismiss=SecurityFacade.executeAction(context,"dismiss_notification | 0|x|1")
+  assertTrue(dismiss,!dismiss.startsWith("OK|security.action|")||access)
+ }
 }

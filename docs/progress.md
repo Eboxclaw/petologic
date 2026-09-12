@@ -65,3 +65,7 @@ Skills management moved into the Controls tab per user direction: the Skills & M
 ## 2026-09-12 — Sprint B: Security Guard V0
 
 Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint B: `ai.petologic.skills.security` ships `security_query`/`security_scan`/`security_action` over purely local deterministic scanners — link structure checks, scam message patterns, and an app risk engine (accessibility, device admin, VPN, overlay, notification listener, installer origin, granted permissions) with LOW/REVIEW/HIGH_ATTENTION/UNKNOWN verdicts the model explains but never changes. Actions remain approval-gated Android handoffs; notification and call capabilities wait for Sprints C/D. Security Guard defaults to AUTO and stays out of context until a message matches.
+
+## 2026-09-12 — Sprint C: notifications
+
+[Plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint C: Paladino can now read recent on-device notifications the user explicitly allowed (notification access, off by default) through Security Guard's `notification_query`, and dismiss a single notification after approval. Capability gating extended beyond Android permissions to app-level capabilities, reusing the same registration gates.

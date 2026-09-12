@@ -295,4 +295,5 @@
  <string name="ui_b1e9f7a5c3d0" formatted="false">"Security status"</string>
  <string name="ui_c2fad8b6d4e1" formatted="false">"Scan suspicious text/link"</string>
  <string name="ui_d3abe9c7e5f2" formatted="false">"Approved security actions"</string>
+ <string name="ui_e4bcf0d8a639" formatted="false">"Notification monitoring"</string>
 </resources>

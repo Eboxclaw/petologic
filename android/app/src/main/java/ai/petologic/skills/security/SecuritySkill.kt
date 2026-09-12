@@ -22,7 +22,9 @@ object SecuritySkill {
   tools=listOf(
    SkillToolSpec("security_query","Security status"),
    SkillToolSpec("security_scan","Scan suspicious text/link"),
-   SkillToolSpec("security_action","Approved security actions")
+   SkillToolSpec("security_action","Approved security actions"),
+   SkillToolSpec("notification_query","Notification monitoring",
+    androidPermission="cap.notification_listener",defaultEnabled=false)
   ),
   defaultState=SkillState.AUTO
  )

@@ -34,6 +34,19 @@ class SkillActivationTest {
   assertTrue(activateSkills(listOf(security),mapOf(security.id to SkillState.AUTO),emptySet(),emptySet(),"what is a black hole").isEmpty())
  }
 
+ @Test fun notification_monitoring_needs_both_toggle_and_capability(){
+  // The user toggle defaults to off (registry pref); the pure layer proves the capability gate.
+  assertFalse(security.tools.first{it.id=="notification_query"}.defaultEnabled)
+  val auto=mapOf(security.id to SkillState.AUTO)
+  // Capability missing (listener not granted): never registers even when not disabled.
+  val noCapability=activateSkills(listOf(security),auto,emptySet(),emptySet(),"any suspicious message?")
+  assertFalse(noCapability.first().tools.any{it.id=="notification_query"})
+  // Capability granted and everything else disabled: only notification_query registers.
+  val withCapability=activateSkills(listOf(security),auto,
+   setOf("security_query","security_scan","security_action"),setOf("cap.notification_listener"),"any suspicious message?")
+  assertEquals(listOf("notification_query"),withCapability.first().tools.map{it.id})
+ }
+
  @Test fun tool_toggles_gate_registration(){
   val pinnedAll=mapOf(memory.id to SkillState.PINNED,security.id to SkillState.PINNED)
   val withoutAction=activateSkills(listOf(memory,security),pinnedAll,setOf("security_action"),emptySet(),"anything at all")

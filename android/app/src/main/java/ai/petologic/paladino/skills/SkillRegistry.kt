@@ -36,7 +36,7 @@ object SkillRegistry {
  }
 
  fun toolEnabled(context:Context,skill:SkillDefinition,tool:SkillToolSpec):Boolean=
-  context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getBoolean("tool.${skill.id}.${tool.id}",true)
+  context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getBoolean("tool.${skill.id}.${tool.id}",tool.defaultEnabled)
 
  fun setToolEnabled(context:Context,skillId:String,toolId:String,enabled:Boolean){
   context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("tool.$skillId.$toolId",enabled).apply()
@@ -44,8 +44,16 @@ object SkillRegistry {
 
  fun activationsFor(context:Context,request:String):List<SkillActivation>{
   val disabled=definitions.flatMap{skill->skill.tools.filter{!toolEnabled(context,skill,it)}.map{it.id}}.toSet()
-  val granted=definitions.flatMap{it.tools}.mapNotNull{it.androidPermission}
-   .filter{context.checkSelfPermission(it)==PackageManager.PERMISSION_GRANTED}.toSet()
+  val granted=definitions.flatMap{it.tools}.mapNotNull{it.androidPermission}.toSet().filter{capabilityGranted(context,it)}.toSet()
   return activateSkills(definitions,states(context),disabled,granted,request)
+ }
+
+ /** Real Android permissions use checkSelfPermission; "cap.*" entries map to app-level grants. */
+ internal fun capabilityGranted(context:Context,permission:String):Boolean=when{
+  permission.startsWith("cap.")->when(permission){
+   "cap.notification_listener"->ai.petologic.skills.security.android.NotificationListener.accessGranted(context)
+   else->false
+  }
+  else->context.checkSelfPermission(permission)==android.content.pm.PackageManager.PERMISSION_GRANTED
  }
 }

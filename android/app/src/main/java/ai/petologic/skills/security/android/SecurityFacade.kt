@@ -21,6 +21,15 @@ object SecurityFacade {
    "device_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.deviceStatus(context))
    "vpn_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.vpnStatus(context))
    "notification_access"->ToolResultEnvelope.ok("security.query",SecurityQueries.notificationAccess(context))
+   "notifications"->{
+    if(!NotificationListener.accessGranted(context))return ToolResultEnvelope.error("permission_required",
+     "Paladino does not have notification access. Grant it in Android notification settings; the app never asks silently.")
+    val filter=cmd.argument
+    val entries=try{NotificationListener.recent(context,if(filter=="all")null else filter,10)}
+     catch(_:SecurityException){return ToolResultEnvelope.error("permission_required","notification_access")}
+    ToolResultEnvelope.ok("security.query",if(entries.isEmpty())"No notifications match right now."
+     else entries.joinToString(" || "){"${it.key} · ${it.packageName}: ${it.title} — ${it.text}"})
+   }
    "call_screening_status"->ToolResultEnvelope.ok("security.query",SecurityQueries.callScreeningStatus(context))
    "app"->findingEnvelope("security.query",AppInspector.inspect(context,cmd.argument))
    "apps"->{
@@ -52,8 +61,16 @@ object SecurityFacade {
   val cmd=runCatching{parseSecurityCommand(argument)}.getOrElse{
    return ToolResultEnvelope.error("invalid_command",it.message?:"Could not read the command.")
   }
+  if(cmd.subject=="dismiss_notification"){
+   val granted=runCatching{NotificationListener.dismiss(context,cmd.argument)}
+   return when{
+    granted.getOrDefault(false)->ToolResultEnvelope.ok("security.action","Dismissed the notification.")
+    runCatching{NotificationListener.accessGranted(context)}.getOrDefault(false)->ToolResultEnvelope.error("not_found","That notification is already gone or the id does not match.")
+    else->ToolResultEnvelope.error("permission_required","Paladino does not have notification access; grant it in Android notification settings first.")
+   }
+  }
   if(cmd.subject!="open_app_settings"&&cmd.subject!="uninstall_handoff")
-   return ToolResultEnvelope.error("unsupported_command","security_action supports open_app_settings | pkg and uninstall_handoff | pkg. Notification and call actions arrive in later releases.")
+   return ToolResultEnvelope.error("unsupported_command","security_action supports open_app_settings | pkg, uninstall_handoff | pkg and dismiss_notification | id.")
   val action=if(cmd.subject=="open_app_settings")android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS else Intent.ACTION_DELETE
   return try{
    context.startActivity(Intent(action,Uri.parse("package:${cmd.argument}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

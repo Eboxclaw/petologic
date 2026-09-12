@@ -326,7 +326,8 @@ private object UiLabels {
   "Spam, phishing, app and device security checks." to R.string.ui_a0d8e6f4b2c9,
   "Security status" to R.string.ui_b1e9f7a5c3d0,
   "Scan suspicious text/link" to R.string.ui_c2fad8b6d4e1,
-  "Approved security actions" to R.string.ui_d3abe9c7e5f2
+  "Approved security actions" to R.string.ui_d3abe9c7e5f2,
+  "Notification monitoring" to R.string.ui_e4bcf0d8a639
  )
  val templates by lazy {
   val slot=Regex("%[0-9]+\\\$s")

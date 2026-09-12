@@ -23,7 +23,8 @@ import java.util.UUID
 
 @Serializable data class LfmToolArgs(val argument:String)
 data class AgentTools(val search:(suspend(String)->String)?=null,val save:(suspend(String)->String)?=null,
- val securityQuery:(suspend(String)->String)?=null,val securityScan:(suspend(String)->String)?=null,val securityAction:(suspend(String)->String)?=null)
+ val securityQuery:(suspend(String)->String)?=null,val securityScan:(suspend(String)->String)?=null,val securityAction:(suspend(String)->String)?=null,
+ val notificationQuery:(suspend(String)->String)?=null)
 
 /** Koog's singleRunStrategy owns model → tool → observation → model transitions. */
 class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTransport?,private val credentials:CredentialStore?,
@@ -64,10 +65,16 @@ class PaladinoAgent(private val local:LocalModel?,private val cloud:OpenRouterTr
       return tools.securityScan.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("security_scan",it);onEvent("tool_result","security_scan completed with a bounded result")}
      }
     })
-    if(tools.securityAction!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_action","Propose a security action the user must approve in the app. argument: open_app_settings | package.name · uninstall_handoff | package.name"){
+    if(tools.securityAction!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_action","Propose a security action the user must approve in the app. argument: open_app_settings | package.name · uninstall_handoff | package.name · dismiss_notification | id"){
      override suspend fun execute(args:LfmToolArgs):String {
       budget.tool("security_action",args.argument);onEvent("tool_call","security_action #${budget.calls}")
       return tools.securityAction.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("security_action",it);onEvent("tool_result","security_action completed with a bounded result")}
+     }
+    })
+    if(tools.notificationQuery!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"notification_query","List recent on-device notifications the user allowed Paladino to see. argument: notifications | all or notifications | package.name"){
+     override suspend fun execute(args:LfmToolArgs):String {
+      budget.tool("notification_query",args.argument);onEvent("tool_call","notification_query #${budget.calls}")
+      return tools.notificationQuery.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("notification_query",it);onEvent("tool_result","notification_query completed with a bounded result")}
      }
     })
    }

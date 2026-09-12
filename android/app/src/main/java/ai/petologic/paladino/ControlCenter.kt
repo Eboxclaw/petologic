@@ -131,7 +131,7 @@ private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(
       Column(Modifier.weight(1f)){
        Text("· "+tr(spec.label),style=MaterialTheme.typography.bodyMedium)
        spec.androidPermission?.let{perm->
-        val granted=context.checkSelfPermission(perm)==android.content.pm.PackageManager.PERMISSION_GRANTED
+        val granted=ai.petologic.paladino.skills.SkillRegistry.capabilityGranted(context,perm)
         Text(tr(if(granted)"Granted" else "Not granted"),fontSize=12.sp,color=if(granted)Gold else Muted)
        }
       }

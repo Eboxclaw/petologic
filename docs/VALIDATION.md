@@ -89,3 +89,7 @@ Plan-12 runtime refactor landed with plan-13 Sprint A: `LfmToolCallParser` deriv
 ## 2026-09-12 — Sprint B: Security Guard V0 skill pack
 
 Three model-facing security tools (query/scan/action) landed as the second registry skill and the first AUTO-default one, backed by deterministic local scanners (URL structure, scam message patterns, app capability+origin engine) and plan-12 result envelopes. Actions are approval-gated handoffs only. 61 JVM + 3 instrumented tests green, including the plan-13 acceptance gate and a scripted agent loop; the role manifest's privilege-expansion guard caught the new tool ids until properly registered. UI and limits: [evidence](evidence/2026-09-12-security-guard/validation.md). No release gate claimed for the analyzers' recall — local heuristics only.
+
+## 2026-09-12 — Sprint C: notification awareness for Security Guard
+
+Opt-in `NotificationListenerService` feeds `security_query("notifications | …")` and the now-active `dismiss_notification` action; the new `notification_query` tool is the first capability-gated registry entry (`cap.notification_listener`, toggle default OFF) and fails closed to a permission error without access. 62 JVM + instrumented tests green in both listener states on the emulator, including a live read of a posted notification; UI in [evidence](evidence/2026-09-12-sprint-c-notifications/validation.md). RemoteInput replies deferred.

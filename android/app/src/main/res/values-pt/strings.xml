@@ -295,4 +295,5 @@
  <string name="ui_b1e9f7a5c3d0" formatted="false">"Estado de segurança"</string>
  <string name="ui_c2fad8b6d4e1" formatted="false">"Analisar texto/link suspeito"</string>
  <string name="ui_d3abe9c7e5f2" formatted="false">"Ações de segurança aprovadas"</string>
+ <string name="ui_e4bcf0d8a639" formatted="false">"Monitorização de notificações"</string>
 </resources>
