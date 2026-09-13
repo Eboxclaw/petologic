@@ -18,7 +18,7 @@ User direction 2026-09-12: a small local model becomes a lightweight alternative
 
 ## Next phases (not this sprint)
 
-- **S2 — native two-slot loading (RETIRED 2026-09-12):** superseded by plan 16 — the LEAP backend holds several model runners resident natively (proven: 350M+230M, collision-free with llama.cpp), so the instance-handle refactor of `paladino.cpp` is unnecessary. Decision recorded in `docs/reviews/2026-09-12-leap-sdk-evaluation.md`; revisit only if LEAP is not adopted and a llama.cpp-only worker slot becomes a requirement.
+- **S2 — native two-slot loading:** instance-handle refactor of `paladino.cpp` + per-slot Kotlin registry + low-RAM gates; then the worker gets its own resident 230M and notification triage becomes its background consumer. (Briefly retired 2026-09-12 when LEAP offered native multi-runner; **un-retired 2026-09-13** after Liquid deprecated LEAP — this is the multi-model path on llama.cpp again.)
 - Koog `SubgraphWithTask` in-turn sub-agents; device_action + compose handoffs (plan-12 step ②); Sprint D Call Guard.
 
 ## Verification

@@ -1,5 +1,17 @@
 # LEAP SDK evaluation — plan 16 (2026-09-12)
 
+> **DEPRECATED VERDICT (2026-09-13, supersedes everything below):** Liquid deprecated the LEAP SDK
+> (banner on the [changelog](https://docs.liquid.ai/deployment/on-device/leap-sdk-changelog): "The
+> LEAP SDK is deprecated and this page is no longer maintained"); their official migration target
+> is llama.cpp — LEAP was, per Liquid, only a Kotlin Multiplatform wrapper around it. The `leap`
+> flavor, `LeapBackend` and all LEAP-only code were **removed** in the rollback commit; the
+> production stack is and remains llama.cpp (users were never exposed — the flavor never shipped).
+> Alternatives scan kept the same verdict: LiteRT-LM (Gemma-centric, no LFM2.5/QAD-GGUF path),
+> MLC (per-model TVM compiles), MNN (Qwen-centric) — none fits better. Two things worth
+> recovering from LEAP's wins, on llama.cpp: **GBNF grammar-constrained tool calls**
+> (`llama_sampler_init_grammar()`; the PT-tool-call path) and **plan 15 S2 two-slot native
+> loading (un-retired)** for resident multi-model. This document stays as the measured record.
+
 Question: should Petologic's local runtime migrate from the custom llama.cpp/JNI stack
 (`paladino.cpp` + `NativeLfm`, wrapped as `LlamaCppBackend`) to Liquid's LEAP SDK 0.10.9
 (`LeapBackend`)? Method: make LEAP **compete** against what already works, on identical fixtures,

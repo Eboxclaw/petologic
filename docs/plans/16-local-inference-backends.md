@@ -1,5 +1,15 @@
 # Plan 16 — Local inference backends: LEAP challenger vs llama.cpp champion
 
+> **CLOSED 2026-09-13:** Liquid deprecated the LEAP SDK one day after this sprint completed; the
+> `leap` flavor was removed (see the addendum atop
+> [docs/reviews/2026-09-12-leap-sdk-evaluation.md](../reviews/2026-09-12-leap-sdk-evaluation.md)).
+> Durable outcomes that survive the removal: the `LocalInferenceBackend` seam (with
+> `LocalToolSpec` + `nativeFunctionCalling` capability — the future GBNF-grammar llama backend
+> flips the same flag), the SpriteAnimator looper fix, the `app.inference.metrics` fix, and the
+> measured record. Roadmap from here: (a) GBNF-grammar-constrained tool calls in `paladino.cpp`
+> for the PT-tool-call win on the production engine; (b) plan 15 S2 two-slot native loading is
+> **un-retired** as the multi-model path.
+
 Started 2026-09-12 after the user's external research handover. Principle: **don't migrate to
 LEAP; make LEAP compete.** Koog stays at 1.2.0 (no koog-edge, no downgrade); `paladino.cpp`,
 `NativeLfm` and the SkillRegistry/approval architecture are untouched. The sprint ends with a

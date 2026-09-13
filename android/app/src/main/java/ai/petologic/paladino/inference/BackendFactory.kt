@@ -5,7 +5,7 @@ import ai.petologic.paladino.runtime.LocalModel
 import ai.petologic.paladino.runtime.ModelLibrary
 import android.content.Context
 
-/** llama flavor: the app engine is always the llama.cpp runtime. */
+/** The app engine: llama.cpp (LEAP was evaluated and removed after its 2026-09 deprecation). */
 object BackendFactory{
  fun create(context:Context,local:LocalModel,library:ModelLibrary):LocalInferenceBackend=LlamaCppBackend(local)
 }

@@ -18,11 +18,6 @@ android {
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
  packaging { resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1", "META-INF/INDEX.LIST", "META-INF/DEPENDENCIES", "META-INF/*.md") }
  buildTypes { release { isMinifyEnabled = false } }
- flavorDimensions += "engine"
- productFlavors {
-  create("llama") { dimension = "engine"; isDefault = true }
-  create("leap") { dimension = "engine"; applicationIdSuffix = ".leap"; versionNameSuffix = "-leap" }
- }
  testOptions { unitTests.isReturnDefaultValues = true }
 }
 kotlin { jvmToolchain(17) }
@@ -46,7 +41,6 @@ dependencies {
  implementation("androidx.appsearch:appsearch-local-storage:1.1.0")
  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.10.2")
  implementation("ai.koog:koog-agents:1.2.0")
- "leapImplementation"("ai.liquid.leap:leap-sdk:0.10.9")
  implementation("com.squareup.okhttp3:okhttp:5.3.2")
  implementation("io.noties.markwon:core:4.6.2")
  implementation("io.noties.markwon:ext-strikethrough:4.6.2")
