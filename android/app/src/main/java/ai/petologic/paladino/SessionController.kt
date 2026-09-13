@@ -164,7 +164,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
      ai.petologic.paladino.skills.DeviceStatusReader.query(app,argument)
     }) else null
    ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
-  app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
+  app.inference.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
   answer(result,mode)
   maybeAutoTitle(context.user)
  }

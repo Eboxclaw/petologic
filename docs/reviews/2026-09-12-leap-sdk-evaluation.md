@@ -105,6 +105,26 @@ separate ONNX encoder (+~23–30 MB), unrelated to the engine numbers.
    times out only on the emulator (first in-app turn under the full production prompt exceeds its
    90 s window) — rerun on the phone with the thermal pass.
 
+## On-device proof (2026-09-13 emulator batch, leap flavor)
+
+- **`RealToolConversationTest` PASSES on LEAP**: the production loop — PT greetings without tools,
+  PT save request → `notes_save` → approval gate → note in Room, PT search recall with the saved
+  fact in the final answer — runs end-to-end through Koog → LeapBackend → LEAP native function
+  calling. This is the in-app realization of the 9/12 bench win. Needed two fixes found by the
+  test (both general correctness):
+  - `SpriteAnimator`: `registerAnimationCallback` requires a Looper thread; drawable wiring now
+    hops to Main after IO decode (crashed under the compose-test dispatcher before).
+  - `SessionController` logged metrics from `app.local.metrics` (llama's flow) instead of
+    `app.inference.metrics` — the "inference" quest-log event was silently missing on the leap
+    flavor; now reads the interface.
+  - Instruction tuning: under native FC the 350M reached for `notes_search` on save requests;
+    the native-FC instruction now binds save/register/remember intents to `notes_save` explicitly.
+- Re-baseline `ToolCallLeapNativeTest`: 10/12 strict + 1 partial-arg + 1 wrong-tool (consistent
+  with 9/12; run-to-run 350M variance). Llama forced-text partial re-run (11/24 rows before an
+  emulator slowness timeout): 6/11 malformed — forced-text weakness confirmed again; full tables
+  from the 2026-09-12 runs stand.
+- `ThermalSoakTest` still pending — needs the user's phone over USB.
+
 ## Acceptance-gate checklist (for a future DEFAULT = LEAP flip)
 
 - [x] 350M + 230M reliable generation (emulator)
