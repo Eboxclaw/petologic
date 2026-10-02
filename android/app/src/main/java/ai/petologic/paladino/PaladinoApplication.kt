@@ -3,6 +3,7 @@ import android.app.Application
 import androidx.room.Room
 import ai.petologic.paladino.data.*
 import ai.petologic.paladino.runtime.*
+import ai.petologic.paladino.runtime.decision.DecisionEngine
 import kotlinx.coroutines.*
 
 class PaladinoApplication:Application(){
@@ -13,6 +14,7 @@ class PaladinoApplication:Application(){
  lateinit var embedder:SmallEmbedder;private set
  lateinit var credentials:CredentialStore;private set
  lateinit var agent:PaladinoAgent;private set
+ lateinit var decisionEngine:DecisionEngine;private set
  lateinit var sessionHub:SessionHub;private set
  val inference:ai.petologic.paladino.inference.LocalInferenceBackend by lazy{ai.petologic.paladino.inference.BackendFactory.create(this,local,modelLibrary)}
  val appUpdater by lazy{AppUpdater(this)}
@@ -27,6 +29,7 @@ class PaladinoApplication:Application(){
   embedder=SmallEmbedder(this,modelLibrary)
   memory=MemoryRepository(this,db,embedder);local=LocalModel(this,modelLibrary);credentials=CredentialStore(this)
   agent=PaladinoAgent(inference,OpenRouterTransport(),credentials)
+  decisionEngine=DecisionEngine()
   sessionHub=SessionHub(this)
   scope.launch{try{memory.dao.recoverTasks();memory.dao.cancelPending();if(memory.dao.session("default")==null)memory.dao.session(SessionRow("default","First conversation"));ready.complete(Unit);try{memory.reconcile()}catch(_:Exception){}}catch(e:Exception){ready.completeExceptionally(e)}}
   scope.launch{try{modelLibrary.verifyAll();modelsReady.complete(Unit);local.verify();embedder.verify()}catch(e:Exception){modelsReady.completeExceptionally(e)}}
