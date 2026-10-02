@@ -1,6 +1,7 @@
 package ai.petologic.paladino
 
 import ai.petologic.paladino.runtime.CloudProvider
+import ai.petologic.paladino.runtime.decision.DecisionInput
 import android.app.Application
 import android.content.Context
 
@@ -79,7 +80,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    try{
     if(mode==ExecutionMode.TINY&&phoneReadRequest(request)==null){
      app.modelsReady.await()
-     if(sessionInfo.value.modelId !in app.modelLibrary.installed.value){
+     if(ModelCatalog.selectable().none{it.id in app.modelLibrary.installed.value}){
       ui.update{it.copy(pendingModelMessage=request,status="Install a model to continue.")}
       return@launch
      }
@@ -108,11 +109,15 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
       val simpleGreeting=RoutePolicy().isSimpleGreeting(request)
       val englishGreeting=simpleGreeting&&Regex("(?i)^(hello|hi|hey|good morning|good afternoon|good evening)\\b").containsMatchIn(request)
       val context=(if(englishGreeting)englishGreetingBroker else if(simpleGreeting)greetingBroker else broker).build(request,mode,found,if(simpleGreeting)emptyList()else history)
+      val decision=if(mode==ExecutionMode.TINY)app.decisionEngine.decide(
+       DecisionInput(request,mode,options.value,app.modelLibrary.installed.value,remoteDecisionAllowed=false)
+      )else null
+      decision?.let{log("decision","source=${it.source}; target=${it.target}; model=${it.modelId}; confidence=${"%.2f".format(it.confidence)}; needsTool=${it.needsTool}")}
       if(mode==ExecutionMode.MAXX){
        check(options.value.network){"Network is disabled for this session."}
        check(app.credentials.read(ui.value.provider)!=null){"Connect ${ui.value.provider.label} in Settings to use Maxx. Tiny remains available offline."}
        ui.update{it.copy(cloud=PendingCloud(context,ui.value.model,ui.value.provider),status="Review what leaves your phone.")}
-      }else generate(context,mode,ui.value.model,null)
+      }else generate(context,mode,decision?.modelId?:sessionInfo.value.modelId,null)
      }
     }
     app.memory.dao.task(TaskRow(id,request,mode.name,if(ui.value.action!=null||ui.value.cloud!=null)"AWAITING_APPROVAL" else "COMPLETED",sessionId=sessionId))
@@ -129,7 +134,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
   val activations=if(simpleGreeting)emptyList() else ai.petologic.paladino.skills.SkillRegistry.activationsFor(app,context.user)
   val skillToolIds=activations.flatMap{it.tools}.map{it.id}.toSet()
   val skillStubs=activations.joinToString("\n"){it.skill.promptStub}
-  val result=app.agent.run(context,mode,if(mode==ExecutionMode.TINY)sessionInfo.value.modelId else model,consent,options.value,
+  val result=app.agent.run(context,mode,model,consent,options.value,
    if(simpleGreeting) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
     search=if("notes_search" in skillToolIds)({query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}}) else null,
     save=if("notes_save" in skillToolIds)({text->
