@@ -37,7 +37,7 @@ class PhoneReadIntegrationTest {
   val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
   compose.onNodeWithContentDescription("Settings",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Quick actions").performClick()
-  compose.onNodeWithText("Message Paladino").performClick()
+  compose.onNodeWithText("Ask Paladino").performClick()
   compose.onNodeWithText("Full conversation").assertIsDisplayed()
   compose.onNode(hasText("New conversation") and hasAnyAncestor(isDialog())).assertIsDisplayed()
   val app=compose.activity.application as PaladinoApplication
@@ -49,6 +49,7 @@ class PhoneReadIntegrationTest {
   device.takeScreenshot(File(app.filesDir,"overlay-permission-help.png"))
  }
  @Test fun clock_request_in_chat_runs_a_read_tool(){
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("New conversation").performClick()
   compose.onNodeWithText("What’s on your mind?").performTextInput("What time is it?")
   compose.onNodeWithContentDescription("Send message").performClick()

@@ -53,14 +53,26 @@
  <string name="ui_5b8027fa0e81" formatted="false">"Got it"</string>
  <string name="ui_9d0925abf762" formatted="false">"Appearance, models and connections."</string>
  <string name="ui_836a00b5935e" formatted="false">"Tiny · your local brain"</string>
- <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-350M lives on your phone. Download once, then chat offline. Files are verified before installation."</string>
+ <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-VL-450M lives on your phone. It handles short security chat and powers optional visual inspection. Files are verified before installation."</string>
  <string name="ui_dac6c3970c50" formatted="false">"Ready for offline use"</string>
  <string name="ui_c177e4b0aa9f" formatted="false">"Downloading…"</string>
  <string name="ui_494d36125a4f" formatted="false">"Download · 229 MB"</string>
+ <string name="ui_vision_download">Download · 219 MB</string>
+ <string name="ui_vision_optional">Optional local vision</string>
+ <string name="ui_vision_description">The 103 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions.</string>
+ <string name="ui_vision_ready">Vision pack ready</string>
+ <string name="ui_vision_setup">Set up vision · 103 MB</string>
+ <string name="ui_vision_permission">Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android\'s picker or share sheet. No camera or silent screen capture is used.</string>
+ <string name="ui_vision_integrations">OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned.</string>
+ <string name="ui_primary_speaker_suffix">%1$s MB · primary local speaker</string>
+ <string name="ui_lfm3_speaker_suffix">%1$s MB · optional LFM3 text speaker</string>
+ <string name="ui_maxx_offer">For harder questions, Maxx may serve you better.</string>
+ <string name="ui_whats_new_title">New in %1$s</string>
+ <string name="ui_whats_new_body">Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. Settings adds an optional LFM3 text speaker and, with d1-2B, smarter Maxx offers.</string>
  <string name="ui_7dc800e503d4" formatted="false">"Memory that understands meaning"</string>
- <string name="ui_7c6b4831b8e2" formatted="false">"A small, separate encoder helps find notes by paraphrase. English preview · latest 200 notes. Keyword search works without it."</string>
- <string name="ui_88fca9cdbc45" formatted="false">"Semantic memory ready"</string>
- <string name="ui_0565331c9859" formatted="false">"Set up semantic memory · 23 MB"</string>
+ <string name="ui_7c6b4831b8e2" formatted="false">"LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."</string>
+ <string name="ui_88fca9cdbc45" formatted="false">"Vector memory ready"</string>
+ <string name="ui_0565331c9859" formatted="false">"Set up vector memory · 229 MB"</string>
  <string name="ui_f127a4feda4a" formatted="false">"Maxx · a little extra reach"</string>
  <string name="ui_63e99bdf7ed7" formatted="false">"Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider."</string>
  <string name="ui_d67c24196774" formatted="false">"API key authentication. Browser sign-in is not connected yet."</string>
@@ -231,6 +243,7 @@
  <string name="ui_16213f85d7a6" formatted="false">"App updates"</string>
  <string name="ui_162b3bbe2c36" formatted="false">"Updates are manual. Open the official downloads page and install the newer APK over this app. Keep your conversations and models: do not uninstall first."</string>
  <string name="ui_d577f783cff4" formatted="false">"Update app"</string>
+ <string name="ui_open_official_downloads" formatted="false">"Open official downloads"</string>
  <string name="ui_59beff1d59a4" formatted="false">"Opens GitHub in your browser. Android asks you to confirm installation."</string>
  <string name="ui_7a974c4277a0" formatted="false">"Paladino is ready"</string>
  <string name="ui_1f71dff76e0a" formatted="false">"Give Paladino a local brain"</string>
@@ -256,4 +269,50 @@
  <string name="ui_0ef8f5fd5e84" formatted="false">"If Android says access was denied, open App info → ⋮ → Allow restricted settings, if available and you trust this installation. Then return and enable Display over other apps. Work/supervised devices may prohibit it."</string>
  <string name="ui_74f665e4d238" formatted="false">"This is an Android restriction. Paladino cannot grant it itself. Do not disable Play Protect. The in-app bubble remains available."</string>
  <string name="ui_f430bbca2509" formatted="false">"Open Android app info"</string>
+ <string name="ui_5c5f7d24a1b3" formatted="false">"User copy"</string>
+ <string name="ui_7a91c2e84f06" formatted="false">"Save your conversations, notes and settings as one file in the place you choose. Downloaded models and API keys are not included."</string>
+ <string name="ui_2f6d94b1c7a8" formatted="false">"Save user copy"</string>
+ <string name="ui_9e4b72f0d1c5" formatted="false">"User copy saved."</string>
+ <string name="ui_3b8a51d6e297" formatted="false">"Load user copy"</string>
+ <string name="ui_8d17f4a9b2e6" formatted="false">"Loading a user copy replaces everything now in the app, then Paladino restarts."</string>
+ <string name="ui_4c9e17a3f8b2" formatted="false">"Replace app content with this copy?"</string>
+ <string name="ui_6a2d83f5c1e9" formatted="false">"Load and restart"</string>
+ <string name="ui_b1f6e3a8d249" formatted="false">"User copy loaded. Paladino is restarting."</string>
+ <string name="ui_c8a2f5d7b3e1" formatted="false">"This user copy comes from a newer app version. Update the app first."</string>
+ <string name="ui_d3b7a1e6f4c2" formatted="false">"This file is not a Paladino user copy."</string>
+ <string name="ui_e5c3b8f2a7d1" formatted="false">"Could not save the user copy."</string>
+ <string name="ui_f7d4c1a3b8e5" formatted="false">"Could not load the user copy."</string>
+ <string name="ui_a8f2c5d7b1e3" formatted="false">"Delete everything and start over"</string>
+ <string name="ui_b9e3d7f2c5a1" formatted="false">"Start from zero?"</string>
+ <string name="ui_c1f3a8e7d5b2" formatted="false">"Everything on this phone is erased: conversations, notes, settings, models and keys. Nothing leaves the device. This cannot be undone."</string>
+ <string name="ui_d2a3f8e1c7b5" formatted="false">"Delete everything"</string>
+ <string name="ui_e3b5a2f7d8c1" formatted="false">"Working…"</string>
+ <string name="ui_a1c5e8f2b4d7" formatted="false">"Skills"</string>
+ <string name="ui_b2d6f9a3c5e8" formatted="false">"Skills teach Paladino what it can do. Auto wakes a skill only when a message needs it."</string>
+ <string name="ui_c3e7a2b4d6f9" formatted="false">"Memory"</string>
+ <string name="ui_d4f8b3c5e7a2" formatted="false">"Off"</string>
+ <string name="ui_e5a9c4d6f8b3" formatted="false">"Auto"</string>
+ <string name="ui_f6b2d5e7a9c4" formatted="false">"Always"</string>
+ <string name="ui_a7c3e6f8b2d5" formatted="false">"Search private notes"</string>
+ <string name="ui_b8d4f7a9c3e6" formatted="false">"Propose a note"</string>
+ <string name="ui_c9e5a8b2d4f7" formatted="false">"Idle ~0 tokens · active ~%1$s tokens · %2$s tools exposed"</string>
+ <string name="ui_e2b5c8d1f4a7" formatted="false">"← All skills"</string>
+ <string name="ui_f3c6d9e2a5b8" formatted="false">"Granted"</string>
+ <string name="ui_a4d7e2f5b8c1" formatted="false">"Not granted"</string>
+ <string name="ui_b5e8f3a6c9d2" formatted="false">"Tools skills can register"</string>
+ <string name="ui_c6f9a4b7d2e5" formatted="false">"Never registered"</string>
+ <string name="ui_d7a2b5c8e1f4" formatted="false">"Activates automatically when a message matches"</string>
+ <string name="ui_e8b3c6d9f2a5" formatted="false">"Always available in Tiny sessions"</string>
+ <string name="ui_f9c7d5e3a1b8" formatted="false">"Security Guard"</string>
+ <string name="ui_a0d8e6f4b2c9" formatted="false">"Spam, phishing, app and device security checks."</string>
+ <string name="ui_b1e9f7a5c3d0" formatted="false">"Security status"</string>
+ <string name="ui_c2fad8b6d4e1" formatted="false">"Scan suspicious text/link"</string>
+ <string name="ui_d3abe9c7e5f2" formatted="false">"Approved security actions"</string>
+ <string name="ui_e4bcf0d8a639" formatted="false">"Notification monitoring"</string>
+ <string name="ui_f5cda1e9b742" formatted="false">"Device"</string>
+ <string name="ui_a6deb2fac853" formatted="false">"Battery, connection and phone status."</string>
+ <string name="ui_b7efc3ab9640" formatted="false">"Battery, connection and status"</string>
+ <string name="ui_c8fae1ac0751" formatted="false">"Sounds"</string>
+ <string name="ui_d9abf2bd1846" formatted="false">"Vibration"</string>
+ <string name="ui_eabca3ce2957" formatted="false">"Quiet water drops and 8-bit blips accompany actions. Sounds pause in silent mode and battery saver."</string>
 </resources>

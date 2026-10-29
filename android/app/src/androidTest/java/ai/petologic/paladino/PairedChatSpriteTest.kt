@@ -20,7 +20,7 @@ class PairedChatSpriteTest {
   val app=compose.activity.application as PaladinoApplication
   val device=UiDevice.getInstance(inst)
   val evidence=java.io.File(app.filesDir,"paired-chat-sprite.txt")
-  evidence.writeText("TINY LFM2.5-350M Q4_K_M; same 5 prompts; one fresh session per surface; history preserved within each group.\n")
+  evidence.writeText("TINY LFM2.5-VL-450M Q4_0; same 5 prompts; one fresh session per surface; history preserved within each group.\n")
   runBlocking{app.ready.await();app.local.verify()};assertTrue(app.local.ready.value)
   fun shell(cmd:String){android.os.ParcelFileDescriptor.AutoCloseInputStream(inst.uiAutomation.executeShellCommand(cmd)).use{it.readBytes()}}
   fun openSprite(){assertTrue(device.wait(Until.hasObject(By.descStartsWith("Floating Paladino. Tap to chat")),10000));device.findObject(By.descStartsWith("Floating Paladino. Tap to chat")).click();assertTrue(device.wait(Until.hasObject(By.text("New chat")),5000))}
@@ -28,6 +28,7 @@ class PairedChatSpriteTest {
   val prompts=listOf("Olá, Gents, como é que estás hoje?","Hello, Paladino! How are you today?","Resume numa frase: A reunião começa às dez e termina às onze.","Podes registar numa nota que o meu código de teste é safira 742? Depois explica em português o que guardaste.","Consulta as minhas notas com a ferramenta de pesquisa e diz-me qual é o código de teste que ficou guardado.")
   app.agent.responseObserver={evidence.appendText("RAW MODEL: $it\n")}
   app.agent.toolResultObserver={name,result->evidence.appendText("ACTUAL TOOL $name: $result\n")}
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   try{
    app.stopService(Intent(app,SpriteOverlayService::class.java))
    for(surface in listOf("app","sprite")){

@@ -2,6 +2,8 @@
 
 Accepted for this development preview, 2026-09-06.
 
+The original scaffold decision remains historical context. Its local-model assignment is superseded by [ADR-0003](0003-vl450-speaking-and-vision.md).
+
 Build the app under `android/` and retain the existing Lovable website. Kotlin 2.3.10, AGP 8.12.3, Gradle 8.14.3 and Koog 1.2.0 compile together. LFM2.5-350M Q4_K_M runs through pinned llama.cpp JNI in process, with a single serialized generation owner. No local HTTP server or extra model persona is introduced.
 
 The Koog adapter owns a bounded generation turn and shares the Paladino context across Tiny and Maxx. Deterministic note commands execute via persisted approval proposals and Room transactions; generative outputs do not yet invoke tools. This avoids claiming structured-tool reliability before implementing and evaluating that path.

@@ -73,6 +73,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
     PetSwitch("Show in-app Sprite",prefs.visible){manager.update(prefs.copy(visible=it))}
     PetSwitch("Animate idle Sprite",prefs.animate){manager.update(prefs.copy(animate=it))}
     Text(tr("System reduced motion is respected. Animation pauses when this screen leaves the foreground."),style=MaterialTheme.typography.bodySmall,color=Muted)
+    PetSwitch("Sounds",prefs.sound){manager.update(prefs.copy(sound=it))}
+    PetSwitch("Vibration",prefs.haptics){manager.update(prefs.copy(haptics=it))}
+    Text(tr("Quiet water drops and 8-bit blips accompany actions. Sounds pause in silent mode and battery saver."),style=MaterialTheme.typography.bodySmall,color=Muted)
     Text(tr("Sprite size"))
     FlowRow{listOf(48 to "Small",64 to "Default",88 to "Large").forEach{(size,name)->FilterChip(prefs.sizeDp==size,{manager.update(prefs.copy(sizeDp=size))},label={Text(tr(name))},modifier=Modifier.padding(end=4.dp))}}
     HorizontalDivider()
@@ -107,7 +110,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 }
 
 private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
-@Composable fun SpriteQuickActions(animated:Boolean,size:Int,onChat:()->Unit,onRemember:()->Unit,onOpen:()->Unit){
+@Composable fun SpriteQuickActions(animated:Boolean,size:Int,onChat:()->Unit,onCheck:()->Unit,onOpen:()->Unit){
  val quickActionsLabel=tr("Quick actions")
  var expanded by remember{mutableStateOf(false)}
  Column(horizontalAlignment=androidx.compose.ui.Alignment.End){
@@ -117,8 +120,8 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
   Box{
    FloatingActionButton(onClick={expanded=!expanded},containerColor=Gold,contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription=quickActionsLabel}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
    DropdownMenu(expanded=expanded,onDismissRequest={expanded=false},containerColor=Panel,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp)){
-    listOf(SpriteAction("ask","Message Paladino",onChat),SpriteAction("remember","Save a note",onRemember),SpriteAction("open","Full conversation",onOpen)).forEach{action->
-     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"remember"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(tr(action.label))},onClick={expanded=false;action.run()})
+    listOf(SpriteAction("check","Check something",onCheck),SpriteAction("ask","Ask Paladino",onChat),SpriteAction("open","Open Paladino",onOpen)).forEach{action->
+     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"check"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(tr(action.label))},onClick={expanded=false;action.run()})
     }
    }
   }
@@ -130,6 +133,7 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
  val state by vm.ui.collectAsStateWithLifecycle()
  val session by vm.session.collectAsStateWithLifecycle()
  val messages by vm.messages.collectAsStateWithLifecycle()
+ val feedback=rememberFeedback()
  var draft by androidx.compose.runtime.saveable.rememberSaveable(session.id){mutableStateOf(initialDraft)}
  LaunchedEffect(state.pendingModelMessage){if(state.pendingModelMessage!=null)onOpen()}
  androidx.compose.ui.window.Dialog(onDismissRequest=onDismiss){
@@ -141,7 +145,7 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
     MarkdownReply(reply,maxLines=6)
     Column(Modifier.fillMaxWidth()){OutlinedButton(onClick=onOpen,modifier=Modifier.fillMaxWidth()){Text(tr(if(state.action!=null||state.cloud!=null)"Open to approve" else "Full conversation"))};TextButton(onClick={vm.hub.create()},modifier=Modifier.fillMaxWidth(),enabled=!state.busy&&state.action==null&&state.cloud==null){Text(tr("New conversation"))}}
     OutlinedTextField(draft,{draft=it},label={Text(tr("Message Paladino"))},modifier=Modifier.fillMaxWidth(),maxLines=3,enabled=!state.busy)
-    Button(onClick={if(state.busy)vm.cancel()else{vm.send(draft);draft=""}},enabled=state.busy||draft.isNotBlank(),modifier=Modifier.fillMaxWidth()){
+    Button(onClick={if(state.busy)vm.cancel()else{feedback.on(ai.petologic.paladino.skills.FeedbackEvent.MESSAGE_SENT);vm.send(draft);draft=""}},enabled=state.busy||draft.isNotBlank(),modifier=Modifier.fillMaxWidth()){
      Text(tr(if(state.busy)"Stop response" else "Send to Paladino"))
     }
     Text(tr("Messages are saved in this app conversation."),style=MaterialTheme.typography.labelSmall,color=Muted)

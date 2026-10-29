@@ -1,0 +1,10 @@
+
+Complete Android API 35 ARM64 emulator suite:
+tests=46 failures=0 errors=0 skipped=14 passed=32
+
+Separate opt-in real-model runs:
+- LFM2.5-VL-450M bounded text explanation: passed; elapsedMs=1428; no tool marker.
+- LFM2.5-VL-450M plus Q8_0 projector image analysis: passed; elapsedMs=2718; no tool marker.
+- LFM2.5-Embedding-350M vector runtime: passed previously; 1024 normalized dimensions and paraphrase ranked above unrelated text.
+
+Boundary: emulator runtime and integration evidence only. The visual output misread or truncated some synthetic image text, so visual security quality remains open.

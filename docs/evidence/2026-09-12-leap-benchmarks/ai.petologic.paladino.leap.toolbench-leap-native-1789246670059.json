@@ -1,0 +1,103 @@
+[
+ {
+  "protocol": "leap_native",
+  "lang": "EN",
+  "user": "Hey! What can you do for me?",
+  "verdict": "correct_no_tool",
+  "wallMs": 497,
+  "reply": "Of course! I can help you with a variety of tasks. Could you please let me know what you'd like assistance with?"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "EN",
+  "user": "Search my notes for the bike repair shop.",
+  "verdict": "correct_tool",
+  "wallMs": 387,
+  "reply": "[LeapFunctionCall(name=notes_search, arguments={argument=bike repair shop})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "EN",
+  "user": "Remember that the wifi password is falcon-42.",
+  "verdict": "correct_tool",
+  "wallMs": 484,
+  "reply": "[LeapFunctionCall(name=notes_save, arguments={argument=wifi password is falcon-42})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "EN",
+  "user": "How many legs does a spider have?",
+  "verdict": "false_tool_call",
+  "wallMs": 479,
+  "reply": "[LeapFunctionCall(name=notes_save, arguments={argument=a spider has 8 legs})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "PT",
+  "user": "Olá! Tudo bem contigo?",
+  "verdict": "correct_no_tool",
+  "wallMs": 695,
+  "reply": "Olá! Como paladino, nossos sonhos são os umos mais bonitos. Vamos escrever tudo aqui, se precisar de algum ajudar."
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "PT",
+  "user": "Pesquisa nas minhas notas por receita de bacalhau.",
+  "verdict": "correct_tool",
+  "wallMs": 670,
+  "reply": "[LeapFunctionCall(name=notes_search, arguments={argument=bacalhau receita})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "PT",
+  "user": "Guarda que a reunião é sexta às 15h.",
+  "verdict": "correct_tool",
+  "wallMs": 965,
+  "reply": "[LeapFunctionCall(name=notes_save, arguments={argument=reunião é sexta às 15h})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "PT",
+  "user": "Procura nas notas o código do portão.",
+  "verdict": "correct_tool",
+  "wallMs": 933,
+  "reply": "[LeapFunctionCall(name=notes_search, arguments={argument=portão})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "PT",
+  "user": "Qual é a tua cor favorita?",
+  "verdict": "false_tool_call",
+  "wallMs": 754,
+  "reply": "[LeapFunctionCall(name=notes_search, arguments={argument=tua cor favorita})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "MIXED",
+  "user": "Pesquisa my notes for train tickets to Porto.",
+  "verdict": "correct_tool",
+  "wallMs": 852,
+  "reply": "[LeapFunctionCall(name=notes_search, arguments={argument=train tickets to Porto})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "MIXED",
+  "user": "Please guarda que o voo para Berlin é às 9h.",
+  "verdict": "correct_tool",
+  "wallMs": 1083,
+  "reply": "[LeapFunctionCall(name=notes_save, arguments={argument=voo para berlin é às 9h})]"
+ },
+ {
+  "protocol": "leap_native",
+  "lang": "MIXED",
+  "user": "Thanks! Me conta o que sabes sobre a ponte.",
+  "verdict": "false_tool_call",
+  "wallMs": 1270,
+  "reply": "[LeapFunctionCall(name=notes_save, arguments={argument=pontes})]"
+ },
+ {
+  "protocol": "leap_native",
+  "summary": "9\/12 correct",
+  "engine": "leap"
+ }
+]

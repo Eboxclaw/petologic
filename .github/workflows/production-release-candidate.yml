@@ -1,0 +1,114 @@
+name: Signed production release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      benchmark_run_id:
+        description: Successful Safe security release benchmark workflow run ID for this commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  signed-candidate:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    environment: production-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install pinned Android toolchain
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Fetch pinned native runtime
+        run: android/scripts/bootstrap-native.sh
+      - name: Fetch pinned security engine
+        run: android/scripts/bootstrap-security.sh
+      - name: Download full inert benchmark evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: safe-security-benchmark-report
+          path: android/security-benchmark/build/reports/security-benchmark-full
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.benchmark_run_id }}
+      - name: Prepare protected signing inputs
+        env:
+          KEYSTORE_B64: ${{ secrets.PALADINO_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.PALADINO_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.PALADINO_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${KEYSTORE_B64:?PALADINO_KEYSTORE_B64 is required}"
+          : "${STORE_PASSWORD:?PALADINO_STORE_PASSWORD is required}"
+          : "${KEY_PASSWORD:?PALADINO_KEY_PASSWORD is required}"
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/paladino-release.jks"
+          printf '%s' "$STORE_PASSWORD" > "$RUNNER_TEMP/paladino-storepass"
+          printf '%s' "$KEY_PASSWORD" > "$RUNNER_TEMP/paladino-keypass"
+      - name: Verify approved signing identity
+        env:
+          PALADINO_KEYSTORE: ${{ runner.temp }}/paladino-release.jks
+          PALADINO_KEY_ALIAS: ${{ secrets.PALADINO_KEY_ALIAS }}
+          PALADINO_STOREPASS_FILE: ${{ runner.temp }}/paladino-storepass
+          PALADINO_EXPECTED_CERT_SHA256: ${{ secrets.PALADINO_EXPECTED_CERT_SHA256 }}
+        run: android/scripts/audit-release-signing.sh
+      - name: Build signed direct and Play candidates
+        working-directory: android
+        env:
+          PALADINO_KEYSTORE: ${{ runner.temp }}/paladino-release.jks
+          PALADINO_KEY_ALIAS: ${{ secrets.PALADINO_KEY_ALIAS }}
+          PALADINO_STOREPASS_FILE: ${{ runner.temp }}/paladino-storepass
+          PALADINO_KEYPASS_FILE: ${{ runner.temp }}/paladino-keypass
+          THREAT_MANIFEST_URL: ${{ secrets.THREAT_MANIFEST_URL }}
+          REPUTATION_URL: ${{ secrets.REPUTATION_URL }}
+        run: |
+          set -euo pipefail
+          : "${THREAT_MANIFEST_URL:?THREAT_MANIFEST_URL is required}"
+          : "${REPUTATION_URL:?REPUTATION_URL is required}"
+          ./gradlew :app:assembleRelease :app:bundlePlayRelease -PpaladinoAbi=arm64-v8a \
+            -PthreatManifestUrl="$THREAT_MANIFEST_URL" -PreputationUrl="$REPUTATION_URL"
+      - name: Verify release evidence and signed artifacts
+        working-directory: android
+        env:
+          THREAT_MANIFEST_URL: ${{ secrets.THREAT_MANIFEST_URL }}
+          REPUTATION_URL: ${{ secrets.REPUTATION_URL }}
+          EXPECTED_CERT: ${{ secrets.PALADINO_EXPECTED_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          mapfile -t reports < <(find security-benchmark/build/reports/security-benchmark-full -type f -name report.json)
+          [[ "${#reports[@]}" == 1 ]] || { echo 'Expected exactly one benchmark report.' >&2; exit 1; }
+          scripts/verify-production-readiness.py \
+            --level release-candidate \
+            --git-revision "$GITHUB_SHA" \
+            --deterministic-report "${reports[0]}" \
+            --direct-apk app/build/outputs/apk/release/app-release.apk \
+            --play-aab app/build/outputs/bundle/playRelease/app-playRelease.aab \
+            --threat-manifest-url "$THREAT_MANIFEST_URL" \
+            --reputation-url "$REPUTATION_URL" \
+            --expected-direct-cert-sha256 "$EXPECTED_CERT" \
+            --output-dir app/build/reports/production-readiness
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-readiness-evidence
+          if-no-files-found: warn
+          path: android/app/build/reports/production-readiness/**
+      - name: Upload signed candidate after all gates pass
+        uses: actions/upload-artifact@v4
+        with:
+          name: paladino-signed-release-candidate-not-lab-certified
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/playRelease/app-playRelease.aab
+            android/app/build/reports/production-readiness/**
+      - name: Remove protected signing inputs
+        if: always()
+        run: rm -f "$RUNNER_TEMP/paladino-release.jks" "$RUNNER_TEMP/paladino-storepass" "$RUNNER_TEMP/paladino-keypass"

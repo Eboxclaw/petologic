@@ -1,0 +1,228 @@
+[
+ {
+  "protocol": "json",
+  "lang": "EN",
+  "user": "Hey! What can you do for me?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 1660,
+  "reply": "Hello! As a Paladino, I am here to assist you with any questions or tasks you may have. Whether it's about the environment, moral dilemmas, or anything else within my realm, I'm he"
+ },
+ {
+  "protocol": "json",
+  "lang": "EN",
+  "user": "Search my notes for the bike repair shop.",
+  "expect": "notes_search:bike repair",
+  "verdict": "malformed",
+  "wallMs": 303,
+  "reply": ""
+ },
+ {
+  "protocol": "json",
+  "lang": "EN",
+  "user": "Remember that the wifi password is falcon-42.",
+  "expect": "notes_save:falcon-42",
+  "verdict": "malformed",
+  "wallMs": 311,
+  "reply": ""
+ },
+ {
+  "protocol": "json",
+  "lang": "EN",
+  "user": "How many legs does a spider have?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 312,
+  "reply": "{\"note\": \"The answer is 8.\"}}"
+ },
+ {
+  "protocol": "json",
+  "lang": "PT",
+  "user": "Olá! Tudo bem contigo?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 648,
+  "reply": "Olá! Meu nome é Paladino, e estou aqui para ajudar. Como posso te auxiliar hoje?"
+ },
+ {
+  "protocol": "json",
+  "lang": "PT",
+  "user": "Pesquisa nas minhas notas por receita de bacalhau.",
+  "expect": "notes_search:bacalhau",
+  "verdict": "malformed",
+  "wallMs": 484,
+  "reply": "Pesquisei as minhas notas sobre receitas de bacalhau. O que você gostaria de saber mais?"
+ },
+ {
+  "protocol": "json",
+  "lang": "PT",
+  "user": "Guarda que a reunião é sexta às 15h.",
+  "expect": "notes_save:sexta",
+  "verdict": "malformed",
+  "wallMs": 307,
+  "reply": ""
+ },
+ {
+  "protocol": "json",
+  "lang": "PT",
+  "user": "Procura nas notas o código do portão.",
+  "expect": "notes_search:portão",
+  "verdict": "malformed",
+  "wallMs": 506,
+  "reply": "{\"notes_search\": {\"argument\": \"portao\"}}},{\"name\": \"note_save\", \"arguments\": {\"text\": \"O código do portao é 12345\"}}"
+ },
+ {
+  "protocol": "json",
+  "lang": "PT",
+  "user": "Qual é a tua cor favorita?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 861,
+  "reply": "Ciao! Minha cor favorita é o azul. É uma das cores mais comuns e apreciadas, especialmente em ambientes formais ou quando se quer um toque de calma e serenidade. 😊"
+ },
+ {
+  "protocol": "json",
+  "lang": "MIXED",
+  "user": "Pesquisa my notes for train tickets to Porto.",
+  "expect": "notes_search:train tickets",
+  "verdict": "malformed",
+  "wallMs": 299,
+  "reply": ""
+ },
+ {
+  "protocol": "json",
+  "lang": "MIXED",
+  "user": "Please guarda que o voo para Berlin é às 9h.",
+  "expect": "notes_save:Berlin",
+  "verdict": "malformed",
+  "wallMs": 283,
+  "reply": ""
+ },
+ {
+  "protocol": "json",
+  "lang": "MIXED",
+  "user": "Thanks! Me conta o que sabes sobre a ponte.",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 1092,
+  "reply": "Claro, aqui está o que posso ajudar com:\n\n**Notas para pesquisa:**  \n\"Quero saber mais sobre a ponte. Quais são os principais pontos de interesse?\"  \n\n**Nota para salvar:**  \n\"Vou "
+ },
+ {
+  "protocol": "json",
+  "summary": "5\/12 correct",
+  "engine": "leap"
+ },
+ {
+  "protocol": "native",
+  "lang": "EN",
+  "user": "Hey! What can you do for me?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 630,
+  "reply": "Hello! As a Paladino, I am here to assist you with any questions or tasks you may have. What would you like me to help with?"
+ },
+ {
+  "protocol": "native",
+  "lang": "EN",
+  "user": "Search my notes for the bike repair shop.",
+  "expect": "notes_search:bike repair",
+  "verdict": "malformed",
+  "wallMs": 278,
+  "reply": ""
+ },
+ {
+  "protocol": "native",
+  "lang": "EN",
+  "user": "Remember that the wifi password is falcon-42.",
+  "expect": "notes_save:falcon-42",
+  "verdict": "malformed",
+  "wallMs": 338,
+  "reply": ""
+ },
+ {
+  "protocol": "native",
+  "lang": "EN",
+  "user": "How many legs does a spider have?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 510,
+  "reply": "[tool_name(argument=\"legs\")]"
+ },
+ {
+  "protocol": "native",
+  "lang": "PT",
+  "user": "Olá! Tudo bem contigo?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 916,
+  "reply": "Olá! Meu nome é Paladino, e estou aqui para ajudar. Como posso te auxiliar hoje?"
+ },
+ {
+  "protocol": "native",
+  "lang": "PT",
+  "user": "Pesquisa nas minhas notas por receita de bacalhau.",
+  "expect": "notes_search:bacalhau",
+  "verdict": "malformed",
+  "wallMs": 547,
+  "reply": "Pesquisei as minhas notas sobre receitas de bacalhau."
+ },
+ {
+  "protocol": "native",
+  "lang": "PT",
+  "user": "Guarda que a reunião é sexta às 15h.",
+  "expect": "notes_save:sexta",
+  "verdict": "malformed",
+  "wallMs": 447,
+  "reply": "Geralmente, não há um requisito específico para guardar uma reunião. Se precisar de mais informações, é só me avisar!"
+ },
+ {
+  "protocol": "native",
+  "lang": "PT",
+  "user": "Procura nas notas o código do portão.",
+  "expect": "notes_search:portão",
+  "verdict": "malformed",
+  "wallMs": 289,
+  "reply": "[tool_name(\"notebook\")]"
+ },
+ {
+  "protocol": "native",
+  "lang": "PT",
+  "user": "Qual é a tua cor favorita?",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 274,
+  "reply": "[tool_name(argument=\"cor_favorita\")]"
+ },
+ {
+  "protocol": "native",
+  "lang": "MIXED",
+  "user": "Pesquisa my notes for train tickets to Porto.",
+  "expect": "notes_search:train tickets",
+  "verdict": "malformed",
+  "wallMs": 405,
+  "reply": "Pesquise meus notas sobre viagens de trem a Porto."
+ },
+ {
+  "protocol": "native",
+  "lang": "MIXED",
+  "user": "Please guarda que o voo para Berlin é às 9h.",
+  "expect": "notes_save:Berlin",
+  "verdict": "malformed",
+  "wallMs": 278,
+  "reply": ""
+ },
+ {
+  "protocol": "native",
+  "lang": "MIXED",
+  "user": "Thanks! Me conta o que sabes sobre a ponte.",
+  "expect": "no_tool",
+  "verdict": "correct_no_tool",
+  "wallMs": 1614,
+  "reply": "Olá! Sabe que a ponte é um dos pontes mais importantes do mundo, especialmente para o Rio São Paulo. Ela conecta o Rio Paraná ao Rio Paraná, oferecendo vistas panorâmicas da cidade"
+ },
+ {
+  "protocol": "native",
+  "summary": "5\/12 correct",
+  "engine": "leap"
+ }
+]

@@ -24,6 +24,7 @@ internal class SpriteAnimator(
  private val resources: Resources,
  private val scope: CoroutineScope,
  private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+ private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ){
  /** Owner gate: lifecycle/resumed state, animation pref and system reduced motion. */
  var gate: () -> Boolean = { true }
@@ -91,12 +92,17 @@ internal class SpriteAnimator(
    }.getOrNull() } ?: return@launch
    if (playing != key || target !== view) return@launch
    drawable.repeatCount = if (infinite) AnimatedImageDrawable.REPEAT_INFINITE else 0
-   if (chain != null) drawable.registerAnimationCallback(object : android.graphics.drawable.Animatable2.AnimationCallback() {
-    override fun onAnimationEnd(d: android.graphics.drawable.Drawable) { scope.launch { if (shown === drawable) chain() } }
-   })
-   shown = drawable; shownOn = view
-   view.setImageDrawable(drawable)
-   if (gate()) drawable.start()
+   // registerAnimationCallback requires a Looper thread; decoding happens on IO, so hop to Main
+   // for all drawable wiring.
+   withContext(mainDispatcher) {
+    if (playing != key || target !== view) return@withContext
+    if (chain != null) drawable.registerAnimationCallback(object : android.graphics.drawable.Animatable2.AnimationCallback() {
+     override fun onAnimationEnd(d: android.graphics.drawable.Drawable) { scope.launch { if (shown === drawable) chain() } }
+    })
+    shown = drawable; shownOn = view
+    view.setImageDrawable(drawable)
+    if (gate()) drawable.start()
+   }
   }
  }
 }

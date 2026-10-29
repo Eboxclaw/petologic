@@ -14,6 +14,7 @@ class RealAppConversationTest {
   val app=compose.activity.application as PaladinoApplication
   runBlocking{app.ready.await();app.local.verify()}
   assertTrue(app.local.ready.value)
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Conversations").performClick()
   compose.onNodeWithText("New conversation").performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}

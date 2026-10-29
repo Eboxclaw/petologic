@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "profile": "smoke",
+  "corpusVersion": "safe-smoke-1",
+  "sources": [
+    {
+      "id": "paladino-safe-synthetic",
+      "license": "CC0-1.0",
+      "purpose": "Inert deterministic regression fixtures using reserved domains and synthetic metadata only."
+    }
+  ],
+  "cases": [
+    {"id":"hash-known-1","suite":"HASH","locale":"und","split":"HOLDOUT","familyId":"hash-known-family-1","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","input":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","knownSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"id":"hash-mutated-1","suite":"HASH","locale":"und","split":"HOLDOUT","familyId":"hash-mutated-family-1","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab","knownSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+
+    {"id":"url-benign-1","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-benign-family-1","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"https://example.com/docs"},
+    {"id":"url-benign-2","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-benign-family-2","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"https://portal.example.invalid/help"},
+    {"id":"url-review-http","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-review-family-1","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","input":"http://login.example.invalid/session"},
+    {"id":"url-critical-ip","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-critical-family-1","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","input":"http://192.0.2.24/login"},
+    {"id":"url-critical-confusable","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-critical-family-2","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","input":"https://раypal.invalid/login"},
+    {"id":"url-review-encoded-file","suite":"URL","locale":"und","split":"HOLDOUT","familyId":"url-review-family-2","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","input":"https://download.example.invalid/invoice.pdf%2Eexe"},
+
+    {"id":"message-en-benign-1","suite":"MESSAGE","locale":"en","split":"HOLDOUT","familyId":"message-en-benign-family-1","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"Lunch tomorrow at the usual place?"},
+    {"id":"message-en-benign-2","suite":"MESSAGE","locale":"en","split":"HOLDOUT","familyId":"message-en-benign-family-2","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"The project notes are at https://example.com/docs."},
+    {"id":"message-en-review-1","suite":"MESSAGE","locale":"en","split":"HOLDOUT","familyId":"message-en-review-family-1","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","input":"Urgent: please verify your account today."},
+    {"id":"message-en-critical-1","suite":"MESSAGE","locale":"en","split":"HOLDOUT","familyId":"message-en-critical-family-1","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","input":"Urgent: your account will be suspended. Enter your password at http://192.0.2.31/login."},
+    {"id":"message-pt-benign-1","suite":"MESSAGE","locale":"pt","split":"HOLDOUT","familyId":"message-pt-benign-family-1","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"Almoço amanhã no lugar habitual?"},
+    {"id":"message-pt-benign-2","suite":"MESSAGE","locale":"pt","split":"HOLDOUT","familyId":"message-pt-benign-family-2","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","input":"As notas do projeto estão em https://example.com/docs."},
+    {"id":"message-pt-review-1","suite":"MESSAGE","locale":"pt","split":"HOLDOUT","familyId":"message-pt-review-family-1","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","input":"Urgente: verifique a sua conta hoje."},
+    {"id":"message-pt-critical-1","suite":"MESSAGE","locale":"pt","split":"HOLDOUT","familyId":"message-pt-critical-family-1","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","input":"URGENTE: conta suspensa. Envie os dados bancários em http://192.0.2.32/login."},
+
+    {"id":"app-benign-1","suite":"APP_PROFILE","locale":"und","split":"HOLDOUT","familyId":"app-benign-family-1","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","appSignals":{"installer":"com.android.vending","requestedPermissions":[],"grantedDangerous":[]}},
+    {"id":"app-benign-2","suite":"APP_PROFILE","locale":"und","split":"HOLDOUT","familyId":"app-benign-family-2","sourceId":"paladino-safe-synthetic","label":"BENIGN","expectedMinVerdict":"LOW","appSignals":{"installer":"org.fdroid.fdroid","requestedPermissions":["android.permission.INTERNET"],"grantedDangerous":[]}},
+    {"id":"app-review-accessibility","suite":"APP_PROFILE","locale":"und","split":"HOLDOUT","familyId":"app-review-family-1","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","appSignals":{"installer":"com.android.vending","requestedPermissions":["android.permission.BIND_ACCESSIBILITY_SERVICE"],"grantedDangerous":[],"accessibility":true}},
+    {"id":"app-review-overlay","suite":"APP_PROFILE","locale":"und","split":"HOLDOUT","familyId":"app-review-family-2","sourceId":"paladino-safe-synthetic","label":"SUSPICIOUS","expectedMinVerdict":"REVIEW","appSignals":{"installer":"com.android.vending","requestedPermissions":["android.permission.SYSTEM_ALERT_WINDOW"],"grantedDangerous":[],"overlay":true}},
+    {"id":"app-critical-origin","suite":"APP_PROFILE","locale":"und","split":"HOLDOUT","familyId":"app-critical-family-1","sourceId":"paladino-safe-synthetic","label":"CRITICAL","expectedMinVerdict":"HIGH_ATTENTION","appSignals":{"installer":"example.invalid.store","requestedPermissions":["android.permission.BIND_ACCESSIBILITY_SERVICE"],"grantedDangerous":["p.one","p.two","p.three"],"accessibility":true}}
+  ],
+  "retrievalRecords": [
+    {"id":"knowledge-en-bank","locale":"en","familyId":"retrieval-en-bank","sourceId":"paladino-safe-synthetic","text":"A message creates urgency, asks for bank details, and links to a reserved numeric address."},
+    {"id":"knowledge-en-delivery","locale":"en","familyId":"retrieval-en-delivery","sourceId":"paladino-safe-synthetic","text":"A fake delivery notice requests a small fee through a reserved test link."},
+    {"id":"knowledge-pt-bank","locale":"pt","familyId":"retrieval-pt-bank","sourceId":"paladino-safe-synthetic","text":"Uma mensagem cria urgência, pede dados bancários e inclui um endereço reservado."},
+    {"id":"knowledge-pt-delivery","locale":"pt","familyId":"retrieval-pt-delivery","sourceId":"paladino-safe-synthetic","text":"Um aviso de entrega simulado pede uma pequena taxa através de uma ligação de teste."}
+  ],
+  "retrievalQueries": [
+    {"id":"query-en-bank","locale":"en","familyId":"query-en-bank-family","sourceId":"paladino-safe-synthetic","text":"The message pressures me to send bank information now.","relevantRecordIds":["knowledge-en-bank"]},
+    {"id":"query-en-delivery","locale":"en","familyId":"query-en-delivery-family","sourceId":"paladino-safe-synthetic","text":"A parcel text wants a fee before delivery.","relevantRecordIds":["knowledge-en-delivery"]},
+    {"id":"query-pt-bank","locale":"pt","familyId":"query-pt-bank-family","sourceId":"paladino-safe-synthetic","text":"A mensagem pede dados bancários com urgência.","relevantRecordIds":["knowledge-pt-bank"]},
+    {"id":"query-pt-delivery","locale":"pt","familyId":"query-pt-delivery-family","sourceId":"paladino-safe-synthetic","text":"Recebi um aviso que pede uma taxa para entregar a encomenda.","relevantRecordIds":["knowledge-pt-delivery"]}
+  ]
+}

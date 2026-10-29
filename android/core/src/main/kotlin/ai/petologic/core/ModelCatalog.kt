@@ -1,13 +1,80 @@
 package ai.petologic.core
 
-data class ModelArtifact(val id:String,val publisher:String,val model:String,val quantization:String,val filename:String,val size:Long,val sha256:String,val url:String)
+enum class ModelKind { GENERATIVE, VISION_PROJECTOR, EMBEDDING, DECISION }
+
+data class ModelArtifact(
+ val id:String,
+ val publisher:String,
+ val model:String,
+ val quantization:String,
+ val filename:String,
+ val size:Long,
+ val sha256:String,
+ val url:String,
+ val kind:ModelKind,
+)
+
+/**
+ * Pinned Liquid artifacts: LFM2.5-VL-450M is the mandatory default speaker, LFM3-Omni-2B is the
+ * optional LFM3 text speaker, d1-2B is the decision router (never a chat model), each speaker has
+ * an optional projector, and LFM2.5-Embedding-350M is the vector model. Visual turns always run
+ * on the VL-450M pair regardless of the selected session speaker.
+ */
 object ModelCatalog {
+ const val SPEAKER_ID="lfm25vl-450m"
+ const val VISION_PROJECTOR_ID="lfm25vl-450m-mmproj"
+ const val EMBEDDING_ID="lfm25-embedding-350m"
+ const val OMNI_SPEAKER_ID="lfm3-omni-2b"
+ const val OMNI_PROJECTOR_ID="lfm3-omni-2b-mmproj"
+ const val DECISION_ID="d1-2b"
+ const val DECISION_PROJECTOR_ID="d1-2b-mmproj"
  val artifacts=listOf(
-  ModelArtifact("lfm350","LiquidAI","LFM2.5-350M","Q4_K_M","LFM2.5-350M-Q4_K_M.gguf",229312224,"7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4","https://huggingface.co/LiquidAI/LFM2.5-350M-GGUF/resolve/9969000761ce34de907bf20017cbfc3d52d6eaf9/LFM2.5-350M-Q4_K_M.gguf"),
-  ModelArtifact("lfm26-q4km","LiquidAI","LFM2.5-2.6B","Q4_K_M","LFM2.5-2.6B-Q4_K_M.gguf",1674455040,"02a8b7e17487d326e46d68ce0ba24211e1b80a14c4cd0597fa73c1cd697f52ed","https://huggingface.co/LiquidAI/LFM2.5-2.6B-GGUF/resolve/84022ce711b28455e8c4fc364ce68c00cf995875/LFM2.5-2.6B-Q4_K_M.gguf"),
-  ModelArtifact("lfm26-qad","LiquidAI","LFM2.5-2.6B","QAD-Q4_0","LFM2.5-2.6B-QAD-Q4_0.gguf",1593894944,"a247afd6414918eac8e520a9e6137dc271235461ecbe1180462221d5b8d40b03","https://huggingface.co/LiquidAI/LFM2.5-2.6B-GGUF/resolve/84022ce711b28455e8c4fc364ce68c00cf995875/LFM2.5-2.6B-QAD-Q4_0.gguf"),
-  ModelArtifact("minilm","sentence-transformers","all-MiniLM-L6-v2","qint8-arm64","minilm.onnx",23026053,"4278337fd0ff3c68bfb6291042cad8ab363e1d9fbc43dcb499fe91c871902474","https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/onnx/model_qint8_arm64.onnx")
+  ModelArtifact(
+   SPEAKER_ID,"LiquidAI","LFM2.5-VL-450M","Q4_0","LFM2.5-VL-450M-Q4_0.gguf",
+   219311264,"6d2757dd0f0b98aea7dc90477bb5b3a0df1089be85ef92943f8cecb05121ccbf",
+   "https://huggingface.co/LiquidAI/LFM2.5-VL-450M-GGUF/resolve/1abed04b6fe71314d8c446a1371c03d7c332266d/LFM2.5-VL-450M-Q4_0.gguf",
+   ModelKind.GENERATIVE,
+  ),
+  ModelArtifact(
+   OMNI_SPEAKER_ID,"LiquidAI","LFM3-Omni-2B","Q4_0","LFM3-Omni-2B-Q4_0.gguf",
+   1049617920,"6d2273a383b92dd7c5db0eb4c8dfeae13e805b485a6621c4b391ae179c2b5f28",
+   "https://huggingface.co/LiquidAI/LFM3-Omni-2B-GGUF/resolve/64660117852a2054cf1f666f47eeb910e2204e4d/LFM3-Omni-2B-Q4_0.gguf",
+   ModelKind.GENERATIVE,
+  ),
+  ModelArtifact(
+   DECISION_ID,"LiquidAI","d1-2B","Q4_K_M","d1-2B-Q4_K_M.gguf",
+   1099629888,"adca5789ad30ae6027e8e936749bb9f19673097492ab26fa1c5b69643ca50b4b",
+   "https://huggingface.co/LiquidAI/d1-2B-GGUF/resolve/e968f6575f0d4fad928312d7af15cad90fd365c0/d1-2B-Q4_K_M.gguf",
+   ModelKind.DECISION,
+  ),
+  ModelArtifact(
+   VISION_PROJECTOR_ID,"LiquidAI","LFM2.5-VL-450M vision","mmproj-Q8_0","mmproj-LFM2.5-VL-450m-Q8_0.gguf",
+   102815168,"ebfc428baa37efad8bae93864f914b2634a09009f91ad59f974fe1a1565d8561",
+   "https://huggingface.co/LiquidAI/LFM2.5-VL-450M-GGUF/resolve/1abed04b6fe71314d8c446a1371c03d7c332266d/mmproj-LFM2.5-VL-450m-Q8_0.gguf",
+   ModelKind.VISION_PROJECTOR,
+  ),
+  ModelArtifact(
+   OMNI_PROJECTOR_ID,"LiquidAI","LFM3-Omni-2B vision+audio","mmproj-Q8_0","mmproj-LFM3-Omni-2B-Q8_0.gguf",
+   540892768,"720ff4fc09df0e026c4ec641d0c698bf27b5bcd50561944c88eda5e3dffe1839",
+   "https://huggingface.co/LiquidAI/LFM3-Omni-2B-GGUF/resolve/64660117852a2054cf1f666f47eeb910e2204e4d/mmproj-LFM3-Omni-2B-Q8_0.gguf",
+   ModelKind.VISION_PROJECTOR,
+  ),
+  ModelArtifact(
+   DECISION_PROJECTOR_ID,"LiquidAI","d1-2B vision","mmproj-Q8_0","mmproj-d1-2B-Q8_0.gguf",
+   203031584,"62cc6d74fd1e5b1d6b48518566bf4c0cfd2468079a0c096ea323b74eed01e0d1",
+   "https://huggingface.co/LiquidAI/d1-2B-GGUF/resolve/e968f6575f0d4fad928312d7af15cad90fd365c0/mmproj-d1-2B-Q8_0.gguf",
+   ModelKind.VISION_PROJECTOR,
+  ),
+  ModelArtifact(
+   EMBEDDING_ID,"LiquidAI","LFM2.5-Embedding-350M","Q4_K_M","LFM2.5-Embedding-350M-Q4_K_M.gguf",
+   229311232,"4d7aa9dc6406a10fc3dec2c11f8f06781af063bf49211b8e4132e9b876d3f32a",
+   "https://huggingface.co/LiquidAI/LFM2.5-Embedding-350M-GGUF/resolve/a80de9c5b941d429104f0038292a0ef5a860e486/LFM2.5-Embedding-350M-Q4_K_M.gguf",
+   ModelKind.EMBEDDING,
+  ),
  )
+ fun selectable()=artifacts.filter{it.kind==ModelKind.GENERATIVE}
+ fun optionalComponents()=artifacts.filter{it.kind==ModelKind.VISION_PROJECTOR}
+ fun decision()=artifacts.single{it.kind==ModelKind.DECISION}
  fun get(id:String)=artifacts.single{it.id==id}
  fun match(size:Long,hash:String)=artifacts.find{it.size==size&&it.sha256==hash}
 }

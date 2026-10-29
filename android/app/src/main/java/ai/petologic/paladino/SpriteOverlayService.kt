@@ -154,13 +154,17 @@ class SpriteOverlayService:Service(){
   if(!Settings.canDrawOverlays(this)){stopSelf();return}
   val panel=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(dp(if(expanded)16 else 8),dp(8),dp(if(expanded)16 else 8),dp(8));isFocusableInTouchMode=true}
   if(!expanded){
-   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription=uiText("Floating Paladino. Tap to chat");adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{expanded=true;render()}}
+   val sprite=ImageView(this).apply{setImageResource(R.drawable.paladino_static);contentDescription=uiText("Floating Paladino. Tap to chat");adjustViewBounds=true;filterTouchesWhenObscured=true;setOnClickListener{FeedbackPlayer.combined(this@SpriteOverlayService,it,ai.petologic.paladino.skills.FeedbackEvent.SPRITE_TAP);expanded=true;render()}}
    panel.addView(sprite,LinearLayout.LayoutParams(-1,dp(app.tinyPets.state.value.sizeDp)));draggable(sprite);startAnimation(sprite)
    val badge=TextView(this).apply{floatText(gold,10f);gravity=Gravity.CENTER;setPadding(dp(4),dp(2),dp(4),dp(2));setOnClickListener{expanded=true;render()}}
    panel.addView(badge)
-   observation=scope.launch{app.sessionHub.active.collectLatest{controller->controller.ui.collect{state->
-    val reaction=state.petReaction();showReaction(reaction);badge.text=uiText(reaction.label);badge.visibility=if(reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
-    sprite.contentDescription=uiText("Floating Paladino. Tap to chat")+". "+uiText(reaction.label);panel.post{clampWindow()}
+   observation=scope.launch{app.sessionHub.active.collectLatest{controller->combine(controller.ui,app.guard.latest){state,findings->state to findings}.collect{(state,findings)->
+    val reaction=state.petReaction();showReaction(reaction)
+    val attention=findings.maxByOrNull{it.createdAt}?.evidence?.any{it.matchType==ai.petologic.security.MatchType.EXACT_SHA256||it.matchType==ai.petologic.security.MatchType.RULE}==true
+    badge.text=uiText(if(attention)"Protection needs attention" else reaction.label)
+    badge.visibility=if(!attention&&reaction==PetReaction.IDLE)View.GONE else View.VISIBLE
+    sprite.contentDescription=uiText("Floating Paladino. Tap to chat")+". "+uiText(if(attention)"Protection needs attention" else "Protection ready")
+    panel.post{clampWindow()}
    }}}
 
   }else{
@@ -177,7 +181,7 @@ class SpriteOverlayService:Service(){
    composer.addView(input,LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
    send=icon(R.drawable.ic_pet_send,"Send",true){
     val controller=app.sessionHub.active.value
-    if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
+    if(controller.ui.value.busy)controller.cancel()else{val draft=input!!.text.toString();if(draft.isNotBlank()){FeedbackPlayer.combined(this@SpriteOverlayService,send!!,ai.petologic.paladino.skills.FeedbackEvent.MESSAGE_SENT);controller.send(draft);input!!.setText("");drafts[controller.sessionId]=""}}
    };composer.addView(send);panel.addView(composer)
    panel.addView(View(this).apply{setBackgroundColor(0x40F0D64B)},LinearLayout.LayoutParams(-1,dp(1)).apply{topMargin=dp(2)})
    val largeText=resources.configuration.fontScale>1.3f
@@ -186,6 +190,11 @@ class SpriteOverlayService:Service(){
    actions.addView(newChat,if(largeText)LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=dp(8)} else LinearLayout.LayoutParams(0,-2,1f).apply{marginEnd=dp(8)})
    val fullChat=action(R.drawable.ic_pet_open,"Full chat"){collapse();startActivity(Intent(this,MainActivity::class.java).putExtra("open_chat",true).putExtra("widget_session",app.sessionHub.active.value.sessionId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))}
    actions.addView(fullChat,if(largeText)LinearLayout.LayoutParams(-1,-2) else LinearLayout.LayoutParams(0,-2,1f));panel.addView(actions)
+   val security=action(R.drawable.ic_pet_open,"Review protection"){
+    collapse();val latest=app.guard.latest.value.maxByOrNull{it.createdAt}
+    startActivity(if(latest!=null)Intent(this,ai.petologic.skills.security.guard.SecurityActivity::class.java).putExtra("finding_id",latest.id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) else Intent(this,MainActivity::class.java).putExtra("destination","protection").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))
+   }
+   panel.addView(security)
    panel.setOnTouchListener{_,event->if(event.action==MotionEvent.ACTION_OUTSIDE){collapse();true}else false}
    panel.setOnKeyListener{_,key,event->if(key==KeyEvent.KEYCODE_BACK&&event.action==KeyEvent.ACTION_UP){collapse();true}else false}
    observation=scope.launch{app.sessionHub.active.collectLatest{controller->

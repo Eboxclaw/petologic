@@ -25,7 +25,7 @@ data class ReminderRow(@PrimaryKey val id:String,val text:String,val atMillis:Lo
 data class EmbeddingRow(@PrimaryKey val noteId:String,val sourceVersion:Long,val modelId:String,val vector:ByteArray)
 
 @Entity(tableName="sessions")
-data class SessionRow(@PrimaryKey val id:String,val title:String,val createdAt:Long=System.currentTimeMillis(),val archived:Boolean=false,val parentId:String?=null,val modelId:String="lfm350",val mode:String="TINY",val optionsJson:String="{}")
+data class SessionRow(@PrimaryKey val id:String,val title:String,val createdAt:Long=System.currentTimeMillis(),val archived:Boolean=false,val parentId:String?=null,val modelId:String=ai.petologic.core.ModelCatalog.SPEAKER_ID,val mode:String="TINY",val optionsJson:String="{}")
 @Entity(tableName="execution_events",indices=[Index("sessionId")])
 data class ExecutionEventRow(@PrimaryKey val id:String,val sessionId:String,val taskId:String,val type:String,val detail:String,val createdAt:Long=System.currentTimeMillis())
 
@@ -51,7 +51,9 @@ interface PaladinoDao {
  @Insert(onConflict=OnConflictStrategy.ABORT) suspend fun putAction(action:ActionRow)
  @Query("SELECT * FROM actions WHERE id=:id") suspend fun action(id:String):ActionRow?
  @Query("UPDATE actions SET status=:status WHERE id=:id") suspend fun actionStatus(id:String,status:String)
+ @Query("UPDATE actions SET status='CANCELLED' WHERE id=:id AND status='PENDING'") suspend fun cancelAction(id:String)
  @Query("UPDATE actions SET status='CANCELLED' WHERE status='PENDING'") suspend fun cancelPending()
+ @Query("UPDATE actions SET status='UNKNOWN' WHERE status='REQUESTED'") suspend fun recoverActions()
  @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun outbox(row:IndexRow)
  @Query("SELECT * FROM index_outbox") suspend fun pendingIndex():List<IndexRow>
  @Query("DELETE FROM index_outbox WHERE noteId=:id AND version=:version") suspend fun indexDone(id:String,version:Long)

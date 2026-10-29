@@ -21,14 +21,17 @@ class OnboardingUiTest {
   val app=compose.activity.application as PaladinoApplication
   runBlocking{withTimeout(30000){app.modelsReady.await()}}
   val original=app.modelLibrary.installed.value
-  Assume.assumeTrue("Uses an existing verified local model to exercise resume", "lfm350" in original)
+  Assume.assumeTrue("Uses an existing verified local model to exercise resume", ai.petologic.core.ModelCatalog.SPEAKER_ID in original)
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("New conversation").performClick()
   compose.waitForIdle()
   val controller=app.sessionHub.active.value
-  val request="Hello, Paladino! How are you today?"
+  controller.selectModel(ai.petologic.core.ModelCatalog.SPEAKER_ID)
+  compose.waitUntil(10000){controller.sessionInfo.value.modelId==ai.petologic.core.ModelCatalog.SPEAKER_ID}
+  val request="Explain a blue square in one sentence."
   try{
    // Hide catalog availability only. No user model files are removed.
-   app.modelLibrary.installed.value=original-"lfm350"
+   app.modelLibrary.installed.value=original-ai.petologic.core.ModelCatalog.SPEAKER_ID
    compose.onNodeWithText("What’s on your mind?").performTextInput(request)
    compose.onNodeWithContentDescription("Send message").performClick()
    compose.waitUntil(10000){controller.ui.value.pendingModelMessage==request}
@@ -38,7 +41,7 @@ class OnboardingUiTest {
    UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(app.filesDir,"model-setup-card.png"))
    compose.onNodeWithText("Already have it? Import a model").performClick()
    compose.onNodeWithText("App updates").assertIsDisplayed()
-   compose.onNodeWithContentDescription("Chat",useUnmergedTree=true).performClick()
+   compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
    compose.onNodeWithText("Give Paladino a local brain").assertIsDisplayed()
    app.modelLibrary.installed.value=original
    compose.waitUntil(10000){compose.onAllNodesWithText("Continue conversation").fetchSemanticsNodes().isNotEmpty()}
@@ -53,13 +56,14 @@ class OnboardingUiTest {
   val app=compose.activity.application as PaladinoApplication
   runBlocking{withTimeout(30000){app.modelsReady.await()}}
   val original=app.modelLibrary.installed.value
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("New conversation").performClick()
   compose.waitForIdle()
   val controller=app.sessionHub.active.value
   val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
   Assume.assumeTrue(android.provider.Settings.canDrawOverlays(app))
   try{
-   app.modelLibrary.installed.value=original-"lfm350"
+   app.modelLibrary.installed.value=original-ai.petologic.core.ModelCatalog.SPEAKER_ID
    compose.activity.startForegroundService(android.content.Intent(app,SpriteOverlayService::class.java))
    device.pressHome()
    assertTrue(device.wait(androidx.test.uiautomator.Until.hasObject(androidx.test.uiautomator.By.descStartsWith("Floating Paladino. Tap to chat")),10000))
@@ -79,8 +83,8 @@ class OnboardingUiTest {
   compose.runOnUiThread{compose.activity.setContent{
    CompositionLocalProvider(LocalUriHandler provides object:UriHandler{override fun openUri(uri:String){opened=uri}}){MaterialTheme(colorScheme=PetColors){AppUpdateCard()}}
   }}
-  compose.onNodeWithText("PETOLOGIC · ${BuildConfig.VERSION_NAME}").assertIsDisplayed()
-  compose.onNodeWithText("Update app").performClick()
+  compose.onNodeWithText("PETOLOGIC · ${BuildConfig.VERSION_NAME}",substring=true).assertIsDisplayed()
+  compose.onNodeWithText("Open official downloads").performClick()
   assertEquals("https://github.com/Eboxclaw/petologic-downloads/releases",opened)
  }
 }

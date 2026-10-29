@@ -22,10 +22,11 @@ class PaladinoViewModel(application:Application):AndroidViewModel(application){
  val events=active.flatMapLatest{it.events}.stateIn(viewModelScope,SharingStarted.Eagerly,emptyList())
  val library=app.modelLibrary
  val modelStatus=app.local.status;val modelReady=app.local.ready;val downloadProgress=app.local.progress
- val semanticReady=app.embedder.ready;val semanticInstalling=app.embedder.installing
- fun importModel(uri:android.net.Uri)=viewModelScope.launch { try { library.import(uri);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Import failed" } }
- fun scanFolder(uri:android.net.Uri)=viewModelScope.launch { try { app.contentResolver.takePersistableUriPermission(uri,android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);library.rememberAndScan(uri);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Folder unavailable" } }
- fun downloadModel(id:String)=viewModelScope.launch { try { library.install(id);app.local.verify();app.embedder.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Download failed" } }
+ val semanticReady=app.vectorMemory.ready;val semanticInstalling=app.vectorMemory.installing
+ fun importModel(uri:android.net.Uri)=viewModelScope.launch { try { library.import(uri);app.local.verify();app.vectorMemory.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Import failed" } }
+ fun scanFolder(uri:android.net.Uri)=viewModelScope.launch { try { app.contentResolver.takePersistableUriPermission(uri,android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);library.rememberAndScan(uri);app.local.verify();app.vectorMemory.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Folder unavailable" } }
+ fun downloadModel(id:String)=viewModelScope.launch { try { library.install(id);app.local.verify();app.vectorMemory.verify() } catch(e:Exception) { if(e is CancellationException)throw e;library.status.value=e.message?:"Download failed" } }
+ fun installVision()=downloadModel(ModelCatalog.VISION_PROJECTOR_ID)
  fun discardModelMessage()=current.discardModelMessage()
  fun resumeModelMessage()=current.resumeModelMessage()
  fun send(text:String)=current.send(text)

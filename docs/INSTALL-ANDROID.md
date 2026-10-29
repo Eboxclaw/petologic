@@ -11,9 +11,9 @@ Também podes usar a [página oficial de versões](https://github.com/Eboxclaw/p
 
 ## 2. Se já tens uma versão anterior
 
-**Não atualiza automaticamente.** Nas versões 0.1.4 e seguintes, abre **Definições → Atualizações da app → Atualizar app**. O botão abre os downloads oficiais no browser; escolhe o APK mais recente e confirma a atualização no Android. Nas versões anteriores, usa o site para instalar primeiro a 0.1.4 ou superior. Não é uma reinstalação do zero.
+**Exceção única — atualizar para a 0.1.6:** a assinatura mudou (a chave original perdeu-se), por isso quem tem a **0.1.5 ou anterior tem de desinstalar primeiro** e instalar a 0.1.6 de seguida. Esse passo apaga as conversas e o modelo descarregado; a partir da 0.1.6, usa **Definições → Cópia pessoal → Guardar cópia** antes de qualquer troca para poderes restaurar depois.
 
-As versões públicas assinadas usam a mesma identidade e podem ser atualizadas por cima: **não desinstales primeiro**. As conversas, notas e modelos devem manter-se. O percurso de atualização é testado com uma sessão no emulador; guarda à parte informação insubstituível antes de atualizar uma prévia.
+**Nas restantes atualizações (0.1.6 em diante):** **Não atualiza automaticamente.** Abre **Definições → Atualizações da app → Atualizar app**. O botão abre os downloads oficiais no browser; escolhe o APK mais recente e confirma a atualização no Android. As versões públicas assinadas a partir da 0.1.6 usam a mesma identidade e podem ser atualizadas por cima: **não desinstales primeiro**. As conversas, notas e modelos devem manter-se. O percurso de atualização é testado com uma sessão no emulador; guarda à parte informação insubstituível antes de atualizar uma prévia (ou usa a Cópia pessoal).
 
 Um APK de desenvolvimento/debug usa outra assinatura e não pode ser atualizado diretamente pelo APK público. Se aparecer “app não instalada” ou conflito de assinatura, não apagues os dados por tentativa: confirma primeiro qual a versão instalada.
 

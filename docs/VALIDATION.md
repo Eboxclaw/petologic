@@ -77,3 +77,35 @@ Signed 0.1.4 adds missing-model cards, an official-download update button and we
 ## 2026-09-10 — Sprint 1: Sprite idle pair and transparent overlay
 
 42 JVM tests (incl. new IdleCycleTest, updated PetReactionTest), lintDebug, assembleDebug and a focused instrumented run (TinyPetIntegrationTest OK) passed after replacing the single idle GIF with a two-clip idle sequencer and removing all opaque fills from the floating Sprite; the placeholder clips were rebuilt as transparent animated WebP after decoding proved the old GIF background opaque black. Screenshots and pixel-diff playback proof: [evidence](evidence/2026-09-10-sprite-overlay/validation.md). No release gate claimed: identical placeholder clips await the owner's authored WebPs; physical-device and accessibility passes remain open.
+
+## 2026-09-11 — User copy save/load and reset from zero
+
+Two new JVM tests (manifest loadability: same/older schema accepted; unknown/future format, newer schema and missing version refused) and two instrumented tests passed: export→mutate→import restores session, message and note through a fresh Room open, and wipe leaves no database file, no models dir and an empty fresh DB. First run caught a real bug (staged `prefs/` directory not created on import); fixed and re-run green. UI smoke on the Paladino_API35 emulator: Settings card renders, Android file picker opens pre-filled, saving through it wrote a user-copy zip to Downloads. Screenshots and limits: [evidence](evidence/2026-09-11-user-copy/validation.md). Release build signed with the new 0.1.6 signing identity (old keystore lost) and verified with apksigner.
+
+## 2026-09-11 — Sprint A: skill registry and per-turn tool activation
+
+Plan-12 runtime refactor landed with plan-13 Sprint A: `LfmToolCallParser` derives its allowlist from the live Koog registry (Pythonic LFM syntax primary, JSON fallback, literal-only decoding), `LfmToolDescriptorSchemer` replaces the hand-built schema in `PaladinoAgent`, and the notes tools became the first `SkillRegistry` resident with OFF/AUTO/PINNED states, per-tool toggles and Android-permission gates resolved per turn in `SessionController` — unactivated tools are absent from the registry, not merely discouraged. 50 JVM tests green, including the migrated parser contract and new allowlist/activation suites covering the no-context-leak acceptance gate. Skills card verified on the emulator (state toggle, tool collapse, restart persistence); [evidence](evidence/2026-09-11-skills-registry/validation.md). Real-model regression on the emulator deferred (model wiped by release smoke); no release cut for this sprint.
+
+## 2026-09-12 — Sprint B: Security Guard V0 skill pack
+
+Three model-facing security tools (query/scan/action) landed as the second registry skill and the first AUTO-default one, backed by deterministic local scanners (URL structure, scam message patterns, app capability+origin engine) and plan-12 result envelopes. Actions are approval-gated handoffs only. 61 JVM + 3 instrumented tests green, including the plan-13 acceptance gate and a scripted agent loop; the role manifest's privilege-expansion guard caught the new tool ids until properly registered. UI and limits: [evidence](evidence/2026-09-12-security-guard/validation.md). No release gate claimed for the analyzers' recall — local heuristics only.
+
+## 2026-09-12 — Sprint C: notification awareness for Security Guard
+
+Opt-in `NotificationListenerService` feeds `security_query("notifications | …")` and the now-active `dismiss_notification` action; the new `notification_query` tool is the first capability-gated registry entry (`cap.notification_listener`, toggle default OFF) and fails closed to a permission error without access. 62 JVM + instrumented tests green in both listener states on the emulator, including a live read of a posted notification; UI in [evidence](evidence/2026-09-12-sprint-c-notifications/validation.md). RemoteInput replies deferred.
+
+## 2026-09-12 — Device skill: device_query (battery, connectivity, phone)
+
+Plan-12 step ② first slice: third registry skill with a read-only `device_query` (battery level/charging, active-network transport/metered/VPN, device identity), pure formatters, envelope responses, AUTO default. 69 JVM + instrumented real-read tests green; UI in [evidence](evidence/2026-09-12-device-query/validation.md). No release gate claimed.
+
+## 2026-09-12 — Plan 14: light SFX and haptics
+
+Four synthesized water/8-bit effects + subtle haptics wired to send/reply/approval/error/sprite events through a pure gated vocabulary and an app-scoped SoundPool player. Sounds respect the user toggle, silent ringer and battery saver; haptics use platform constants without new permissions. `FeedbackMappingTest` + full suite: 73 JVM tests green; emulator smoke clean. [Evidence](evidence/2026-09-12-sfx-haptics/validation.md).
+
+## 2026-09-12 — Plan 15 + QAD swap + 0.2.0 semi-public
+
+Sub-agent foundation: `SubAgent.worker` (bounded, tool-free turn) with the user's fallback rule (230M QAD when installed, else a 350M turn), catalog slot `lfm230-qad` (149 MB, pinned), and auto-titling as the first consumer (silent-skip on busy/model-missing). Catalog moved to all-QAD: main brain swapped to `LFM2.5-350M-QAD-Q4_0` (LocalModel pins updated — one-time model re-download for 0.1.7 users), 2.6B Q4_K_M dropped in favor of QAD, VL-450M + mmproj registered `visionPending` and hidden from selection. 81 JVM tests green (5 new catalog tests); signed 0.2.0-preview installs over and runs clean; model library shows the all-QAD lineup. Evidence: [evidence/2026-09-12-device-query](evidence/2026-09-12-device-query/validation.md) and release record.
+
+## 2026-09-12 — Download stall fix ("stuck at 99%")
+
+`ModelDownloader` added: 20 s idle timeout with up to 4 automatic Range-resume attempts, pre-verification of size-complete leftover partials (no more from-zero restart after an interrupted verify), and continue-not-restart failure messaging. Covered by 6 MockWebServer tests (87 JVM total); live release-build test on the emulator: 230M completed end-to-end and the 1.6 GB 2.6B download force-stopped mid-transfer resumed from its offset. [Evidence](evidence/2026-09-12-download-resume/validation.md).

@@ -51,3 +51,37 @@ Implemented the researched [app/Sprite visual plan](plans/05-app-sprite-visual-i
 ## 2026-09-10 — Sprint 1: idle pair and fully transparent Sprite
 
 UI/UX refresh pre-plans set ([plans/09](plans/09-ui-ux-refresh-preplans.md)); Sprint 1 executed ([plans/10](plans/10-sprite-idle-pair-and-transparent-overlay.md)). The chat pet is bigger (168 dp empty state, 64 dp header, gradient hero canvas removed), a pure `IdleCycle` + shared `SpriteAnimator` now chain two idle clips (one + two cycles), and the floating Sprite lost every opaque fill — badge, bubble card, composer and actions are shadowed floating text over a hairline underline. The old idle GIF's baked opaque-black background was replaced by lossless transparent animated WebP placeholders (139 KB each), closing part of the long-open sprite alpha cleanup. 42 JVM tests + lint + builds + 2 instrumented tests passed; emulator screenshots in [evidence](evidence/2026-09-10-sprite-overlay/validation.md). Owner's authored idle WebPs, physical-device and TalkBack gates remain open.
+
+## 2026-09-11 — User copy, reset from zero, and the 0.1.6 signing reset
+
+Plan 11 ([plans/11](plans/11-user-copy-and-reset.md)) shipped a Settings "User copy" card: one-file export (WAL-checkpointed Room DB + non-secret prefs via SAF), import-and-restart with schema-version validation, and a full "delete everything and start over" wipe equivalent to a clean install. The original release keystore was lost, so 0.1.6 ships with a new signing identity — 0.1.5-or-earlier users must uninstall once (data loss; nothing can export from 0.1.5), and from 0.1.6 on the copy feature covers future transitions. Release notes, install guide and site copy updated accordingly. Tool-runtime generalization roadmap from the user's external audit recorded as [plans/12](plans/12-tool-runtime-generalization.md). 44 JVM + 4 instrumented tests passed; evidence in [evidence/2026-09-11-user-copy](evidence/2026-09-11-user-copy/validation.md).
+
+## 2026-09-11 — Sprint A: SkillRegistry and the generalized tool runtime
+
+Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint A on the [plan 12](plans/12-tool-runtime-generalization.md) refactor: `NoteToolProtocol` gave way to `LfmToolCallParser` (registry-derived allowlist, native LFM call syntax primary) and `LfmToolDescriptorSchemer`; skills arrived with OFF/AUTO/PINNED states, per-tool toggles, permission gating and a per-turn temporary Koog registry — Memory is the first resident skill and a new Settings card exposes states, tool toggles and a token estimate. The Security Guard pack (Sprint B) now only needs to register as a second skill. 50 JVM tests green; emulator UI evidence in [evidence/2026-09-11-skills-registry](evidence/2026-09-11-skills-registry/validation.md).
+
+Skills management moved into the Controls tab per user direction: the Skills & MCPs submenu gained real drill-ins (mode, per-tool toggles, permission rows, token estimate) and the Tools submenu shows which tools each skill can register and when.
+
+## 2026-09-12 — Sprint B: Security Guard V0
+
+Executed [plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint B: `ai.petologic.skills.security` ships `security_query`/`security_scan`/`security_action` over purely local deterministic scanners — link structure checks, scam message patterns, and an app risk engine (accessibility, device admin, VPN, overlay, notification listener, installer origin, granted permissions) with LOW/REVIEW/HIGH_ATTENTION/UNKNOWN verdicts the model explains but never changes. Actions remain approval-gated Android handoffs; notification and call capabilities wait for Sprints C/D. Security Guard defaults to AUTO and stays out of context until a message matches.
+
+## 2026-09-12 — Sprint C: notifications
+
+[Plan 13](plans/13-skill-registry-and-security-skill-pack.md) Sprint C: Paladino can now read recent on-device notifications the user explicitly allowed (notification access, off by default) through Security Guard's `notification_query`, and dismiss a single notification after approval. Capability gating extended beyond Android permissions to app-level capabilities, reusing the same registration gates.
+
+## 2026-09-12 — Device skill: battery and connectivity
+
+Plan-12 step ② opened: the Device domain's `device_query` shipped as the third skill (AUTO, read-only) — battery level and charging state, active connection (Wi-Fi/mobile data, metered, VPN), and phone identity — with pure formatters and envelope responses in the same gated per-turn registry.
+
+## 2026-09-12 — Plan 14: light SFX and haptics
+
+[Plan 14](plans/14-sfx-haptics.md) added a quiet personality layer: water-drop and 8-bit feedback on send/reply/approval/error/sprite interactions, Sounds + Vibration toggles in Sprite & Widget, battery-saver and silent-ringer respected. Companion research notes ([reviews/2026-09-12-research-notes.md](reviews/2026-09-12-research-notes.md)) answer the graph-RAG/vector-store/MiniLM/sub-agent/tool-weight/battery questions with code-verified facts.
+
+## 2026-09-12 — 0.2.0 semi-public: QAD everywhere, 230M sub-agent slot, VL registered
+
+[Plan 15](plans/15-subagent-foundation.md) shipped the sub-agent foundation — `SubAgent.worker` with the small-model fallback rule and auto-titling as its first job — and the catalog moved to Liquid's QAD-Q4_0 quants across every family that has them (350M main brain swapped; 2.6B Q4_K_M dropped; 230M added as the sub-agent brain). LFM2.5-VL-450M + mmproj registered vision-pending for the native multimodal phase. Version 0.2.0-preview marks the semi-public milestone. 81 JVM tests green; [release record](releases/0.2.0-preview.md).
+
+## 2026-09-12 — Downloads never restart from zero anymore
+
+The recurring "stuck at 99%" model-download complaint is fixed at the root: a new downloader resumes from the exact byte the connection died at (20 s silence timeout, 4 automatic attempts), verifies leftover complete partials before touching the network, and every failure message tells the user a retry continues from where it stopped. Proven with local server tests and a live 1.6 GB kill-and-resume on the release build.

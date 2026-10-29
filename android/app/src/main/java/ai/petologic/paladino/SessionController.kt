@@ -23,7 +23,10 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  val options=MutableStateFlow(SessionOptions())
  val sessionInfo=MutableStateFlow(SessionRow(sessionId,"Conversation"))
  val events=app.memory.dao.events(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
- private val initialized=scope.async(start=CoroutineStart.LAZY) { app.ready.await();app.memory.dao.session(sessionId)?.let{row->sessionInfo.value=row;options.value=kotlinx.serialization.json.Json.decodeFromString<SessionOptions>(row.optionsJson);ui.update{it.copy(mode=ExecutionMode.valueOf(row.mode))}} }
+ private val initialized=scope.async(start=CoroutineStart.LAZY) { app.ready.await();app.memory.dao.session(sessionId)?.let{stored->
+  val row=if(ModelCatalog.selectable().any{it.id==stored.modelId})stored else stored.copy(modelId=ModelCatalog.SPEAKER_ID).also{app.memory.dao.session(it)}
+  sessionInfo.value=row;options.value=kotlinx.serialization.json.Json.decodeFromString<SessionOptions>(row.optionsJson);ui.update{it.copy(mode=ExecutionMode.valueOf(row.mode))}
+ } }
  private val prefs=app.getSharedPreferences("preferences",Context.MODE_PRIVATE)
  private val policy=ApprovalPolicy()
  private val manifest=PaladinoManifest.parse(app.assets.open("paladino/manifest.yaml").bufferedReader().use{it.readText()})
@@ -31,6 +34,8 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private val greetingBroker=ContextBroker(app.assets.open("paladino/greeting.md").bufferedReader().use{it.readText()})
  private val broker=ContextBroker(app.assets.open(manifest.personaRef).bufferedReader().use{it.readText()})
  private val initialProvider=runCatching{CloudProvider.fromId(prefs.getString("cloud_provider","openrouter")!!)}.getOrDefault(CloudProvider.OPENROUTER)
+ private val decisionRouter=ai.petologic.core.DecisionRouter(ai.petologic.paladino.runtime.LfmDecisionBackend(app.local,app.modelLibrary))
+ private var lastDecisionAt:java.time.Instant?=null
  private fun modelSlot(provider:CloudProvider)=if(provider==CloudProvider.OPENROUTER)"model" else "model.${provider.id}"
  val ui=MutableStateFlow(PaladinoUiState(provider=initialProvider,connected=app.credentials.read(initialProvider)!=null,model=prefs.getString(modelSlot(initialProvider),"")?:""))
  val messages=app.memory.dao.messages(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
@@ -38,9 +43,9 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  val modelStatus=app.local.status
  val modelReady=app.local.ready
  val downloadProgress=app.local.progress
- val semanticReady=app.embedder.ready
- val semanticInstalling=app.embedder.installing
- fun installSemantic(){scope.launch{try{app.embedder.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Semantic model setup failed.")}}}}
+ val semanticReady=app.vectorMemory.ready
+ val semanticInstalling=app.vectorMemory.installing
+ fun installSemantic(){scope.launch{try{app.vectorMemory.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Vector memory setup failed.")}}}}
  private var toolApproval:CompletableDeferred<Boolean>?=null
  private var task:Job?=null
  fun start(){scope.launch{initialized.await()}}
@@ -48,7 +53,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private suspend fun finishTask(status:String){activeTaskId?.let{app.memory.dao.taskStatus(it,status)}}
  fun mode(mode:ExecutionMode){if(!ui.value.busy && ui.value.cloud==null && ui.value.action==null){ui.update{it.copy(mode=mode,error=null)};scope.launch{initialized.await();val row=sessionInfo.value.copy(mode=mode.name);app.memory.dao.session(row);sessionInfo.value=row}}}
  fun updateOptions(value:SessionOptions){try{value.validate();if(ui.value.busy){cancel()};options.value=value;scope.launch{initialized.await();options.value=value;val row=sessionInfo.value.copy(optionsJson=kotlinx.serialization.json.Json.encodeToString(value));app.memory.dao.session(row);sessionInfo.value=row;log("settings","Session settings updated")}}catch(e:Exception){ui.update{it.copy(error=e.message?:"Invalid settings")}}}
- fun selectModel(id:String){if(ui.value.busy)return;require(ModelCatalog.artifacts.any{it.id==id&&it.id!="minilm"});scope.launch{initialized.await();val row=sessionInfo.value.copy(modelId=id);app.memory.dao.session(row);sessionInfo.value=row}}
+ fun selectModel(id:String){if(ui.value.busy)return;require(ModelCatalog.selectable().any{it.id==id});scope.launch{initialized.await();val row=sessionInfo.value.copy(modelId=id);app.memory.dao.session(row);sessionInfo.value=row}}
  suspend fun log(type:String,detail:String){app.memory.dao.event(ExecutionEventRow(UUID.randomUUID().toString(),sessionId,activeTaskId?:"session",type,detail.take(1000)))}
  fun clearError(){ui.update{it.copy(error=null,notice=null)}}
  fun install(){if(downloadProgress.value!=null)return;scope.launch{try{app.local.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Download failed. Retry in Settings.")}}}}
@@ -112,7 +117,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
        check(options.value.network){"Network is disabled for this session."}
        check(app.credentials.read(ui.value.provider)!=null){"Connect ${ui.value.provider.label} in Settings to use Maxx. Tiny remains available offline."}
        ui.update{it.copy(cloud=PendingCloud(context,ui.value.model,ui.value.provider),status="Review what leaves your phone.")}
-      }else generate(context,mode,ui.value.model,null)
+      }else{generate(context,mode,ui.value.model,null);maybeOfferMaxx(request)}
      }
     }
     app.memory.dao.task(TaskRow(id,request,mode.name,if(ui.value.action!=null||ui.value.cloud!=null)"AWAITING_APPROVAL" else "COMPLETED",sessionId=sessionId))
@@ -121,20 +126,104 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    finally{ui.update{it.copy(busy=false,streaming="")}}
   }
  }
+ /** Post-response d1 probe: surfaces a Maxx offer only; never escalates automatically and never
+  *  touches detector findings or approvals. Throttled so the model swap stays rare and invisible. */
+ private fun maybeOfferMaxx(request:String){
+  if(ModelCatalog.DECISION_ID !in app.modelLibrary.installed.value)return
+  val now=java.time.Instant.now()
+  val last=lastDecisionAt
+  if(last!=null&&now.isBefore(last.plusSeconds(300)))return
+  lastDecisionAt=now
+  scope.launch{
+   val outcome=withContext(Dispatchers.Default){decisionRouter.decide(request,ExecutionMode.TINY).second}
+   if(outcome.suggestion==DecisionSuggestion.OFFER_MAXX&&!ui.value.busy&&ui.value.notice==null){
+    ui.update{it.copy(notice=app.uiText("For harder questions, Maxx may serve you better."))}
+   }
+  }
+ }
+ private fun requireSkillTool(id:String){  check(options.value.toolCalls){"Tool permission was revoked."}
+  val definition=ai.petologic.paladino.skills.SkillRegistry.definitions.single{skill->skill.tools.any{it.id==id}}
+  val tool=definition.tools.single{it.id==id}
+  check(ai.petologic.paladino.skills.SkillRegistry.states(app)[definition.id]!=ai.petologic.paladino.skills.SkillState.OFF && ai.petologic.paladino.skills.SkillRegistry.toolEnabled(app,definition,tool)){"Skill or tool was disabled."}
+  tool.androidPermission?.let{check(ai.petologic.paladino.skills.SkillRegistry.capabilityGranted(app,it)){"Android access was revoked."}}
+ }
  private suspend fun generate(context:ContextEnvelope,mode:ExecutionMode,model:String,consent:CloudConsent?){
   ui.update{it.copy(busy=true,status=if(mode==ExecutionMode.TINY)"Thinking on your phone…" else "Thinking with Maxx…",streaming="")}
+  val simpleGreeting=RoutePolicy().isSimpleGreeting(context.user)
+  // Skills resolve per turn: OFF/AUTO/PINNED state, per-tool toggles and Android permissions
+  // decide here which tools exist for this request; the agent never sees the rest.
+  val activations=if(simpleGreeting||mode==ExecutionMode.MAXX)emptyList() else ai.petologic.paladino.skills.SkillRegistry.activationsFor(app,context.user)
+  val skillToolIds=activations.flatMap{it.tools}.map{it.id}.toSet()
+  val skillStubs=activations.joinToString("\n"){it.skill.promptStub}
   val result=app.agent.run(context,mode,if(mode==ExecutionMode.TINY)sessionInfo.value.modelId else model,consent,options.value,
-   if(RoutePolicy().isSimpleGreeting(context.user)) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
-    search={query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}},
-    save={text->
+   if(simpleGreeting) ai.petologic.paladino.runtime.AgentTools() else ai.petologic.paladino.runtime.AgentTools(
+    search=if("notes_search" in skillToolIds)({query->check(options.value.memoryRead&&options.value.toolCalls){"Memory read permission was revoked."};app.memory.search(query,sessionId).joinToString("\n"){it.text}.ifBlank{"No matching notes."}}) else null,
+    save=if("notes_save" in skillToolIds)({text->
      check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."}
      val proposal=policy.propose("notes.create",text);app.memory.propose(proposal,sessionId)
      val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
-     try{if(approval.await()){check(options.value.memoryWrite){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
-    }
-   ),onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
-  app.local.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
+     try{if(approval.await()){requireSkillTool("notes_save");check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
+    }) else null,
+    securityQuery=if("security_query" in skillToolIds)({argument->
+     requireSkillTool("security_query")
+     check("security.query" in manifest.allowedTools){"Security inspection is not allowed by this role."}
+     ai.petologic.skills.security.android.SecurityFacade.query(app,argument)
+    }) else null,
+    securityScan=if("security_scan" in skillToolIds)({argument->
+     requireSkillTool("security_scan")
+     check("security.scan" in manifest.allowedTools){"Security scanning is not allowed by this role."}
+     ai.petologic.skills.security.android.SecurityFacade.scan(app,argument)
+    }) else null,
+    securityAction=if("security_action" in skillToolIds)({argument->
+     requireSkillTool("security_action")
+     check("security.action" in manifest.allowedTools){"Security actions are not allowed by this role."}
+     val bound=ai.petologic.skills.security.android.SecurityFacade.prepareAction(app,argument)
+     val proposal=policy.propose("security.action",bound);app.memory.propose(proposal,sessionId)
+     val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
+     try{
+      if(approval.await())app.memory.executeApprovedAction(proposal,proposal.argumentHash,sessionId,
+       authorize={
+        check(options.value.toolCalls&&"security.action" in manifest.allowedTools){"Security permission was revoked."}
+        val definition=ai.petologic.skills.security.SecuritySkill.definition
+        check(ai.petologic.paladino.skills.SkillRegistry.states(app)[definition.id]!=ai.petologic.paladino.skills.SkillState.OFF &&
+         ai.petologic.paladino.skills.SkillRegistry.toolEnabled(app,definition,definition.tools.single{it.id=="security_action"})){"Security tool was disabled."}
+        ai.petologic.skills.security.android.SecurityFacade.validateAction(app,bound)
+       },dispatch={ai.petologic.skills.security.android.SecurityFacade.executeBoundAction(app,bound)})
+      else{app.memory.cancel(proposal.id);"User declined. Nothing was opened or changed."}
+     }finally{toolApproval=null;ui.update{it.copy(action=null)}}
+    }) else null,
+    notificationQuery=if("notification_query" in skillToolIds)({argument->
+     requireSkillTool("notification_query")
+     check("security.query" in manifest.allowedTools){"Notification reading is not allowed by this role."}
+     ai.petologic.skills.security.android.SecurityFacade.query(app,if(argument.startsWith("notifications"))argument else "notifications | $argument")
+    }) else null,
+    deviceQuery=if("device_query" in skillToolIds)({argument->
+     check("device.query" in manifest.allowedTools){"Device status is not allowed by this role."}
+     ai.petologic.paladino.skills.DeviceStatusReader.query(app,argument)
+    }) else null
+   ),skillStubs=skillStubs,onEvent={type,detail->log(type,detail)}){text->ui.update{it.copy(streaming=text)}}
+  app.inference.metrics.value?.takeIf{mode==ExecutionMode.TINY}?.let{log("inference","model=${it.modelId}; prompt=${it.promptTokens}; output=${it.outputTokens}; context=${it.contextTokens}; loadMs=${it.loadMs}; decodeUs=${it.decodeMicros}; peakPssKb=${it.peakSampledPssKb}")}
   answer(result,mode)
+  maybeAutoTitle(context.user)
+ }
+
+ /** Sub-agent job: name the conversation once, using the small model when downloaded (else 350M). */
+ private suspend fun maybeAutoTitle(firstUser:String){
+  val current=sessionInfo.value
+  if(current.title!="First conversation"&&!Regex("Conversation [0-9]+").matches(current.title))return
+  if(ui.value.busy||current.modelId !in app.modelLibrary.installed.value)return
+  val history=app.memory.dao.recentMessages(sessionId)
+  val user=history.lastOrNull{it.speaker=="user"}?.text?:firstUser
+  val assistant=history.lastOrNull{it.speaker=="assistant"}?.text?:""
+  val proposed=runCatching{
+   ai.petologic.paladino.runtime.SubAgent.worker(app.inference,
+    ai.petologic.paladino.runtime.SubAgent.modelId(app.modelLibrary.installed.value),
+    "You name short chat titles. Reply with the title only: no quotes, no ending punctuation.",
+    "First message: $user\n\nPaladino's reply: $assistant\n\nA 3-6 word title:")
+  }.getOrNull()?.trim()?.trim('.')?.take(60)?:return
+  if(proposed.isBlank())return
+  val row=current.copy(title=proposed)
+  app.memory.dao.session(row);sessionInfo.value=row;log("subagent","session titled")
  }
  private suspend fun answer(text:String,mode:ExecutionMode){log("response","${text.length} characters; ${mode.name}");app.memory.dao.message(MessageRow(UUID.randomUUID().toString(),"assistant",text,mode.name,sessionId=sessionId));ui.update{it.copy(status="At your side.",streaming="")}}
  fun approveCloud(){

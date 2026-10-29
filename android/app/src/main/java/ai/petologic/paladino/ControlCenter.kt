@@ -63,6 +63,20 @@ import ai.petologic.core.*
    "Tools"->{
     PermissionSwitch("Tool calling",options.toolCalls){vm.updateOptions(options.copy(toolCalls=it))}
     Text(tr("Available: search private notes, propose a note, delete a selected note. Every write requires approval. Model tool loops run in Tiny; Maxx is text-only in this preview."))
+    val context=androidx.compose.ui.platform.LocalContext.current
+    Text(tr("Tools skills can register"),fontSize=20.sp)
+    ai.petologic.paladino.skills.SkillRegistry.definitions.forEach{skill->
+     val state=ai.petologic.paladino.skills.SkillRegistry.states(context)[skill.id]?:ai.petologic.paladino.skills.SkillState.OFF
+     Card(Modifier.fillMaxWidth()){Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(6.dp)){
+      Text(tr(skill.name),fontWeight=FontWeight.Bold)
+      skill.tools.forEach{spec->Text("· "+tr(spec.label),fontSize=13.sp)}
+      Text(tr(when(state){
+       ai.petologic.paladino.skills.SkillState.OFF->"Never registered"
+       ai.petologic.paladino.skills.SkillState.AUTO->"Activates automatically when a message matches"
+       ai.petologic.paladino.skills.SkillState.PINNED->"Always available in Tiny sessions"
+      }),fontSize=12.sp,color=Muted)
+     }}
+    }
     Text(tr("Maximum %1\$s tools across %2\$s model turns. Identical tool calls are stopped.",options.maxToolCalls,options.maxHops),color=Muted)
    }
    "Permissions"->{
@@ -71,7 +85,7 @@ import ai.petologic.core.*
     PermissionSwitch("Read memory",options.memoryRead){vm.updateOptions(options.copy(memoryRead=it))}
     PermissionSwitch("Write memory after approval",options.memoryWrite){vm.updateOptions(options.copy(memoryWrite=it))}
     PermissionSwitch("Use tools",options.toolCalls){vm.updateOptions(options.copy(toolCalls=it))}
-    Text(tr("Model setup uses the files/folder you select in Settings. The agent cannot browse those files. No camera, microphone, contacts, calendar, location, accessibility or overlay access is requested."),color=Muted)
+    Text(tr("Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android's picker or share sheet. No camera or silent screen capture is used."),color=Muted)
     Text(tr("Background execution is not enabled in this build. Leaving the app stops active requests. Android may end the process; saved conversations remain available."),color=Muted)
    }
    "Rules & instructions"->{
@@ -80,13 +94,67 @@ import ai.petologic.core.*
     Button(onClick={vm.updateOptions(options.copy(instructions=instructions))}){Text(tr("Save instructions"))}
     Text(tr("Private notes and Tiny history are excluded from Maxx. Unsupported tool calls cannot grant access."),color=Muted)
    }
-   "Skills & MCPs"->Text(tr("External skills and MCP servers are not connected in this preview. The bundled Paladino manifest allows only the implemented note tools. Future packages must declare their tools and permissions before activation."))
-   "Integrations"->Text(tr("OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default."))
+   "Skills & MCPs"->SkillsAndMcpSection()
+   "Integrations"->Text(tr("OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned."))
   }
  }
 }
 @Composable private fun PermissionSwitch(label:String,checked:Boolean,onChange:(Boolean)->Unit){
  Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(tr(label),Modifier.weight(1f).padding(top=14.dp));Switch(checked,onChange)}
+}
+private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(state){
+ ai.petologic.paladino.skills.SkillState.OFF->"Off"
+ ai.petologic.paladino.skills.SkillState.AUTO->"Auto"
+ ai.petologic.paladino.skills.SkillState.PINNED->"Always"
+}
+/** Skills live in Orchestration: OFF removes everything, AUTO wakes per message, PINNED is always on. */
+@Composable private fun SkillsAndMcpSection(){
+ val context=androidx.compose.ui.platform.LocalContext.current
+ var revision by remember{mutableIntStateOf(0)}
+ var openSkillId by rememberSaveable{mutableStateOf("")}
+ val open=ai.petologic.paladino.skills.SkillRegistry.definitions.firstOrNull{it.id==openSkillId}
+ if(open!=null){
+  TextButton(onClick={openSkillId=""}){Text(tr("← All skills"))}
+  key(revision){
+   val state=ai.petologic.paladino.skills.SkillRegistry.states(context)[open.id]?:ai.petologic.paladino.skills.SkillState.OFF
+   Text(tr(open.name),fontSize=20.sp,fontWeight=FontWeight.Bold)
+   Text(tr(open.description),color=Muted)
+   Row(horizontalArrangement=Arrangement.spacedBy(4.dp)){
+    listOf(ai.petologic.paladino.skills.SkillState.OFF,ai.petologic.paladino.skills.SkillState.AUTO,ai.petologic.paladino.skills.SkillState.PINNED).forEach{value->
+     FilterChip(selected=state==value,onClick={ai.petologic.paladino.skills.SkillRegistry.setSkillState(context,open.id,value);revision++},label={Text(tr(skillStateLabel(value)),fontSize=11.sp)})
+    }
+   }
+   if(state!=ai.petologic.paladino.skills.SkillState.OFF){
+    val toolStates=open.tools.map{it to ai.petologic.paladino.skills.SkillRegistry.toolEnabled(context,open,it)}
+    for((spec,enabled) in toolStates){
+     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){
+      Column(Modifier.weight(1f)){
+       Text("· "+tr(spec.label),style=MaterialTheme.typography.bodyMedium)
+       spec.androidPermission?.let{perm->
+        val granted=ai.petologic.paladino.skills.SkillRegistry.capabilityGranted(context,perm)
+        Text(tr(if(granted)"Granted" else "Not granted"),fontSize=12.sp,color=if(granted)Gold else Muted)
+       }
+      }
+      Switch(checked=enabled,onCheckedChange={on->ai.petologic.paladino.skills.SkillRegistry.setToolEnabled(context,open.id,spec.id,on);revision++})
+     }
+    }
+    val enabledCount=toolStates.count{it.second}
+    Text(tr("Idle ~0 tokens · active ~%1\$s tokens · %2\$s tools exposed",(open.promptStub.length/4+enabledCount*15).toString(),enabledCount.toString()),style=MaterialTheme.typography.bodySmall,color=Gold)
+   }
+  }
+ }else{
+  Text(tr("Skills teach Paladino what it can do. Auto wakes a skill only when a message needs it."),color=Muted)
+  key(revision){
+   ai.petologic.paladino.skills.SkillRegistry.definitions.forEach{skill->
+    val state=ai.petologic.paladino.skills.SkillRegistry.states(context)[skill.id]?:ai.petologic.paladino.skills.SkillState.OFF
+    OutlinedCard(onClick={openSkillId=skill.id},modifier=Modifier.fillMaxWidth()){Row(Modifier.padding(20.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){
+     Column(Modifier.weight(1f)){Text(tr(skill.name),style=MaterialTheme.typography.titleMedium);Text(tr(skill.description),fontSize=12.sp,color=Muted,modifier=Modifier.padding(top=4.dp))}
+     Text(tr(skillStateLabel(state)),fontSize=12.sp,color=Gold);Text("›",color=Gold,fontSize=24.sp)
+    }}
+   }
+  }
+ }
+ Text(tr("External skills and MCP servers are not connected in this preview. The bundled Paladino manifest allows only the implemented note tools. Future packages must declare their tools and permissions before activation."),color=Muted)
 }
 @Composable fun ConsoleScreen(vm:PaladinoViewModel){
  val events by vm.events.collectAsStateWithLifecycle()
@@ -116,10 +184,11 @@ import ai.petologic.core.*
   Text(tr("Reuse copies the verified file into Paladino’s storage; it avoids another network download."),fontSize=12.sp,color=Muted)
   Row{TextButton(onClick={filePicker.launch(arrayOf("*/*"))},enabled=progress==null){Text(tr("Use existing file"))};TextButton(onClick={folderPicker.launch(null)},enabled=progress==null){Text(tr("Choose folder"))}}
   Text(tr(status),fontSize=12.sp,color=Gold)
-  ModelCatalog.artifacts.filter{it.id!="minilm"}.forEach{artifact->
+  ModelCatalog.selectable().forEach{artifact->
    HorizontalDivider()
    Text(artifact.model+" · "+artifact.quantization,fontWeight=FontWeight.Bold)
-   Text(tr("${artifact.size/1_000_000} MB"+(if(artifact.id!="lfm350")tr(" · experimental; phone validation pending") else tr(" · baseline"))),fontSize=12.sp,color=Muted)
+   val suffix=if(artifact.id==ModelCatalog.SPEAKER_ID)"%1\$s MB · primary local speaker" else "%1\$s MB · optional LFM3 text speaker"
+   Text(tr(suffix,(artifact.size/1_000_000).toString()),fontSize=12.sp,color=Muted)
    if(artifact.id in installed)OutlinedButton(onClick={vm.selectModel(artifact.id)},enabled=!state.busy&&session.modelId!=artifact.id){Text(tr(if(session.modelId==artifact.id)"Selected for this session" else "Use in this session"))}
    else OutlinedButton(onClick={vm.downloadModel(artifact.id)},enabled=progress==null){Text(tr("Download %1\$s %2\$s",artifact.model,artifact.quantization))}
   }

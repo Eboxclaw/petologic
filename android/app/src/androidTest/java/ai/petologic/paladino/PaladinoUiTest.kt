@@ -11,6 +11,7 @@ import org.junit.runner.RunWith
 class PaladinoUiTest {
  @get:Rule val compose=createAndroidComposeRule<MainActivity>()
  @Before fun start_with_a_clean_conversation(){
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Conversations").performClick()
   compose.onNodeWithText("New conversation").performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("How can I help?").fetchSemanticsNodes().isNotEmpty()}
@@ -22,7 +23,8 @@ class PaladinoUiTest {
   compose.waitUntil(10000){compose.onAllNodesWithText("Keep this in memory?").fetchSemanticsNodes().isNotEmpty()}
   compose.onNodeWithText("Save note").performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("Saved to your private memory.").fetchSemanticsNodes().isNotEmpty()}
-  compose.onNodeWithText("Controls",useUnmergedTree=true).performClick()
+  compose.onNodeWithText("Settings",useUnmergedTree=true).performClick()
+  compose.onNodeWithText("Controls and permissions").performClick()
   compose.onNodeWithText("Memory").performClick()
   compose.onNodeWithText(note).assertIsDisplayed()
   compose.onNodeWithTag("delete:"+note).performScrollTo().performClick()
@@ -31,7 +33,7 @@ class PaladinoUiTest {
  }
  @Test fun settings_has_real_model_setup_and_provider_fields(){
   compose.onNodeWithText("Settings",useUnmergedTree=true).performClick()
-  compose.onNodeWithText("Sprite & Widget").assertIsDisplayed()
+  compose.onNodeWithText("Sprite & Widget").performScrollTo().assertIsDisplayed()
   compose.onNodeWithText("Model library").performScrollTo().assertIsDisplayed()
   compose.onNodeWithText("Maxx · a little extra reach").performScrollTo().assertIsDisplayed()
  }
@@ -53,7 +55,7 @@ class PaladinoUiTest {
  @Test fun sprite_chat_is_saved_in_the_app_conversation(){
   compose.onNodeWithText("Settings",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Quick actions").performClick()
-  compose.onNodeWithText("Message Paladino").performClick()
+  compose.onNodeWithText("Ask Paladino").performClick()
   val request="Find bubblefixture${System.currentTimeMillis()}"
   compose.onNode(hasText("New conversation") and hasAnyAncestor(isDialog())).performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("I’m here. What would you like to do?").fetchSemanticsNodes().isNotEmpty()}

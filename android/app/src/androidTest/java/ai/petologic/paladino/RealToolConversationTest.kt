@@ -21,10 +21,11 @@ class RealToolConversationTest {
   runBlocking{app.ready.await();app.local.verify();if(!app.local.ready.value)app.local.install()}
   assertTrue(app.local.ready.value)
   val evidence=java.io.File(app.filesDir,"real-tool-conversation.txt")
-  evidence.writeText("LFM2.5-350M Q4_K_M; real UI; fresh sessions; no cloud.\n")
+  evidence.writeText("LFM2.5-VL-450M Q4_0; real UI; fresh sessions; no cloud.\n")
   val toolResults=mutableListOf<Pair<String,String>>()
   app.agent.responseObserver={evidence.appendText("\nRAW MODEL: $it\n")}
   app.agent.toolResultObserver={name,result->toolResults+=name to result;evidence.appendText("\nACTUAL TOOL RESULT $name: $result\n")}
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   fun fresh():String{
    compose.onNodeWithContentDescription("Conversations").performClick()
    compose.onNodeWithText("New conversation").performClick()

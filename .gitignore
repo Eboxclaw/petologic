@@ -42,3 +42,6 @@ android/app/src/main/cpp/vendor/
 *.onnx
 *.jks
 *.keystore
+
+# Release signing secrets
+android/keystore/*.pass

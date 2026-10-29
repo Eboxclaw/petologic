@@ -1,6 +1,7 @@
 # 0xPaladino v1 — Android implementation plan
 
 > Updated scope: see [the reviewed App/Chat/Sprite control-plane plan](../reviews/2026-09-06-control-plane-review.md). That review supersedes this original plan where later session, model-experiment and UX decisions differ.
+> The active security product and local-model roles are defined by [Plan 17](17-paladino-mobile-security-product.md) and [ADR-0003](../adr/0003-vl450-speaking-and-vision.md). Model names below preserve the original proposal.
 
 
 Status: reviewed implementation proposal; no application has been built or benchmarked by this planning task.
