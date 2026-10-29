@@ -1,6 +1,7 @@
 package ai.petologic.paladino.runtime
 
 import ai.petologic.core.ModelCatalog
+import ai.petologic.core.ModelKind
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -9,26 +10,32 @@ class ModelCatalogTest {
   assertEquals(ModelCatalog.artifacts.size,ModelCatalog.artifacts.map{it.id}.distinct().size)
   assertEquals(ModelCatalog.artifacts.size,ModelCatalog.artifacts.map{it.filename}.distinct().size)
  }
- @Test fun main_brain_is_the_qad_quant(){
-  val lfm350=ModelCatalog.get("lfm350")
-  assertEquals("QAD-Q4_0",lfm350.quantization)
-  assertEquals("LFM2.5-350M-QAD-Q4_0.gguf",lfm350.filename)
-  assertEquals(219312832L,lfm350.size)
+ @Test fun main_brain_is_the_vl_quant(){
+  val speaker=ModelCatalog.get(ModelCatalog.SPEAKER_ID)
+  assertEquals("Q4_0",speaker.quantization)
+  assertEquals("LFM2.5-VL-450M-Q4_0.gguf",speaker.filename)
+  assertEquals(219311264L,speaker.size)
  }
- @Test fun qad_swap_covers_every_generative_family(){
-  // 350M main, 2.6B big, 230M sub-agent: all QAD; VL has no QAD quant (stays Q4_0, vision pending).
-  assertEquals("QAD-Q4_0",ModelCatalog.get("lfm26-qad").quantization)
-  assertEquals("QAD-Q4_0",ModelCatalog.get("lfm230-qad").quantization)
-  assertTrue(ModelCatalog.get("lfm25vl-450m").visionPending)
-  assertTrue(ModelCatalog.get("lfm25vl-450m-mmproj").visionPending)
+ @Test fun local_catalog_has_one_speaker_and_one_vector_model(){
+  assertEquals(3,ModelCatalog.artifacts.size)
+  assertEquals(ModelKind.VISION_PROJECTOR,ModelCatalog.get(ModelCatalog.VISION_PROJECTOR_ID).kind)
+  val vectors=ModelCatalog.get(ModelCatalog.EMBEDDING_ID)
+  assertEquals(ModelKind.EMBEDDING,vectors.kind)
+  assertEquals("Q4_K_M",vectors.quantization)
+  assertEquals(229311232L,vectors.size)
  }
- @Test fun selectable_excludes_encoder_and_vision(){
+ @Test fun selectable_contains_only_the_speaking_model(){
   val ids=ModelCatalog.selectable().map{it.id}
-  assertEquals(listOf("lfm350","lfm26-qad","lfm230-qad"),ids)
+  assertEquals(listOf(ModelCatalog.SPEAKER_ID),ids)
  }
- @Test fun sub_agent_fallback_and_import_match_still_resolve(){
-  assertEquals("lfm230-qad",SubAgent.modelId(setOf("lfm230-qad","lfm350")))
-  assertEquals("lfm350",SubAgent.modelId(emptySet()))
-  assertNotNull(ModelCatalog.match(149081056,"e75f83268de11b2a1bcfab5f3b5c5c0c97569ddbbc0990aad88437e45b8ba292"))
+ @Test fun vector_import_match_resolves(){
+  assertEquals(ModelCatalog.SPEAKER_ID,SubAgent.modelId(emptySet()))
+  assertEquals(ModelCatalog.EMBEDDING_ID,ModelCatalog.match(229311232,"4d7aa9dc6406a10fc3dec2c11f8f06781af063bf49211b8e4132e9b876d3f32a")?.id)
+ }
+ @Test fun projector_is_optional_and_not_selectable(){
+  val projector=ModelCatalog.get(ModelCatalog.VISION_PROJECTOR_ID)
+  assertEquals(102815168L,projector.size)
+  assertEquals(listOf(projector),ModelCatalog.optionalComponents())
+  assertFalse(ModelCatalog.selectable().contains(projector))
  }
 }

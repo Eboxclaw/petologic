@@ -1,6 +1,7 @@
 package ai.petologic.paladino
 
 import ai.petologic.core.SessionOptions
+import ai.petologic.core.ModelCatalog
 import ai.petologic.paladino.inference.LocalGenerationRequest
 import ai.petologic.paladino.runtime.LfmToolCallParser
 import android.util.Log
@@ -69,7 +70,7 @@ class ToolCallBenchmarkTest{
   val app=InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as PaladinoApplication
   app.local.verify()
   val backend=app.inference
-  val engine=BuildConfig.FLAVOR
+  val engine=app.inference.javaClass.simpleName
   val options=SessionOptions(contextTokens=2048,outputTokens=160,hopTimeoutSeconds=60,totalTimeoutSeconds=120)
   val results=JSONArray()
   for(protocol in listOf("json","native")){
@@ -80,7 +81,7 @@ class ToolCallBenchmarkTest{
     val begin=System.currentTimeMillis()
     val reply=withTimeout(120_000L){
      var reasoning=""
-     val answer=backend.generate(LocalGenerationRequest(system,f.user,"lfm350",options)){}
+     val answer=backend.generate(LocalGenerationRequest(system,f.user,ModelCatalog.SPEAKER_ID,options)){}
      // Note: onText only sees content chunks; LEAP may emit separate reasoning chunks.
      answer
     }

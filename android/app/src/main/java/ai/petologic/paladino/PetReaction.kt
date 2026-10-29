@@ -22,5 +22,8 @@ fun PaladinoUiState.petReaction() = petReaction(busy, action != null || cloud !=
 /** The idle pair chains two clips (one + two cycles, see [IdleCycle]) for a continuous loop. */
 val idlePair: Pair<Int, Int> = R.raw.paladino_idle1 to R.raw.paladino_idle2
 
-/** Missing reaction assets deliberately fall back to the idle pair. */
-fun PetReaction.animationResource(): Int = if (this == PetReaction.RUNNING) R.raw.paladino_thinking else R.raw.paladino_idle1
+/**
+ * All rendered Sprite assets must have a transparent canvas. The current thinking clip contains an
+ * opaque black background, so working state temporarily uses the transparent idle animation.
+ */
+fun PetReaction.animationResource(): Int = R.raw.paladino_idle1

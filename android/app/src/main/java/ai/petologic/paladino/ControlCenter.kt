@@ -85,7 +85,7 @@ import ai.petologic.core.*
     PermissionSwitch("Read memory",options.memoryRead){vm.updateOptions(options.copy(memoryRead=it))}
     PermissionSwitch("Write memory after approval",options.memoryWrite){vm.updateOptions(options.copy(memoryWrite=it))}
     PermissionSwitch("Use tools",options.toolCalls){vm.updateOptions(options.copy(toolCalls=it))}
-    Text(tr("Model setup uses the files/folder you select in Settings. The agent cannot browse those files. No camera, microphone, contacts, calendar, location, accessibility or overlay access is requested."),color=Muted)
+    Text(tr("Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android's picker or share sheet. No camera or silent screen capture is used."),color=Muted)
     Text(tr("Background execution is not enabled in this build. Leaving the app stops active requests. Android may end the process; saved conversations remain available."),color=Muted)
    }
    "Rules & instructions"->{
@@ -95,7 +95,7 @@ import ai.petologic.core.*
     Text(tr("Private notes and Tiny history are excluded from Maxx. Unsupported tool calls cannot grant access."),color=Muted)
    }
    "Skills & MCPs"->SkillsAndMcpSection()
-   "Integrations"->Text(tr("OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Web search, other app integrations, vision and Google/Pixel companion accelerators are planned, with no access granted by default."))
+   "Integrations"->Text(tr("OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned."))
   }
  }
 }
@@ -187,7 +187,7 @@ private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(
   ModelCatalog.selectable().forEach{artifact->
    HorizontalDivider()
    Text(artifact.model+" · "+artifact.quantization,fontWeight=FontWeight.Bold)
-   Text(tr("${artifact.size/1_000_000} MB"+(if(artifact.id!="lfm350")tr(" · experimental; phone validation pending") else tr(" · baseline"))),fontSize=12.sp,color=Muted)
+   Text(tr("%1\$s MB · primary local speaker",(artifact.size/1_000_000).toString()),fontSize=12.sp,color=Muted)
    if(artifact.id in installed)OutlinedButton(onClick={vm.selectModel(artifact.id)},enabled=!state.busy&&session.modelId!=artifact.id){Text(tr(if(session.modelId==artifact.id)"Selected for this session" else "Use in this session"))}
    else OutlinedButton(onClick={vm.downloadModel(artifact.id)},enabled=progress==null){Text(tr("Download %1\$s %2\$s",artifact.model,artifact.quantization))}
   }

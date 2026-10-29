@@ -17,7 +17,8 @@ fun parseSecurityCommand(argument:String):SecurityCommand{
  val subject=parts[0].lowercase()
  val payload=parts.getOrNull(1)?:""
  return when(subject){
-  "device_status","vpn_status","notification_access","call_screening_status"->SecurityCommand("query",subject,"")
+  "device_status","vpn_status","notification_access","call_screening_status","protection","findings"->SecurityCommand("query",subject,"")
+  "finding"->SecurityCommand("query","finding",payload.also{require(runCatching{java.util.UUID.fromString(it)}.isSuccess){"Provide the recorded finding id."}})
   "notifications"->SecurityCommand("query","notifications",payload.also{require(it.isNotBlank()){"Use notifications | all or notifications | package.name"}})
   "app"->SecurityCommand("query","app",payload.also{require(it.isNotBlank()){"Name the app package, e.g. app | com.example"} })
   "apps"->SecurityCommand("query","apps",payload.also{require(it=="suspicious"){"Supported: apps | suspicious"}})

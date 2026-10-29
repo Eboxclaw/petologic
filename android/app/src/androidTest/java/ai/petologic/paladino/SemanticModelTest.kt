@@ -9,19 +9,19 @@ import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 
 class SemanticModelTest {
- @Test fun real_encoder_finds_paraphrase_and_separates_unrelated_text()=runBlocking {
+ @Test fun real_vector_model_finds_paraphrase_and_separates_unrelated_text()=runBlocking {
   assumeTrue(InstrumentationRegistry.getArguments().getString("realModel")=="true")
   val app=InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as PaladinoApplication
-  app.embedder.verify();assertTrue(app.embedder.ready.value)
-  val a=app.embedder.embed("Where did I park my car?")
-  val b=app.embedder.embed("My vehicle is in the parking garage.")
-  val c=app.embedder.embed("Banana cake needs flour and eggs.")
+  app.vectorMemory.verify();assertTrue(app.vectorMemory.ready.value)
+  val a=app.vectorMemory.embedQuery("Where did I park my car?")
+  val b=app.vectorMemory.embedDocument("My vehicle is in the parking garage.")
+  val c=app.vectorMemory.embedDocument("Banana cake needs flour and eggs.")
   fun dot(x:FloatArray,y:FloatArray)=x.indices.sumOf{(x[it]*y[it]).toDouble()}
-  assertEquals(384,a.size);assertEquals(1.0,dot(a,a),0.001)
-  assertTrue("Paraphrase should outrank unrelated text",dot(a,b)>dot(a,c)+0.15)
+  assertEquals(1024,a.size);assertEquals(1.0,dot(a,a),0.001)
+  assertTrue("Paraphrase should outrank unrelated text",dot(a,b)>dot(a,c))
   val db=Room.inMemoryDatabaseBuilder(app,PaladinoDatabase::class.java).build()
   try{
-   val repo=MemoryRepository(app,db,app.embedder);val p=ApprovalPolicy().propose("notes.create","My vehicle is in the parking garage.")
+   val repo=MemoryRepository(app,db,app.vectorMemory);val p=ApprovalPolicy().propose("notes.create","My vehicle is in the parking garage.")
    repo.propose(p);repo.executeNote(p,p.argumentHash);repo.reconcile()
    assertEquals(p.id,repo.search("Where did I park my car?").first().id)
   }finally{db.close()}

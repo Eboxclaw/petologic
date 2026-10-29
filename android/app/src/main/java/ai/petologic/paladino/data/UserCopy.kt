@@ -120,6 +120,8 @@ object UserCopy {
  /** Closes [database] and erases everything app-private. The caller must restart the process. */
  fun wipe(context:Context,database:PaladinoDatabase,dbName:String){
   database.close()
+  (context.applicationContext as? ai.petologic.paladino.PaladinoApplication)?.guard?.db?.close()
+  context.noBackupFilesDir.deleteRecursively()
   context.getDatabasePath(dbName).parentFile?.deleteRecursively()
   context.filesDir.deleteRecursively()
   context.cacheDir.deleteRecursively()

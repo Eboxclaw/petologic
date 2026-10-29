@@ -15,6 +15,7 @@ class VisualNavigationTest {
   val app=compose.activity.application as PaladinoApplication
   val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
   val previous=app.sessionHub.active.value.sessionId
+  compose.onNodeWithContentDescription("Ask",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("New conversation").performClick()
   compose.waitUntil(10000){app.sessionHub.active.value.sessionId!=previous}
   compose.onNodeWithText("How can I help?").assertIsDisplayed()

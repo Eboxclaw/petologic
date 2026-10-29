@@ -2,3 +2,5 @@ pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal()
 dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
 rootProject.name = "Paladino"
 include(":app", ":core")
+
+include(":security-core", ":security-scanner", ":security-benchmark")

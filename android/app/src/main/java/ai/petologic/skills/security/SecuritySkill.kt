@@ -11,9 +11,9 @@ object SecuritySkill {
   id=ID,
   name="Security Guard",
   description="Spam, phishing, app and device security checks.",
-  routerTerms=listOf("spam","scam","phishing","phish","malware","virus","suspicious","suspicious link","suspicious app","suspicious message","phone security","call blocking","is this app safe","safe link","seems fishy"),
+  routerTerms=listOf("segurança","seguranca","vírus","suspeito","burla","spam","scam","phishing","phish","malware","virus","suspicious","suspicious link","suspicious app","suspicious message","phone security","call blocking","is this app safe","safe link","seems fishy"),
   promptStub="SECURITY GUARD\n"+
-   "Use security_query for inspection.\n"+
+   "Use security_query for inspection: protection, findings, or finding | UUID read recorded evidence. They do not run a new scan.\n"+
    "Use security_scan for analysis.\n"+
    "Use security_action only for approved actions.\n"+
    "Never claim malware is confirmed from heuristics alone.\n"+

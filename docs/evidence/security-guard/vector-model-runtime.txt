@@ -1,0 +1,7 @@
+Artifact: LFM2.5-Embedding-350M-Q4_K_M.gguf
+Size: 229311232 bytes
+SHA-256: 4d7aa9dc6406a10fc3dec2c11f8f06781af063bf49211b8e4132e9b876d3f32a
+Runtime: pinned llama.cpp JNI on Android API 35 ARM64 emulator
+Result: SemanticModelTest passed in 1.176 seconds.
+Assertions: output has 1024 dimensions; self-dot is normalized to 1.0; vehicle/parking paraphrase ranks above unrelated banana-cake text; MemoryRepository returns the paraphrased note.
+Boundary: this validates runtime wiring and a synthetic retrieval example, not security-dataset efficacy or physical-device performance.

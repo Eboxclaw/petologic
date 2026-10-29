@@ -53,14 +53,22 @@
  <string name="ui_5b8027fa0e81" formatted="false">"Got it"</string>
  <string name="ui_9d0925abf762" formatted="false">"Appearance, models and connections."</string>
  <string name="ui_836a00b5935e" formatted="false">"Tiny · your local brain"</string>
- <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-350M lives on your phone. Download once, then chat offline. Files are verified before installation."</string>
+ <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-VL-450M lives on your phone. It handles short security chat and powers optional visual inspection. Files are verified before installation."</string>
  <string name="ui_dac6c3970c50" formatted="false">"Ready for offline use"</string>
  <string name="ui_c177e4b0aa9f" formatted="false">"Downloading…"</string>
  <string name="ui_494d36125a4f" formatted="false">"Download · 229 MB"</string>
+ <string name="ui_vision_download">Download · 219 MB</string>
+ <string name="ui_vision_optional">Optional local vision</string>
+ <string name="ui_vision_description">The 103 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions.</string>
+ <string name="ui_vision_ready">Vision pack ready</string>
+ <string name="ui_vision_setup">Set up vision · 103 MB</string>
+ <string name="ui_vision_permission">Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android\'s picker or share sheet. No camera or silent screen capture is used.</string>
+ <string name="ui_vision_integrations">OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned.</string>
+ <string name="ui_primary_speaker_suffix">%1$s MB · primary local speaker</string>
  <string name="ui_7dc800e503d4" formatted="false">"Memory that understands meaning"</string>
- <string name="ui_7c6b4831b8e2" formatted="false">"A small, separate encoder helps find notes by paraphrase. English preview · latest 200 notes. Keyword search works without it."</string>
- <string name="ui_88fca9cdbc45" formatted="false">"Semantic memory ready"</string>
- <string name="ui_0565331c9859" formatted="false">"Set up semantic memory · 23 MB"</string>
+ <string name="ui_7c6b4831b8e2" formatted="false">"LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."</string>
+ <string name="ui_88fca9cdbc45" formatted="false">"Vector memory ready"</string>
+ <string name="ui_0565331c9859" formatted="false">"Set up vector memory · 229 MB"</string>
  <string name="ui_f127a4feda4a" formatted="false">"Maxx · a little extra reach"</string>
  <string name="ui_63e99bdf7ed7" formatted="false">"Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider."</string>
  <string name="ui_d67c24196774" formatted="false">"API key authentication. Browser sign-in is not connected yet."</string>
@@ -231,6 +239,7 @@
  <string name="ui_16213f85d7a6" formatted="false">"App updates"</string>
  <string name="ui_162b3bbe2c36" formatted="false">"Updates are manual. Open the official downloads page and install the newer APK over this app. Keep your conversations and models: do not uninstall first."</string>
  <string name="ui_d577f783cff4" formatted="false">"Update app"</string>
+ <string name="ui_open_official_downloads" formatted="false">"Open official downloads"</string>
  <string name="ui_59beff1d59a4" formatted="false">"Opens GitHub in your browser. Android asks you to confirm installation."</string>
  <string name="ui_7a974c4277a0" formatted="false">"Paladino is ready"</string>
  <string name="ui_1f71dff76e0a" formatted="false">"Give Paladino a local brain"</string>

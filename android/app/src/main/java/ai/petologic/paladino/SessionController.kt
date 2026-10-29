@@ -23,7 +23,10 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  val options=MutableStateFlow(SessionOptions())
  val sessionInfo=MutableStateFlow(SessionRow(sessionId,"Conversation"))
  val events=app.memory.dao.events(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
- private val initialized=scope.async(start=CoroutineStart.LAZY) { app.ready.await();app.memory.dao.session(sessionId)?.let{row->sessionInfo.value=row;options.value=kotlinx.serialization.json.Json.decodeFromString<SessionOptions>(row.optionsJson);ui.update{it.copy(mode=ExecutionMode.valueOf(row.mode))}} }
+ private val initialized=scope.async(start=CoroutineStart.LAZY) { app.ready.await();app.memory.dao.session(sessionId)?.let{stored->
+  val row=if(ModelCatalog.selectable().any{it.id==stored.modelId})stored else stored.copy(modelId=ModelCatalog.SPEAKER_ID).also{app.memory.dao.session(it)}
+  sessionInfo.value=row;options.value=kotlinx.serialization.json.Json.decodeFromString<SessionOptions>(row.optionsJson);ui.update{it.copy(mode=ExecutionMode.valueOf(row.mode))}
+ } }
  private val prefs=app.getSharedPreferences("preferences",Context.MODE_PRIVATE)
  private val policy=ApprovalPolicy()
  private val manifest=PaladinoManifest.parse(app.assets.open("paladino/manifest.yaml").bufferedReader().use{it.readText()})
@@ -38,9 +41,9 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  val modelStatus=app.local.status
  val modelReady=app.local.ready
  val downloadProgress=app.local.progress
- val semanticReady=app.embedder.ready
- val semanticInstalling=app.embedder.installing
- fun installSemantic(){scope.launch{try{app.embedder.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Semantic model setup failed.")}}}}
+ val semanticReady=app.vectorMemory.ready
+ val semanticInstalling=app.vectorMemory.installing
+ fun installSemantic(){scope.launch{try{app.vectorMemory.install()}catch(e:CancellationException){throw e}catch(e:Exception){ui.update{it.copy(error=e.message?:"Vector memory setup failed.")}}}}
  private var toolApproval:CompletableDeferred<Boolean>?=null
  private var task:Job?=null
  fun start(){scope.launch{initialized.await()}}
@@ -121,12 +124,19 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    finally{ui.update{it.copy(busy=false,streaming="")}}
   }
  }
+ private fun requireSkillTool(id:String){
+  check(options.value.toolCalls){"Tool permission was revoked."}
+  val definition=ai.petologic.paladino.skills.SkillRegistry.definitions.single{skill->skill.tools.any{it.id==id}}
+  val tool=definition.tools.single{it.id==id}
+  check(ai.petologic.paladino.skills.SkillRegistry.states(app)[definition.id]!=ai.petologic.paladino.skills.SkillState.OFF && ai.petologic.paladino.skills.SkillRegistry.toolEnabled(app,definition,tool)){"Skill or tool was disabled."}
+  tool.androidPermission?.let{check(ai.petologic.paladino.skills.SkillRegistry.capabilityGranted(app,it)){"Android access was revoked."}}
+ }
  private suspend fun generate(context:ContextEnvelope,mode:ExecutionMode,model:String,consent:CloudConsent?){
   ui.update{it.copy(busy=true,status=if(mode==ExecutionMode.TINY)"Thinking on your phone…" else "Thinking with Maxx…",streaming="")}
   val simpleGreeting=RoutePolicy().isSimpleGreeting(context.user)
   // Skills resolve per turn: OFF/AUTO/PINNED state, per-tool toggles and Android permissions
   // decide here which tools exist for this request; the agent never sees the rest.
-  val activations=if(simpleGreeting)emptyList() else ai.petologic.paladino.skills.SkillRegistry.activationsFor(app,context.user)
+  val activations=if(simpleGreeting||mode==ExecutionMode.MAXX)emptyList() else ai.petologic.paladino.skills.SkillRegistry.activationsFor(app,context.user)
   val skillToolIds=activations.flatMap{it.tools}.map{it.id}.toSet()
   val skillStubs=activations.joinToString("\n"){it.skill.promptStub}
   val result=app.agent.run(context,mode,if(mode==ExecutionMode.TINY)sessionInfo.value.modelId else model,consent,options.value,
@@ -136,26 +146,38 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
      check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."}
      val proposal=policy.propose("notes.create",text);app.memory.propose(proposal,sessionId)
      val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
-     try{if(approval.await()){check(options.value.memoryWrite){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
+     try{if(approval.await()){requireSkillTool("notes_save");check(options.value.memoryWrite&&options.value.toolCalls){"Memory write permission was revoked."};app.memory.executeNote(proposal,proposal.argumentHash,sessionId)}else{app.memory.cancel(proposal.id);"User declined. No note was saved."}}finally{toolApproval=null;ui.update{it.copy(action=null)}}
     }) else null,
     securityQuery=if("security_query" in skillToolIds)({argument->
+     requireSkillTool("security_query")
      check("security.query" in manifest.allowedTools){"Security inspection is not allowed by this role."}
      ai.petologic.skills.security.android.SecurityFacade.query(app,argument)
     }) else null,
     securityScan=if("security_scan" in skillToolIds)({argument->
+     requireSkillTool("security_scan")
      check("security.scan" in manifest.allowedTools){"Security scanning is not allowed by this role."}
      ai.petologic.skills.security.android.SecurityFacade.scan(app,argument)
     }) else null,
     securityAction=if("security_action" in skillToolIds)({argument->
+     requireSkillTool("security_action")
      check("security.action" in manifest.allowedTools){"Security actions are not allowed by this role."}
-     val proposal=policy.propose("security.action",argument);app.memory.propose(proposal,sessionId)
+     val bound=ai.petologic.skills.security.android.SecurityFacade.prepareAction(app,argument)
+     val proposal=policy.propose("security.action",bound);app.memory.propose(proposal,sessionId)
      val approval=CompletableDeferred<Boolean>();toolApproval=approval;ui.update{it.copy(action=proposal,status="Approve this tool action.")}
      try{
-      if(approval.await())ai.petologic.skills.security.android.SecurityFacade.executeAction(app,argument)
+      if(approval.await())app.memory.executeApprovedAction(proposal,proposal.argumentHash,sessionId,
+       authorize={
+        check(options.value.toolCalls&&"security.action" in manifest.allowedTools){"Security permission was revoked."}
+        val definition=ai.petologic.skills.security.SecuritySkill.definition
+        check(ai.petologic.paladino.skills.SkillRegistry.states(app)[definition.id]!=ai.petologic.paladino.skills.SkillState.OFF &&
+         ai.petologic.paladino.skills.SkillRegistry.toolEnabled(app,definition,definition.tools.single{it.id=="security_action"})){"Security tool was disabled."}
+        ai.petologic.skills.security.android.SecurityFacade.validateAction(app,bound)
+       },dispatch={ai.petologic.skills.security.android.SecurityFacade.executeBoundAction(app,bound)})
       else{app.memory.cancel(proposal.id);"User declined. Nothing was opened or changed."}
      }finally{toolApproval=null;ui.update{it.copy(action=null)}}
     }) else null,
     notificationQuery=if("notification_query" in skillToolIds)({argument->
+     requireSkillTool("notification_query")
      check("security.query" in manifest.allowedTools){"Notification reading is not allowed by this role."}
      ai.petologic.skills.security.android.SecurityFacade.query(app,if(argument.startsWith("notifications"))argument else "notifications | $argument")
     }) else null,

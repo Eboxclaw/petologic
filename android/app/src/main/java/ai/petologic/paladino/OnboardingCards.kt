@@ -95,6 +95,7 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
     }
     else->Unit
    }
+   TextButton(onClick={browser.openUri(PublicUpdatesUrl)}){Text(tr("Open official downloads"))}
    Text(tr("Updates install over this app with the same signature; a check needs the internet, the download resumes on its own."),style=MaterialTheme.typography.bodySmall,color=Muted)
   }
  }

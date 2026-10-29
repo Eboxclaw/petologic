@@ -9,6 +9,9 @@
 > measured record. Roadmap from here: (a) GBNF-grammar-constrained tool calls in `paladino.cpp`
 > for the PT-tool-call win on the production engine; (b) plan 15 S2 two-slot native loading is
 > **un-retired** as the multi-model path.
+>
+> **MODEL NOTE 2026-09-21:** The active speaker/vision/vector decision is now
+> [ADR-0003](../adr/0003-vl450-speaking-and-vision.md). Model names below are historical experiment context.
 
 Started 2026-09-12 after the user's external research handover. Principle: **don't migrate to
 LEAP; make LEAP compete.** Koog stays at 1.2.0 (no koog-edge, no downgrade); `paladino.cpp`,

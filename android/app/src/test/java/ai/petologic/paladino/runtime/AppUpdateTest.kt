@@ -43,4 +43,11 @@ class AppUpdateTest{
   assertEquals(64,hash.length)
   assertEquals(hash,AppUpdate.hash(file))
  }
+ @Test fun release_urls_are_https_and_github_owned(){
+  assertTrue(AppUpdate.trustedReleaseUrl("https://github.com/Eboxclaw/petologic-downloads/releases/download/v1/app.apk"))
+  assertTrue(AppUpdate.trustedReleaseUrl("https://api.github.com/repos/Eboxclaw/petologic-downloads/releases"))
+  assertTrue(AppUpdate.trustedReleaseUrl("https://release-assets.githubusercontent.com/file"))
+  assertFalse(AppUpdate.trustedReleaseUrl("http://github.com/file"))
+  assertFalse(AppUpdate.trustedReleaseUrl("https://github.com.example.invalid/file"))
+ }
 }

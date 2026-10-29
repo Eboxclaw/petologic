@@ -87,6 +87,11 @@ object AppUpdate{
   file.inputStream().use{input->val b=ByteArray(65536);while(true){val n=input.read(b);if(n<0)break;md.update(b,0,n)}}
   return md.digest().joinToString(""){"%02x".format(it)}
  }
+
+ fun trustedReleaseUrl(url:String):Boolean=runCatching{
+  val uri=java.net.URI(url);val host=uri.host?.lowercase()
+  uri.scheme=="https"&&(host=="api.github.com"||host=="github.com"||host=="release-assets.githubusercontent.com"||host?.endsWith(".githubusercontent.com")==true)
+ }.getOrDefault(false)
 }
 
 sealed class AppUpdateState{
@@ -123,6 +128,7 @@ class AppUpdater(private val context:Context){
  val canInstall:Boolean get()=context.packageManager.canRequestPackageInstalls()
 
  suspend fun check(force:Boolean=false)=withContext(Dispatchers.IO){
+  check(BuildConfig.SELF_UPDATE_ENABLED){"This distribution uses store-managed updates."}
   val current=state.value
   if(!force&&(current is AppUpdateState.Available||current is AppUpdateState.Ready))return@withContext
   state.value=AppUpdateState.Checking
@@ -136,15 +142,18 @@ class AppUpdater(private val context:Context){
  }
 
  suspend fun download(release:AppUpdate.ReleaseInfo)=withContext(Dispatchers.IO){
+  check(BuildConfig.SELF_UPDATE_ENABLED){"This distribution uses store-managed updates."}
+  check(AppUpdate.trustedReleaseUrl(release.apkUrl)){"The release download URL is not trusted."}
+  val checksumUrl=release.shaUrl?.takeIf(AppUpdate::trustedReleaseUrl)
+   ?:throw IllegalStateException("The release is missing a trusted SHA256SUMS file.")
   val partial=File(directory,"${release.apkName}.partial")
   try{
    progress.value=0f
    downloader.downloadTo(partial,release.apkUrl,release.apkSize,"update ${release.tag}")
    status.value="Verifying update…"
-   val expected=release.shaUrl?.let{AppUpdate.checksumFor(fetchJson(it),release.apkName)}
-   if(expected!=null){
-    check(AppUpdate.hash(partial)==expected){"The downloaded update failed its checksum. Nothing was changed; try again."}
-   }
+   val expected=AppUpdate.checksumFor(fetchJson(checksumUrl),release.apkName)
+    ?:throw IllegalStateException("The release checksum does not name this APK.")
+   check(AppUpdate.hash(partial)==expected){"The downloaded update failed its checksum. Nothing was changed; try again."}
    val final=File(directory,release.apkName)
    check(partial.renameTo(final)){"Could not stage the update file."}
    state.value=AppUpdateState.Ready(release,final)
@@ -157,6 +166,7 @@ class AppUpdater(private val context:Context){
 
  /** The install intent for a verified file; run it from an Activity context. */
  fun installIntent(file:File):Intent{
+  check(BuildConfig.SELF_UPDATE_ENABLED){"This distribution uses store-managed updates."}
   val uri=FileProvider.getUriForFile(context,"${context.packageName}.fileprovider",file)
   return Intent(Intent.ACTION_VIEW).setDataAndType(uri,"application/vnd.android.package-archive")
    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -166,6 +176,7 @@ class AppUpdater(private val context:Context){
  fun permissionIntent():Intent=Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,Uri.parse("package:${context.packageName}"))
 
  private fun fetchJson(url:String):String{
+  check(AppUpdate.trustedReleaseUrl(url)){"The update metadata URL is not trusted."}
   client.newCall(Request.Builder().url(url)
    .header("Accept","application/vnd.github+json")
    .build()).execute().use{response->

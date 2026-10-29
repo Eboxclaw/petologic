@@ -1,0 +1,30 @@
+name: Safe security release benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-release:
+    runs-on: ubuntu-latest
+    environment: security-benchmark
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run encrypted inert corpus without writing plaintext
+        working-directory: android
+        env:
+          SAFE_BENCHMARK_CORPUS_URL: ${{ secrets.SAFE_BENCHMARK_CORPUS_URL }}
+          SAFE_BENCHMARK_CORPUS_SHA256: ${{ secrets.SAFE_BENCHMARK_CORPUS_SHA256 }}
+          SAFE_BENCHMARK_GPG_PASSPHRASE: ${{ secrets.SAFE_BENCHMARK_GPG_PASSPHRASE }}
+        run: scripts/run-safe-security-benchmark.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: safe-security-benchmark-report
+          path: android/security-benchmark/build/reports/security-benchmark-full/**

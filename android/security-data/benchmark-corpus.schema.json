@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/paladino/benchmark-corpus.schema.json",
+  "title": "Paladino inert security benchmark corpus",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profile", "corpusVersion", "sources", "cases"],
+  "properties": {
+    "schema": {"const": 1},
+    "profile": {"enum": ["smoke", "release"]},
+    "corpusVersion": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "license", "purpose"],
+        "properties": {
+          "id": {"type": "string"},
+          "license": {"type": "string"},
+          "purpose": {"type": "string"}
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "suite", "locale", "split", "familyId", "sourceId", "label", "expectedMinVerdict"],
+        "properties": {
+          "id": {"type": "string"},
+          "suite": {"enum": ["HASH", "URL", "MESSAGE", "APP_PROFILE"]},
+          "locale": {"type": "string"},
+          "split": {"enum": ["CALIBRATION", "VALIDATION", "HOLDOUT"]},
+          "familyId": {"type": "string"},
+          "sourceId": {"type": "string"},
+          "label": {"enum": ["BENIGN", "SUSPICIOUS", "CRITICAL"]},
+          "expectedMinVerdict": {"enum": ["LOW", "REVIEW", "HIGH_ATTENTION", "UNKNOWN"]},
+          "input": {"type": ["string", "null"]},
+          "knownSha256": {"type": ["string", "null"]},
+          "appSignals": {"type": ["object", "null"]}
+        }
+      }
+    },
+    "retrievalRecords": {"type": "array"},
+    "retrievalQueries": {"type": "array"}
+  }
+}

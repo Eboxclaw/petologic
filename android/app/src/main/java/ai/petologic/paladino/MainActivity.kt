@@ -34,19 +34,28 @@ import ai.petologic.core.*
 import ai.petologic.paladino.data.NoteRow
 
 class MainActivity:ComponentActivity(){
- private var openChatRequest by mutableIntStateOf(0)
+ private var requestedTab by mutableIntStateOf(0)
+ private var navigationRequest by mutableIntStateOf(0)
  override fun onStop(){super.onStop();if(!isChangingConfigurations)(application as PaladinoApplication).sessionHub.onUiHidden()}
  override fun onNewIntent(intent:android.content.Intent){super.onNewIntent(intent);setIntent(intent);openWidgetSession(intent)}
- private fun openWidgetSession(intent:android.content.Intent){if(intent.getBooleanExtra("open_chat",false)){openChatRequest++;FeedbackPlayer.play(this,ai.petologic.paladino.skills.FeedbackEvent.WIDGET_OPEN)};intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}}
+ private fun openWidgetSession(intent:android.content.Intent){
+  when{
+   intent.getBooleanExtra("open_chat",false)->{requestedTab=1;navigationRequest++;FeedbackPlayer.play(this,ai.petologic.paladino.skills.FeedbackEvent.WIDGET_OPEN)}
+   intent.getStringExtra("destination")=="activity"->{requestedTab=2;navigationRequest++}
+   intent.getStringExtra("destination")=="settings"->{requestedTab=3;navigationRequest++}
+   intent.getStringExtra("destination")=="protection"->{requestedTab=0;navigationRequest++}
+  }
+  intent.getStringExtra("widget_session")?.takeIf{it.isNotBlank()}?.let{(application as PaladinoApplication).sessionHub.openFromWidget(it)}
+ }
  override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);openWidgetSession(intent);enableEdgeToEdge(statusBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),navigationBarStyle=SystemBarStyle.dark(android.graphics.Color.TRANSPARENT));setContent{
   MaterialTheme(colorScheme=PetColors){
-   PaladinoScreen(openChatRequest=openChatRequest)
+   PaladinoScreen(requestedTab=requestedTab,navigationRequest=navigationRequest)
   }
  }}
 }
 
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
-@Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel(),openChatRequest:Int=0){
+@Composable fun PaladinoScreen(vm:PaladinoViewModel=viewModel(),requestedTab:Int=0,navigationRequest:Int=0){
  val petApp=androidx.compose.ui.platform.LocalContext.current.applicationContext as PaladinoApplication
  val feedback=rememberFeedback()
  val petPrefs by petApp.tinyPets.state.collectAsStateWithLifecycle()
@@ -57,7 +66,7 @@ class MainActivity:ComponentActivity(){
  val modelReady by vm.modelReady.collectAsStateWithLifecycle()
  val progress by vm.downloadProgress.collectAsStateWithLifecycle()
  var tab by rememberSaveable{mutableIntStateOf(0)}
- LaunchedEffect(openChatRequest){if(openChatRequest>0)tab=0}
+ LaunchedEffect(navigationRequest){if(navigationRequest>0)tab=requestedTab}
  var wasBusy by remember{mutableStateOf(false)}
  LaunchedEffect(state.busy){
   if(wasBusy&&!state.busy&&state.error==null&&state.action==null&&!messages.isEmpty())feedback.on(ai.petologic.paladino.skills.FeedbackEvent.REPLY_DONE)
@@ -76,14 +85,14 @@ class MainActivity:ComponentActivity(){
  LaunchedEffect(messages.size,state.streaming){if(messages.isNotEmpty())scroll.animateScrollToItem(messages.size-1)}
  ModalNavigationDrawer(drawerState=drawer,drawerContent={ModalDrawerSheet(drawerContainerColor=Ink){
   TextButton(onClick={uiScope.launch{drawer.close()}}){Text(tr("← Back to chat"))}
-  SessionsScreen(vm,onOpen={tab=0;uiScope.launch{drawer.close()}})
+  SessionsScreen(vm,onOpen={tab=1;uiScope.launch{drawer.close()}})
  }}){
  Scaffold(containerColor=Ink,floatingActionButton={
-  if(tab!=0&&petPrefs.visible&&!keyboardOpen&&!modalOpen&&!spriteChat)SpriteQuickActions(petPrefs.animate,petPrefs.sizeDp,
-   onChat={spriteDraft="";spriteChat=true},onRemember={spriteDraft=petApp.uiText("Remember that ");spriteChat=true},onOpen={tab=0})
+  if(tab!=1&&petPrefs.visible&&!keyboardOpen&&!modalOpen&&!spriteChat)SpriteQuickActions(petPrefs.animate,petPrefs.sizeDp,
+   onChat={spriteDraft="";spriteChat=true},onCheck={tab=0},onOpen={tab=0})
  },bottomBar={
   NavigationBar(modifier=Modifier.heightIn(min=104.dp),containerColor=Ink,tonalElevation=0.dp){
-   listOf("Chat" to Icons.Outlined.ChatBubbleOutline,"Controls" to Icons.Outlined.Hub,"Console" to Icons.Outlined.Terminal,"Settings" to Icons.Outlined.Tune).forEachIndexed{i,item->
+   listOf("Protect" to Icons.Outlined.Shield,"Ask" to Icons.Outlined.ChatBubbleOutline,"Activity" to Icons.Outlined.History,"Settings" to Icons.Outlined.Tune).forEachIndexed{i,item->
     NavigationBarItem(selected=tab==i,onClick={tab=i},icon={Icon(item.second,tr(item.first))},label={Text(tr(item.first),maxLines=1,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)},colors=NavigationBarItemDefaults.colors(selectedIconColor=Ink,indicatorColor=Gold,selectedTextColor=Gold,unselectedTextColor=Muted,unselectedIconColor=Muted))
    }
   }
@@ -95,7 +104,7 @@ class MainActivity:ComponentActivity(){
     Spacer(Modifier.weight(1f));Text(tr("EARLY ACCESS"),fontSize=10.sp,letterSpacing=1.sp,color=Muted)
    }
    when(tab){
-    0->{
+    1->{
      Row(Modifier.padding(horizontal=24.dp),verticalAlignment=Alignment.CenterVertically){
       IconButton(onClick={uiScope.launch{drawer.open()}}){Icon(Icons.Outlined.Menu,tr("Conversations"))}
       if(messages.isNotEmpty()&&petPrefs.visible)PaladinoSprite(Modifier.size(64.dp).clickable{feedback.on(ai.petologic.paladino.skills.FeedbackEvent.SPRITE_TAP);spriteDraft="";spriteChat=true},petPrefs.animate,"Open Sprite chat",state.petReaction())
@@ -123,11 +132,12 @@ class MainActivity:ComponentActivity(){
        }
        Text(tr("How can I help?"),fontSize=26.sp,lineHeight=32.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))
-       Text(tr("Ask a question, make a plan, or save a thought."),fontSize=14.sp,lineHeight=21.sp,color=Muted)
+       Text(tr("Ask about a finding, suspicious message, or your phone’s protection."),fontSize=14.sp,lineHeight=21.sp,color=Muted)
        Spacer(Modifier.height(20.dp))
        FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){
-        SuggestionChip(onClick={draft=petApp.uiText("Remember that ")},label={Text(tr("Remember something"),fontSize=12.sp)},icon={Icon(Icons.Outlined.Add,"",Modifier.size(15.dp))})
-        SuggestionChip(onClick={draft=petApp.uiText("Help me plan my day")},label={Text(tr("Make a plan"),fontSize=12.sp)})
+        SuggestionChip(onClick={draft=petApp.uiText("Explain my latest security finding")},label={Text(tr("Explain latest finding"),fontSize=12.sp)},icon={Icon(Icons.Outlined.Shield,"",Modifier.size(15.dp))})
+        SuggestionChip(onClick={draft=petApp.uiText("Is this message suspicious? ")},label={Text(tr("Check a message"),fontSize=12.sp)})
+        SuggestionChip(onClick={draft=petApp.uiText("What does this Android permission mean? ")},label={Text(tr("Explain a permission"),fontSize=12.sp)})
        }
        if(!modelReady) TextButton(onClick={tab=3}){Text(tr("Set up offline chat →"),color=Gold)}
       }
@@ -156,18 +166,20 @@ class MainActivity:ComponentActivity(){
       Text(tr(if(state.mode==ExecutionMode.TINY)"ON YOUR DEVICE  ·  PRIVATE BY DEFAULT" else "SAME PALADINO  ·  MORE CAPABILITY"),fontSize=9.sp,letterSpacing=1.sp,color=Muted,modifier=Modifier.padding(top=10.dp).align(Alignment.CenterHorizontally))
      }
     }
-    1->OrchestrationScreen(vm)
-    2->ConsoleScreen(vm)
-    3->Settings(state,modelStatus,modelReady,progress,vm)
+    0->ai.petologic.skills.security.guard.SecurityScreen(onAskPaladino={tab=1},onOpenSettings={tab=3})
+    2->ai.petologic.skills.security.guard.SecurityScreen(initialDestination=ai.petologic.skills.security.guard.SecurityDestination.ACTIVITY,onAskPaladino={tab=1},onOpenSettings={tab=3})
+    3->Settings(state,modelStatus,modelReady,progress,vm,onControls={tab=4},onConsole={tab=5})
+    4->AdvancedPage("Controls",onBack={tab=3}){OrchestrationScreen(vm)}
+    5->AdvancedPage("Console",onBack={tab=3}){ConsoleScreen(vm)}
    }
   }
  }
  }
- if(spriteChat&&!modalOpen)SpriteChatBubble(vm,spriteDraft,onDismiss={spriteChat=false},onOpen={spriteChat=false;tab=0})
- state.action?.let{action->AlertDialog(onDismissRequest=vm::denyAction,title={Text(tr(if(action.tool=="notes.create")"Keep this in memory?" else "Delete this note?"))},text={Column{
-  Text(if(action.tool=="notes.create")action.argument else notes.find{it.id==action.argument}?.text?:"Selected note")
+ if(spriteChat&&!modalOpen)SpriteChatBubble(vm,spriteDraft,onDismiss={spriteChat=false},onOpen={spriteChat=false;tab=1})
+ state.action?.let{action->AlertDialog(onDismissRequest=vm::denyAction,title={Text(tr(when(action.tool){"notes.create"->"Keep this in memory?";"security.action"->"Approve this security action?";else->"Delete this note?"}))},text={Column{
+  Text(if(action.tool=="security.action")ai.petologic.skills.security.android.SecurityFacade.actionDescription(action.argument) else if(action.tool=="notes.create")action.argument else notes.find{it.id==action.argument}?.text?:"Selected note")
   Spacer(Modifier.height(12.dp));Text(tr("This action happens only on your phone."),color=Muted,fontSize=12.sp)
- }},confirmButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_OK);vm.approveAction()}){Text(tr(if(action.tool=="notes.create")"Save note" else "Delete note"))}},dismissButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_NO);vm.denyAction()}){Text(tr("Cancel"))}})}
+ }},confirmButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_OK);vm.approveAction()}){Text(tr(when(action.tool){"notes.create"->"Save note";"security.action"->"Approve action";else->"Delete note"}))}},dismissButton={TextButton(onClick={feedback.on(ai.petologic.paladino.skills.FeedbackEvent.APPROVAL_NO);vm.denyAction()}){Text(tr("Cancel"))}})}
  state.cloud?.let{pending->AlertDialog(onDismissRequest=vm::denyCloud,title={Text(tr("Let Paladino use Maxx?"))},text={Column(Modifier.heightIn(max=360.dp).verticalScroll(rememberScrollState())){
   Text(tr("${pending.provider.label} · ${pending.model}"),fontWeight=FontWeight.Bold)
   Text(tr("This request and Paladino’s instructions will leave your phone. Your private notes and Tiny history are excluded. Up to 512 output tokens; your provider may charge for usage."),color=Muted,modifier=Modifier.padding(vertical=12.dp))
@@ -177,18 +189,35 @@ class MainActivity:ComponentActivity(){
  if(state.error!=null||state.notice!=null)AlertDialog(onDismissRequest=vm::clearError,title={Text(tr(if(state.error!=null)"A quick heads-up" else "All set"))},text={Text(tr(state.error?:state.notice?:""))},confirmButton={TextButton(onClick={if(state.error!=null)feedback.on(ai.petologic.paladino.skills.FeedbackEvent.ERROR);vm.clearError()}){Text(tr("Got it"))}})
 }
 
+@Composable private fun AdvancedPage(title:String,onBack:()->Unit,content:@Composable ()->Unit){
+ Column(Modifier.fillMaxSize()){
+  Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically){
+   IconButton(onClick=onBack){Icon(Icons.Outlined.ArrowBack,tr("Back to settings"))}
+   Text(tr(title),style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
+  }
+  Box(Modifier.weight(1f)){content()}
+ }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun Settings(state:PaladinoUiState,status:String,ready:Boolean,progress:Float?,vm:PaladinoViewModel){
+@Composable private fun Settings(state:PaladinoUiState,status:String,ready:Boolean,progress:Float?,vm:PaladinoViewModel,onControls:()->Unit,onConsole:()->Unit){
  val semanticReady by vm.semanticReady.collectAsStateWithLifecycle()
  val semanticInstalling by vm.semanticInstalling.collectAsStateWithLifecycle()
+ val installed by vm.library.installed.collectAsStateWithLifecycle()
  val uriHandler=androidx.compose.ui.platform.LocalUriHandler.current
  var key by remember(state.provider){mutableStateOf("")}
  var model by rememberSaveable(state.provider,state.model){mutableStateOf(state.model)}
  Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=24.dp),verticalArrangement=Arrangement.spacedBy(18.dp)){
   Text(tr("Settings"),fontSize=30.sp,fontWeight=FontWeight.Bold)
-  Text(tr("Appearance, models and connections."),color=Muted)
+  Text(tr("Protection setup, models, appearance and connections."),color=Muted)
+  Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
+   Text(tr("Advanced"),fontWeight=FontWeight.Bold)
+   Text(tr("Agent permissions, tools and technical runtime events."),fontSize=13.sp,color=Muted)
+   OutlinedButton(onClick=onControls,modifier=Modifier.fillMaxWidth()){Text(tr("Controls and permissions"))}
+   OutlinedButton(onClick=onConsole,modifier=Modifier.fillMaxWidth()){Text(tr("Runtime console"))}
+  }}
   PhoneAccessCard()
-  AppUpdateCard()
+  if(BuildConfig.SELF_UPDATE_ENABLED)AppUpdateCard()
   UserCopyCard()
   LanguageSettings()
   TinyPetSettings(vm)
@@ -196,14 +225,19 @@ class MainActivity:ComponentActivity(){
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Row{Icon(Icons.Outlined.Memory,null,tint=Gold);Spacer(Modifier.width(12.dp));Text(tr("Tiny · your local brain"),fontWeight=FontWeight.Bold)}
    Text(tr(status),color=Muted)
-   Text(tr("LFM2.5-350M lives on your phone. Download once, then chat offline. Files are verified before installation."),fontSize=13.sp,color=Muted)
+   Text(tr("LFM2.5-VL-450M lives on your phone. It handles short security chat and powers optional visual inspection. Files are verified before installation."),fontSize=13.sp,color=Muted)
    if(progress!=null)LinearProgressIndicator(progress={progress},modifier=Modifier.fillMaxWidth())
-   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 229 MB"))}
+   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 219 MB"))}
+  }}
+  Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
+   Text(tr("Optional local vision"),fontWeight=FontWeight.Bold)
+   Text(tr("The 103 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions."),fontSize=13.sp,color=Muted)
+   Button(onClick=vm::installVision,enabled=ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID !in installed&&progress==null){Text(tr(if(ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID in installed)"Vision pack ready" else if(progress!=null)"Downloading…" else "Set up vision · 103 MB"))}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Text(tr("Memory that understands meaning"),fontWeight=FontWeight.Bold)
-   Text(tr("A small, separate encoder helps find notes by paraphrase. English preview · latest 200 notes. Keyword search works without it."),fontSize=13.sp,color=Muted)
-   Button(onClick=vm::installSemantic,enabled=!semanticReady&&!semanticInstalling){Text(tr(if(semanticReady)"Semantic memory ready" else if(semanticInstalling)"Downloading…" else "Set up semantic memory · 23 MB"))}
+   Text(tr("LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."),fontSize=13.sp,color=Muted)
+   Button(onClick=vm::installSemantic,enabled=!semanticReady&&!semanticInstalling){Text(tr(if(semanticReady)"Vector memory ready" else if(semanticInstalling)"Downloading…" else "Set up vector memory · 229 MB"))}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Row{Icon(Icons.Outlined.CloudQueue,null,tint=Gold);Spacer(Modifier.width(12.dp));Text(tr("Maxx · a little extra reach"),fontWeight=FontWeight.Bold)}

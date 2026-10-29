@@ -53,7 +53,7 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
       return tools.save.invoke(args.argument).take(1000).also{toolResultObserver?.invoke("notes_save",it);onEvent("tool_result","notes_save completed with a bounded result")}
      }
     })
-    if(tools.securityQuery!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_query","Inspect device and app security state without changing anything. argument: device_status · app | package.name · apps | suspicious · vpn_status · notification_access · call_screening_status"){
+    if(tools.securityQuery!=null)tool(object:SimpleTool<LfmToolArgs>(typeToken<LfmToolArgs>(),"security_query","Inspect device and app security state without changing anything. argument: protection · findings · finding | UUID · device_status · app | package.name · apps | suspicious · vpn_status · notification_access · call_screening_status"){
      override suspend fun execute(args:LfmToolArgs):String {
       budget.tool("security_query",args.argument);onEvent("tool_call","security_query #${budget.calls}")
       return tools.securityQuery.invoke(args.argument).take(4000).also{toolResultObserver?.invoke("security_query",it);onEvent("tool_result","security_query completed with a bounded result")}
@@ -117,7 +117,7 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
     check((system+transcript).toByteArray().size<hardBytes){"Session context is full. Start a new session or compress its history before continuing."}
     suspend fun generate(user:String,repair:Boolean=false)=withTimeout(options.hopTimeoutSeconds*1000L){
      testTurn?.invoke(system,user)?:checkNotNull(inference).generate(ai.petologic.paladino.inference.LocalGenerationRequest(
-      system,user,if(modelId.startsWith("lfm"))modelId else "lfm350",options,
+      system,user,if(modelId.startsWith("lfm"))modelId else ModelCatalog.SPEAKER_ID,options,
       if(repair)turns+ChatTurn("user",user) else turns,
       if(nativeFC)tools.map{ai.petologic.paladino.inference.LocalToolSpec(it.name,it.description,"argument")}else emptyList()
      )){text->if(tools.isEmpty())onText(text)}
@@ -152,7 +152,7 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
    override suspend fun moderate(prompt:Prompt,model:LLModel):ModerationResult=throw UnsupportedOperationException("No moderation capability configured.")
    override fun close(){}
   }
-  val model=LLModel(LLMProvider(if(mode==ExecutionMode.TINY)"liquid-local" else "openrouter","Paladino"),if(mode==ExecutionMode.TINY)ModelCatalog.artifacts.find{it.id==modelId}?.model?:"LFM2.5-350M" else modelId,listOf(LLMCapability.Completion,LLMCapability.Tools),options.contextTokens.toLong(),options.outputTokens.toLong())
+  val model=LLModel(LLMProvider(if(mode==ExecutionMode.TINY)"liquid-local" else "openrouter","Paladino"),if(mode==ExecutionMode.TINY)ModelCatalog.artifacts.find{it.id==modelId}?.model?:"LFM2.5-VL-450M" else modelId,listOf(LLMCapability.Completion,LLMCapability.Tools),options.contextTokens.toLong(),options.outputTokens.toLong())
   fun promptBytes(prompt:Prompt)=prompt.messages.sumOf{it.parts.toString().toByteArray().size}
   var compressions=0
   val compression=object:HistoryCompressionStrategy(){

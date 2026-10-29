@@ -1,6 +1,7 @@
 package ai.petologic.paladino
 
 import ai.petologic.core.SessionOptions
+import ai.petologic.core.ModelCatalog
 import ai.petologic.paladino.inference.LocalGenerationRequest
 import android.os.Debug
 import android.util.Log
@@ -28,7 +29,7 @@ class ThermalSoakTest{
   val app=InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as PaladinoApplication
   app.local.verify()
   val backend=app.inference
-  val engine=BuildConfig.FLAVOR
+  val engine=app.inference.javaClass.simpleName
   val deadline=System.currentTimeMillis()+30*60_000L
   val options=SessionOptions(contextTokens=4096,outputTokens=128,hopTimeoutSeconds=180,totalTimeoutSeconds=600)
   val rows=JSONArray();var n=0
@@ -36,7 +37,7 @@ class ThermalSoakTest{
    val begin=System.currentTimeMillis()
    val text=runCatching{withTimeout(600_000L){
     backend.generate(LocalGenerationRequest("You are a stability probe.",
-     "Request $n: write four varied sentences about the sea.","lfm350",options)){}
+     "Request $n: write four varied sentences about the sea.",ModelCatalog.SPEAKER_ID,options)){}
    }}
    val row=JSONObject().put("n",n).put("wallMs",System.currentTimeMillis()-begin)
     .put("ok",text.isSuccess).put("err",text.exceptionOrNull()?.message?:"")

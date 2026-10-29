@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "provider": "Independent mobile antivirus laboratory",
+  "issuedAt": "YYYY-MM-DD",
+  "reportPath": "/secure/external-evidence/paladino-lab-report.pdf",
+  "reportSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "testedArtifactSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "assessments": [
+    "protection",
+    "false_positives",
+    "performance",
+    "usability"
+  ],
+  "passed": false,
+  "samplesHandledByExternalLabOnly": true
+}

@@ -1,5 +1,19 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_open" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:padding="16dp" android:background="@drawable/pet_widget_surface" android:contentDescription="@string/ui_30bdad018e10">
- <ImageView android:layout_width="72dp" android:layout_height="72dp" android:src="@drawable/paladino_static" android:contentDescription="0xPaladino" />
- <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0xPaladino" android:textColor="#F0D64B" android:textSize="16sp" />
- <TextView android:id="@+id/widget_caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ui_97e12da41a75" android:textColor="#F2F4E8" android:textSize="14sp" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:id="@+id/widget_root"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ android:orientation="vertical"
+ android:gravity="center"
+ android:padding="14dp"
+ android:background="@drawable/pet_widget_surface"
+ android:contentDescription="@string/ui_30bdad018e10">
+ <ImageView android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/paladino_static" android:contentDescription="0xPaladino" />
+ <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/security_0e97ad021672" android:textColor="#F0D64B" android:textStyle="bold" android:textSize="16sp" />
+ <TextView android:id="@+id/widget_state" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/security_ux_widget_limited" android:textColor="#F2F4E8" android:textSize="12sp" />
+ <TextView android:id="@+id/widget_caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/ui_97e12da41a75" android:textColor="#A9AEC5" android:textSize="11sp" />
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal" android:gravity="center">
+  <TextView android:id="@+id/widget_check" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:gravity="center" android:text="@string/security_ux_check_something" android:contentDescription="@string/security_ux_check_something" android:textColor="#F0D64B" android:textStyle="bold" android:textSize="12sp" />
+  <TextView android:id="@+id/widget_ask" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:gravity="center" android:text="@string/security_ux_ask" android:contentDescription="@string/security_ux_ask_paladino" android:textColor="#67E8E4" android:textStyle="bold" android:textSize="12sp" />
+  <TextView android:id="@+id/widget_open" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:gravity="center" android:text="@string/security_ux_open" android:contentDescription="@string/security_ux_open_paladino" android:textColor="#F2F4E8" android:textStyle="bold" android:textSize="12sp" />
+ </LinearLayout>
 </LinearLayout>

@@ -110,7 +110,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 }
 
 private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
-@Composable fun SpriteQuickActions(animated:Boolean,size:Int,onChat:()->Unit,onRemember:()->Unit,onOpen:()->Unit){
+@Composable fun SpriteQuickActions(animated:Boolean,size:Int,onChat:()->Unit,onCheck:()->Unit,onOpen:()->Unit){
  val quickActionsLabel=tr("Quick actions")
  var expanded by remember{mutableStateOf(false)}
  Column(horizontalAlignment=androidx.compose.ui.Alignment.End){
@@ -120,8 +120,8 @@ private data class SpriteAction(val id:String,val label:String,val run:()->Unit)
   Box{
    FloatingActionButton(onClick={expanded=!expanded},containerColor=Gold,contentColor=Ink,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp),modifier=Modifier.size(56.dp).semantics{contentDescription=quickActionsLabel}){Icon(painterResource(if(expanded)R.drawable.ic_pet_collapse else R.drawable.ic_pet_chat),null,Modifier.size(26.dp))}
    DropdownMenu(expanded=expanded,onDismissRequest={expanded=false},containerColor=Panel,shape=androidx.compose.foundation.shape.RoundedCornerShape(20.dp)){
-    listOf(SpriteAction("ask","Message Paladino",onChat),SpriteAction("remember","Save a note",onRemember),SpriteAction("open","Full conversation",onOpen)).forEach{action->
-     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"remember"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(tr(action.label))},onClick={expanded=false;action.run()})
+    listOf(SpriteAction("check","Check something",onCheck),SpriteAction("ask","Ask Paladino",onChat),SpriteAction("open","Open Paladino",onOpen)).forEach{action->
+     DropdownMenuItem(leadingIcon={Icon(painterResource(when(action.id){"ask"->R.drawable.ic_pet_chat;"check"->R.drawable.ic_pet_new;else->R.drawable.ic_pet_open}),null)},text={Text(tr(action.label))},onClick={expanded=false;action.run()})
     }
    }
   }

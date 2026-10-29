@@ -6,16 +6,13 @@ import ai.petologic.paladino.inference.LocalInferenceBackend
 
 /**
  * The sub-agent: a bounded worker turn with no tools, for background jobs like titling.
- * Model selection follows the user's rule — the small 230M when downloaded, otherwise a
- * turn of the main 350M. True parallelism waits for the native two-slot refactor (plan 15);
- * today the worker's turn queues on the shared model between user turns.
+ * Every speaking turn uses the same VL-450M model. Worker turns remain serialized with chat.
  */
 object SubAgent{
- const val PREFERRED="lfm230-qad"
- const val FALLBACK="lfm350"
+ const val MODEL=ai.petologic.core.ModelCatalog.SPEAKER_ID
  const val TITLE_MAX=42
 
- fun modelId(installed:Set<String>):String=if(PREFERRED in installed)PREFERRED else FALLBACK
+ fun modelId(installed:Set<String>):String=MODEL
 
  fun workerOptions()=SessionOptions(contextTokens=2048,outputTokens=128,toolReserve=128,
   maxHops=1,maxToolCalls=0,maxRetries=0,hopTimeoutSeconds=30,totalTimeoutSeconds=60)

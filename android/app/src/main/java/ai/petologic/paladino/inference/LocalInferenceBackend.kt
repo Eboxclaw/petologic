@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 data class LocalGenerationRequest(
  val system:String,
  val user:String,
- val modelId:String="lfm350",
+ val modelId:String=ai.petologic.core.ModelCatalog.SPEAKER_ID,
  val options:SessionOptions=SessionOptions(),
  val turns:List<ChatTurn> = emptyList(),
  /** Declared tools for backends with native function calling; prompt-protocol backends ignore them. */

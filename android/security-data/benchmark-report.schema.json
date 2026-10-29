@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/paladino/benchmark-report.schema.json",
+  "title": "Paladino safe efficacy benchmark report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "generatedAt", "disclaimer", "mode", "corpusVersion", "corpusSha256", "gitRevision", "modelHash", "deviceFingerprint", "measurements", "metrics", "gates", "passed"],
+  "properties": {
+    "schema": {"const": 1},
+    "generatedAt": {"type": "string"},
+    "disclaimer": {"type": "string"},
+    "mode": {"enum": ["SMOKE", "RELEASE"]},
+    "corpusVersion": {"type": "string"},
+    "corpusSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gitRevision": {"type": "string"},
+    "modelHash": {"type": "string"},
+    "deviceFingerprint": {"type": "string"},
+    "measurements": {"type": "array"},
+    "metrics": {"type": "array"},
+    "gates": {"type": "array"},
+    "passed": {"type": "boolean"}
+  }
+}

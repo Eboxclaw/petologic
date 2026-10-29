@@ -14,8 +14,7 @@ class PetReactionTest {
  }
  @Test fun thinking_is_selected_only_while_working(){
   assertEquals("thinking",PetReaction.RUNNING.animation(setOf("idle","thinking")))
-  assertEquals(R.raw.paladino_thinking,PetReaction.RUNNING.animationResource())
-  listOf(PetReaction.IDLE,PetReaction.NEEDS_INPUT,PetReaction.BLOCKED).forEach{assertEquals(R.raw.paladino_idle1,it.animationResource())}
+  PetReaction.entries.forEach{assertEquals(R.raw.paladino_idle1,it.animationResource())}
  }
  @Test fun idle_pair_provides_two_distinct_clips(){
   assertEquals(R.raw.paladino_idle1,idlePair.first)

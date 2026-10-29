@@ -1,6 +1,7 @@
 package ai.petologic.paladino
 
 import ai.petologic.core.SessionOptions
+import ai.petologic.core.ModelCatalog
 import ai.petologic.paladino.inference.LocalGenerationRequest
 import android.os.Build
 import android.os.Debug
@@ -20,7 +21,7 @@ import org.junit.runner.RunWith
 
 /**
  * Plan 16 stage 4: identical runtime benchmark across engines (the code runs unmodified on the
- * llama and leap flavors; BuildConfig.FLAVOR names the engine in the output). Liquid's
+ * llama and leap flavors; app.inference.javaClass.simpleName names the engine in the output). Liquid's
  * hardware-evaluation methodology: separate TTFT/prefill/decode, prompt lengths 256/512/1024,
  * contexts 2048/4096/8192, memory sampled throughout. Opt in with
  * -Pandroid.testInstrumentationRunnerArguments.bench=true after models are installed.
@@ -59,30 +60,29 @@ class RuntimeBenchmarkTest{
   val app=InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as PaladinoApplication
   app.local.verify()
   val backend=app.inference
-  val engine=BuildConfig.FLAVOR
+  val engine=app.inference.javaClass.simpleName
   val results=JSONArray()
   fun record(o:JSONObject){results.put(o);log(o.toString())}
 
   val coldStart=System.currentTimeMillis()
-  record(sample(backend,"lfm350",4096,400,48,"cold_load_350M_4096"))
+  record(sample(backend,ModelCatalog.SPEAKER_ID,4096,400,48,"cold_load_vl450m_4096"))
   val coldMs=System.currentTimeMillis()-coldStart
-  record(JSONObject().put("label","cold_wall_total").put("model","lfm350").put("wallMs",coldMs).put("peakPssKb",Debug.getPss()))
-  repeat(3){record(sample(backend,"lfm350",4096,400,100,"warm_$it"))}
-  listOf(900,1800,3600).forEach{chars->record(sample(backend,"lfm350",4096,chars,100,"prompt_${chars}c"))}
-  listOf(2048,8192).forEach{ctx->record(sample(backend,"lfm350",ctx,400,64,"context_$ctx"))}
+  record(JSONObject().put("label","cold_wall_total").put("model",ModelCatalog.SPEAKER_ID).put("wallMs",coldMs).put("peakPssKb",Debug.getPss()))
+  repeat(3){record(sample(backend,ModelCatalog.SPEAKER_ID,4096,400,100,"warm_$it"))}
+  listOf(900,1800,3600).forEach{chars->record(sample(backend,ModelCatalog.SPEAKER_ID,4096,chars,100,"prompt_${chars}c"))}
+  listOf(2048,8192).forEach{ctx->record(sample(backend,ModelCatalog.SPEAKER_ID,ctx,400,64,"context_$ctx"))}
   val t=System.currentTimeMillis()
-  record(sample(backend,"lfm230-qad",2048,400,64,"switch_to_230M"))
   record(JSONObject().put("label","switch_350_to_230").put("wallMs",System.currentTimeMillis()-t).put("peakPssKb",Debug.getPss()))
   val t2=System.currentTimeMillis()
-  record(sample(backend,"lfm350",4096,400,64,"switch_back_350M"))
+  record(sample(backend,ModelCatalog.SPEAKER_ID,4096,400,64,"switch_back_vl450m"))
   record(JSONObject().put("label","switch_230_to_350").put("wallMs",System.currentTimeMillis()-t2).put("peakPssKb",Debug.getPss()))
   val consec=System.currentTimeMillis()
-  repeat(10){record(sample(backend,"lfm350",4096,200,48,"consecutive_$it"))}
+  repeat(10){record(sample(backend,ModelCatalog.SPEAKER_ID,4096,200,48,"consecutive_$it"))}
   record(JSONObject().put("label","consecutive_10_total").put("wallMs",System.currentTimeMillis()-consec).put("peakPssKb",Debug.getPss()))
 
   // cancellation: abort mid-generation and time how long stopping takes
   val cancelSample=async{
-   backend.generate(LocalGenerationRequest("You are verbose.","Write a very long story about the sea.","lfm350",
+   backend.generate(LocalGenerationRequest("You are verbose.","Write a very long story about the sea.",ModelCatalog.SPEAKER_ID,
     SessionOptions(contextTokens=4096,outputTokens=512,hopTimeoutSeconds=180,totalTimeoutSeconds=600))){}
   }
   delay(2500)

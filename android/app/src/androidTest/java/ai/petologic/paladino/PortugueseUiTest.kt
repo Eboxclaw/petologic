@@ -13,6 +13,7 @@ class PortugueseUiTest {
   Assume.assumeTrue(InstrumentationRegistry.getArguments().getString("ptUi")=="true")
   val app=compose.activity.application as PaladinoApplication
   val device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+  compose.onNodeWithContentDescription("Perguntar",useUnmergedTree=true).performClick()
   compose.onNodeWithContentDescription("Nova conversa").performClick()
   compose.waitUntil(10000){compose.onAllNodesWithText("Como posso ajudar?").fetchSemanticsNodes().isNotEmpty()}
   device.takeScreenshot(java.io.File(app.filesDir,"pt-chat.png"))
@@ -20,7 +21,7 @@ class PortugueseUiTest {
   compose.onNodeWithText("Idioma").performScrollTo().assertIsDisplayed()
   compose.onNodeWithText("Alterar idioma da app").performScrollTo().assertIsDisplayed()
   compose.onNodeWithContentDescription("Ações rápidas").performClick()
-  compose.onNodeWithText("Mensagem ao Paladino").assertIsDisplayed()
+  compose.onNodeWithText("Perguntar ao Paladino").assertIsDisplayed()
   device.takeScreenshot(java.io.File(app.filesDir,"pt-menu.png"))
   device.pressBack()
   compose.activity.startForegroundService(Intent(compose.activity,SpriteOverlayService::class.java))

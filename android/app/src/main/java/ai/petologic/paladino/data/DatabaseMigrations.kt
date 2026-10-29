@@ -9,7 +9,7 @@ object DatabaseMigrations {
    db.execSQL("CREATE TABLE IF NOT EXISTS sessions (id TEXT NOT NULL PRIMARY KEY, title TEXT NOT NULL, createdAt INTEGER NOT NULL, archived INTEGER NOT NULL, parentId TEXT, modelId TEXT NOT NULL, mode TEXT NOT NULL, optionsJson TEXT NOT NULL)")
    db.execSQL("CREATE TABLE IF NOT EXISTS execution_events (id TEXT NOT NULL PRIMARY KEY, sessionId TEXT NOT NULL, taskId TEXT NOT NULL, type TEXT NOT NULL, detail TEXT NOT NULL, createdAt INTEGER NOT NULL)")
    db.execSQL("CREATE INDEX IF NOT EXISTS index_execution_events_sessionId ON execution_events(sessionId)")
-   db.execSQL("INSERT OR IGNORE INTO sessions VALUES ('default','First conversation',0,0,NULL,'lfm350','TINY','{}')")
+   db.execSQL("INSERT OR IGNORE INTO sessions VALUES ('default','First conversation',0,0,NULL,'lfm25vl-450m','TINY','{}')")
    db.execSQL("INSERT OR REPLACE INTO index_outbox(noteId,version,sessionId) SELECT id,updatedAt,sessionId FROM notes")
   }}
  )

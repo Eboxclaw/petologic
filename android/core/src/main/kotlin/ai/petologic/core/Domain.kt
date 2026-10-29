@@ -73,7 +73,7 @@ data class ActionProposal(val id: String = UUID.randomUUID().toString(), val too
  val argumentHash: String get() = digest(tool + "\u0000" + argument)
 }
 class ApprovalPolicy(private val clock: Clock = Clock.systemUTC()) {
- private val allowed = setOf("notes.create", "notes.delete", "reminders.create", "text.share", "calendar.prepare")
+ private val allowed = setOf("notes.create", "notes.delete", "reminders.create", "text.share", "calendar.prepare", "security.action")
  fun validate(proposal: ActionProposal, approvedHash: String) {
   require(proposal.tool in allowed) { "Tool is not allowed." }
   require(clock.instant().isBefore(proposal.expiresAt)) { "This approval expired. Start the action again." }

@@ -16,7 +16,7 @@ const mb = (bytes: number) => `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 type Phase = "idle" | "downloading" | "saved" | "fallback";
 
 const BUTTON_CLASSES =
-  "pixel-border-gold group bg-royal px-6 py-4 text-center font-display text-xs tracking-wide transition-all hover:bg-royal/90 active:translate-y-1 sm:px-8 sm:text-sm";
+  "pixel-border-gold group min-h-12 bg-royal px-6 py-4 text-center font-display text-xs tracking-wide transition-all hover:bg-royal/90 active:translate-y-1 sm:px-8 sm:text-sm";
 
 /**
  * DOWNLOAD APK button. On capable browsers it streams the APK in-page with stall detection and
@@ -76,7 +76,7 @@ export function ApkDownloadButton() {
   if (!canStream) {
     return (
       <a href={APK_URL} rel="noopener" className={BUTTON_CLASSES}>
-        DOWNLOAD APK{" "}
+        DOWNLOAD PALADINO PREVIEW{" "}
         <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">
           &rarr;
         </span>
@@ -102,7 +102,7 @@ export function ApkDownloadButton() {
           <>DOWNLOAD AGAIN</>
         ) : (
           <>
-            DOWNLOAD APK{" "}
+            DOWNLOAD PALADINO PREVIEW{" "}
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">
               &rarr;
             </span>

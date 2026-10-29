@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "paladino-safe-synthetic",
+      "name": "Paladino inert benchmark fixtures",
+      "url": "https://example.invalid/paladino-safe-benchmark",
+      "license": "CC0-1.0",
+      "productionEligible": false,
+      "redistributionReviewed": true,
+      "use": "Test-only hashes, reserved-domain links, synthetic messages, app metadata, and reviewed retrieval text; contains no executable or live threat content"
+    },
+    {
+      "id": "eset-malware-ioc",
+      "name": "ESET malware-ioc",
+      "url": "https://github.com/eset/malware-ioc",
+      "license": "BSD-2-Clause",
+      "productionEligible": true,
+      "redistributionReviewed": true,
+      "use": "Android SHA-256 indicators with pinned source revisions"
+    },
+    {
+      "id": "urlhaus-community",
+      "name": "URLhaus Community API",
+      "url": "https://urlhaus.abuse.ch/api/",
+      "license": "Fair-use terms; commercial subscription may be required",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Research and evaluation only until commercial and redistribution rights are recorded"
+    },
+    {
+      "id": "malwarebazaar-community",
+      "name": "MalwareBazaar Community API",
+      "url": "https://bazaar.abuse.ch/api/",
+      "license": "Fair-use terms; commercial subscription may be required",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Research metadata only; never store live samples in this repository"
+    },
+    {
+      "id": "phishtank",
+      "name": "PhishTank verified feed",
+      "url": "https://phishtank.org/developer_info.php",
+      "license": "Provider terms and application key required",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Evaluation only until product rights are recorded"
+    },
+    {
+      "id": "openphish-community",
+      "name": "OpenPhish community feed",
+      "url": "https://openphish.com/phishing_feeds.html",
+      "license": "Community feed terms",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Evaluation only"
+    },
+    {
+      "id": "clamav",
+      "name": "ClamAV",
+      "url": "https://docs.clamav.net/",
+      "license": "GPL-2.0",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Architecture and signature-format research; engine not linked into the app"
+    },
+    {
+      "id": "hypatia",
+      "name": "Hypatia Android malware scanner",
+      "url": "https://gitlab.com/divested-mobile/hypatia",
+      "license": "Mixed and archived",
+      "productionEligible": false,
+      "redistributionReviewed": false,
+      "use": "Bloom-filter and event-driven scanning research only"
+    }
+  ]
+}
