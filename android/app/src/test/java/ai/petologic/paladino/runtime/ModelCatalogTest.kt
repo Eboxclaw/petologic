@@ -38,4 +38,18 @@ class ModelCatalogTest {
   assertEquals(listOf(projector),ModelCatalog.optionalComponents())
   assertFalse(ModelCatalog.selectable().contains(projector))
  }
+ @Test fun lfm3_pack_is_pinned_but_inactive(){
+  val pack=ai.petologic.core.Lfm3Pack.artifacts
+  assertEquals(pack.size,pack.map{it.id}.distinct().size)
+  assertEquals(pack.size,pack.map{it.filename}.distinct().size)
+  assertFalse(pack.any(ModelCatalog.artifacts::contains))
+  assertFalse(pack.any{ModelCatalog.selectable().contains(it)})
+  assertFalse(pack.any{ModelCatalog.optionalComponents().contains(it)})
+  val decision=ai.petologic.core.Lfm3Pack.decision()
+  assertEquals(ModelKind.DECISION,decision.kind)
+  assertEquals("d1-2B-Q4_K_M.gguf",decision.filename)
+  assertEquals(1099629888L,decision.size)
+  assertEquals(1049617920L,ai.petologic.core.Lfm3Pack.get(ai.petologic.core.Lfm3Pack.OMNI_SPEAKER_ID).size)
+  assertEquals(540892768L,ai.petologic.core.Lfm3Pack.get(ai.petologic.core.Lfm3Pack.OMNI_PROJECTOR_ID).size)
+ }
 }
