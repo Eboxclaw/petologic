@@ -16,17 +16,17 @@ class ModelCatalogTest {
   assertEquals("LFM2.5-VL-450M-Q4_0.gguf",speaker.filename)
   assertEquals(219311264L,speaker.size)
  }
- @Test fun local_catalog_has_one_speaker_and_one_vector_model(){
-  assertEquals(3,ModelCatalog.artifacts.size)
+ @Test fun local_catalog_has_speakers_router_projectors_and_vectors(){
+  assertEquals(7,ModelCatalog.artifacts.size)
   assertEquals(ModelKind.VISION_PROJECTOR,ModelCatalog.get(ModelCatalog.VISION_PROJECTOR_ID).kind)
   val vectors=ModelCatalog.get(ModelCatalog.EMBEDDING_ID)
   assertEquals(ModelKind.EMBEDDING,vectors.kind)
   assertEquals("Q4_K_M",vectors.quantization)
   assertEquals(229311232L,vectors.size)
  }
- @Test fun selectable_contains_only_the_speaking_model(){
+ @Test fun selectable_contains_the_default_speaker_first_then_lfm3(){
   val ids=ModelCatalog.selectable().map{it.id}
-  assertEquals(listOf(ModelCatalog.SPEAKER_ID),ids)
+  assertEquals(listOf(ModelCatalog.SPEAKER_ID,ModelCatalog.OMNI_SPEAKER_ID),ids)
  }
  @Test fun vector_import_match_resolves(){
   assertEquals(ModelCatalog.SPEAKER_ID,SubAgent.modelId(emptySet()))
@@ -35,21 +35,17 @@ class ModelCatalogTest {
  @Test fun projector_is_optional_and_not_selectable(){
   val projector=ModelCatalog.get(ModelCatalog.VISION_PROJECTOR_ID)
   assertEquals(102815168L,projector.size)
-  assertEquals(listOf(projector),ModelCatalog.optionalComponents())
+  assertTrue(ModelCatalog.optionalComponents().contains(projector))
   assertFalse(ModelCatalog.selectable().contains(projector))
  }
- @Test fun lfm3_pack_is_pinned_but_inactive(){
-  val pack=ai.petologic.core.Lfm3Pack.artifacts
-  assertEquals(pack.size,pack.map{it.id}.distinct().size)
-  assertEquals(pack.size,pack.map{it.filename}.distinct().size)
-  assertFalse(pack.any(ModelCatalog.artifacts::contains))
-  assertFalse(pack.any{ModelCatalog.selectable().contains(it)})
-  assertFalse(pack.any{ModelCatalog.optionalComponents().contains(it)})
-  val decision=ai.petologic.core.Lfm3Pack.decision()
+ @Test fun lfm3_and_d1_artifacts_are_pinned(){
+  val decision=ModelCatalog.decision()
   assertEquals(ModelKind.DECISION,decision.kind)
   assertEquals("d1-2B-Q4_K_M.gguf",decision.filename)
   assertEquals(1099629888L,decision.size)
-  assertEquals(1049617920L,ai.petologic.core.Lfm3Pack.get(ai.petologic.core.Lfm3Pack.OMNI_SPEAKER_ID).size)
-  assertEquals(540892768L,ai.petologic.core.Lfm3Pack.get(ai.petologic.core.Lfm3Pack.OMNI_PROJECTOR_ID).size)
+  assertEquals(1049617920L,ModelCatalog.get(ModelCatalog.OMNI_SPEAKER_ID).size)
+  assertEquals(540892768L,ModelCatalog.get(ModelCatalog.OMNI_PROJECTOR_ID).size)
+  assertFalse(ModelCatalog.selectable().any{it.kind!=ModelKind.GENERATIVE})
+  assertFalse(ModelCatalog.optionalComponents().any{it.kind!=ModelKind.VISION_PROJECTOR})
  }
 }

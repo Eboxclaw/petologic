@@ -187,7 +187,8 @@ private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(
   ModelCatalog.selectable().forEach{artifact->
    HorizontalDivider()
    Text(artifact.model+" · "+artifact.quantization,fontWeight=FontWeight.Bold)
-   Text(tr("%1\$s MB · primary local speaker",(artifact.size/1_000_000).toString()),fontSize=12.sp,color=Muted)
+   val suffix=if(artifact.id==ModelCatalog.SPEAKER_ID)"%1\$s MB · primary local speaker" else "%1\$s MB · optional LFM3 text speaker"
+   Text(tr(suffix,(artifact.size/1_000_000).toString()),fontSize=12.sp,color=Muted)
    if(artifact.id in installed)OutlinedButton(onClick={vm.selectModel(artifact.id)},enabled=!state.busy&&session.modelId!=artifact.id){Text(tr(if(session.modelId==artifact.id)"Selected for this session" else "Use in this session"))}
    else OutlinedButton(onClick={vm.downloadModel(artifact.id)},enabled=progress==null){Text(tr("Download %1\$s %2\$s",artifact.model,artifact.quantization))}
   }

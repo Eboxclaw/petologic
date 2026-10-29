@@ -1,14 +1,14 @@
 /* Public binary distribution; source code remains in the private application repository. */
 export const APK_RELEASE =
-  "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.2.2-preview";
-export const APK_URL = `${APK_RELEASE}/petologic-0.2.2-preview-arm64.apk`;
+  "https://github.com/Eboxclaw/petologic-downloads/releases/download/v0.0.1";
+export const APK_URL = `${APK_RELEASE}/petologic-0.0.1-arm64.apk`;
 /**
  * GitHub release assets send no CORS headers, so the in-page streaming downloader cannot fetch
  * them cross-origin. The same file is mirrored in the repository (raw.githubusercontent.com sends
  * `access-control-allow-origin: *` and honors Range), which is what the accelerated download uses.
  */
 export const APK_STREAM_URL =
-  "https://raw.githubusercontent.com/Eboxclaw/petologic-downloads/main/apk/v0.2.2-preview/petologic-0.2.2-preview-arm64.apk";
+  "https://raw.githubusercontent.com/Eboxclaw/petologic-downloads/main/apk/v0.0.1/petologic-0.0.1-arm64.apk";
 
 export type DownloadProgress = {
   received: number;

@@ -1,6 +1,6 @@
 # ADR-0004: LFM3 stack — one Omni speaker plus a d1 decision router
 
-**Status:** Proposed (blocked on the native LFM3 runtime gate)
+**Status:** Accepted for 0.0.1 (native gate passed at llama.cpp `8642541b` / b11960; emulator and physical-device validation still pending)
 
 **Date:** 2026-10-28
 

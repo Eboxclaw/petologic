@@ -31,12 +31,14 @@ export const Route = createFileRoute("/")({
 });
 
 const RELEASE = {
-  version: "0.2.2-preview",
+  version: "0.0.1",
   android: "Android 12+",
   architecture: "ARM64",
   speaker: "219 MB",
   vision: "103 MB",
   vectors: "229 MB",
+  speakerLfm3: "1.0 GB",
+  decisions: "1.1 GB",
 };
 
 const CAPABILITIES = [
@@ -47,10 +49,10 @@ const CAPABILITIES = [
     body: "The downloadable preview keeps private local chat, Sprite, widget, notes and user-controlled tools together with the existing Security Guard, device status and notification triage.",
   },
   {
-    state: "NEXT PREVIEW IN VALIDATION",
+    state: "NEW IN 0.0.1 · OPT-IN",
     tone: "gold",
     title: "Active installed-app checks",
-    body: "The current development build adds the Protection dashboard and, when you enable installed-app protection, checks new and updated apps and reconciles visible installed apps daily. It reads Android metadata and APK bytes without running their code.",
+    body: "This release adds the Protection dashboard and, when you enable installed-app protection, checks new and updated apps and reconciles visible installed apps daily. It reads Android metadata and APK bytes without running their code.",
   },
   {
     state: "NOT AVAILABLE YET",
@@ -159,6 +161,11 @@ const TECHNOLOGY = [
     title: "LFM2.5-VL-450M",
     body: "Runs the security conversation and can inspect one image you explicitly choose. Its output cannot approve actions, change severity or hide detector uncertainty.",
   },
+  {
+    label: "ROUTE",
+    title: "d1-2B decisions",
+    body: "An optional decision model scores whether a request would benefit from cloud help and surfaces a Maxx offer. It runs after your answer, suggests only, and never changes a finding or approves an action.",
+  },
 ] as const;
 
 function useReveal() {
@@ -224,6 +231,9 @@ function Index() {
             <a className="hover:text-cyan" href="#technology">
               Technology
             </a>
+            <a className="hover:text-cyan" href="#changelog">
+              What's new
+            </a>
           </div>
           <a
             href="#download"
@@ -268,9 +278,9 @@ function Index() {
                 </a>
               </div>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
-                The free preview already combines the companion with early Security Guard tools. The
-                redesigned antivirus dashboard and expanded checks are being validated for the next
-                signed preview.
+                The 0.0.1 preview combines the companion with the redesigned Security Guard
+                dashboard. Broader rule coverage and automatic public threat updates are still being
+                validated before wider release.
               </p>
             </div>
 
@@ -534,6 +544,42 @@ function Index() {
         </section>
 
         <section
+          id="changelog"
+          className="border-t border-white/10 bg-black/20 px-4 py-16 sm:px-6 sm:py-20"
+        >
+          <div className="mx-auto max-w-5xl reveal">
+            <div className="font-mono text-[10px] tracking-[0.25em] text-cyan">WHAT'S NEW</div>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl">New in 0.0.1</h2>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              <article className="border border-white/10 bg-card p-6">
+                <h3 className="text-lg font-semibold">Antivirus checks built in</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  The Security Guard tab scans shared files, APKs, messages and links with
+                  deterministic, bounded local checks, and shows the evidence and coverage of every
+                  scan. Findings are redacted and stored only on your phone.
+                </p>
+              </article>
+              <article className="border border-white/10 bg-card p-6">
+                <h3 className="text-lg font-semibold">Optional LFM3 speaker</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  Settings can now download Liquid's LFM3-Omni-2B as an optional local text speaker
+                  alongside the default 219 MB model. Everything still runs on your phone, offline,
+                  with verified downloads.
+                </p>
+              </article>
+              <article className="border border-white/10 bg-card p-6">
+                <h3 className="text-lg font-semibold">Decisions, not verdicts</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  The optional d1-2B decision model runs after your answer and can only suggest when
+                  cloud help may serve you better. It never changes a security finding or approves
+                  an action.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section
           id="download"
           className="border-t border-white/10 bg-black/20 px-4 py-20 text-center sm:px-6 sm:py-28"
         >
@@ -542,9 +588,8 @@ function Index() {
             <h2 className="mt-6 font-display text-3xl sm:text-4xl">Get Paladino for Android</h2>
             <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-white/60">
               Companion and antivirus live together in Paladino. The current free preview includes
-              local AI chat, Sprite, widget, early Security Guard and user-controlled tools. The
-              expanded antivirus experience is being validated for the next update. Liquid AI models
-              are optional downloads and are verified before installation.
+              local AI chat, Sprite, widget, Security Guard checks and user-controlled tools. Liquid
+              AI models are optional downloads and are verified before installation.
             </p>
             <div className="mt-8 flex justify-center">
               <ApkDownloadButton />
@@ -561,6 +606,10 @@ function Index() {
               <span>VISION {RELEASE.vision}</span>
               <span>·</span>
               <span>VECTORS {RELEASE.vectors}</span>
+              <span>·</span>
+              <span>LFM3 CHAT {RELEASE.speakerLfm3}</span>
+              <span>·</span>
+              <span>DECISIONS {RELEASE.decisions}</span>
             </div>
             <details className="mx-auto mt-8 max-w-2xl border border-white/10 bg-card p-5 text-left text-sm text-white/60">
               <summary className="cursor-pointer font-medium text-cyan">

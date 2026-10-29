@@ -112,6 +112,63 @@ extern "C" JNIEXPORT jlongArray JNICALL Java_ai_petologic_paladino_runtime_Nativ
  auto result=env->NewLongArray(4);env->SetLongArrayRegion(result,0,4,stats);return result;
 }
 
+// Decision scoring for the d1 router: prefill the state, then softmax the first-token logits of
+// the candidate words. Runs in the main model slot; the caller serializes it off the chat path
+// and owns loading/unloading the decision model. Cancellation returns an empty array, never null.
+extern "C" JNIEXPORT jfloatArray JNICALL Java_ai_petologic_paladino_runtime_NativeLfm_decisionScores(JNIEnv *env,jobject,jbyteArray systemBytes,jbyteArray userBytes,jobjectArray candidates) {
+ std::lock_guard<std::mutex> lock(model_mutex);
+ if(!ctx||!model){fail(env,"Local model is not loaded.");return nullptr;}
+ const auto system=utf8(env,systemBytes),user=utf8(env,userBytes);
+ const int count=env->GetArrayLength(candidates);
+ if(count<=0||count>16){fail(env,"Invalid decision candidates.");return nullptr;}
+ std::vector<std::string> words;
+ for(int i=0;i<count;i++){
+  auto word=(jstring)env->GetObjectArrayElement(candidates,i);
+  const char *w=env->GetStringUTFChars(word,nullptr);words.emplace_back(w);env->ReleaseStringUTFChars(word,w);env->DeleteLocalRef(word);
+ }
+ std::vector<llama_chat_message> messages={{"system",system.c_str()},{"user",user.c_str()}};
+ const char *tmpl=llama_model_chat_template(model,nullptr);
+ int n=llama_chat_apply_template(tmpl,messages.data(),messages.size(),true,nullptr,0);
+ if(n<0){fail(env,"Unsupported LFM chat template.");return nullptr;}
+ std::vector<char> formatted(n+1);
+ llama_chat_apply_template(tmpl,messages.data(),messages.size(),true,formatted.data(),formatted.size());
+ const auto *vocab=llama_model_get_vocab(model);
+ int nt=-llama_tokenize(vocab,formatted.data(),n,nullptr,0,true,true);
+ if(nt<=0||nt+16>static_cast<int>(llama_n_ctx(ctx))){fail(env,"Decision input exceeds the local context.");return nullptr;}
+ std::vector<llama_token> tokens(nt);
+ llama_tokenize(vocab,formatted.data(),n,tokens.data(),nt,true,true);
+ llama_memory_clear(llama_get_memory(ctx),true);
+ const int batchSize=llama_n_batch(ctx);
+ for(int offset=0;offset<nt;offset+=batchSize){
+  if(cancelled.load())return env->NewFloatArray(0);
+  auto batch=llama_batch_get_one(tokens.data()+offset,std::min(batchSize,nt-offset));
+  if(llama_decode(ctx,batch)!=0){if(!cancelled.load())fail(env,"Local prompt evaluation failed.");return nullptr;}
+ }
+ std::vector<int32_t> ids(count,-1);
+ for(int i=0;i<count;i++){
+  llama_token buffer[8];
+  const int produced=llama_tokenize(vocab,words[i].data(),static_cast<int32_t>(words[i].size()),buffer,8,false,true);
+  if(produced<1){fail(env,"Decision candidate is not tokenizable.");return nullptr;}
+  ids[i]=buffer[0];
+ }
+ const float *logits=llama_get_logits_ith(ctx,-1);
+ if(!logits){fail(env,"Local model did not return decision logits.");return nullptr;}
+ std::vector<int32_t> uniqueIds(ids);
+ std::sort(uniqueIds.begin(),uniqueIds.end());
+ uniqueIds.erase(std::unique(uniqueIds.begin(),uniqueIds.end()),uniqueIds.end());
+ double maxLogit=-1e30;
+ for(auto id:uniqueIds)maxLogit=std::max(maxLogit,static_cast<double>(logits[id]));
+ double sum=0;
+ std::vector<double> uniqueWeight(uniqueIds.size(),0.0);
+ for(size_t u=0;u<uniqueIds.size();u++){uniqueWeight[u]=std::exp(static_cast<double>(logits[uniqueIds[u]])-maxLogit);sum+=uniqueWeight[u];}
+ std::vector<float> scores(count,0.0f);
+ for(int i=0;i<count;i++){
+  const auto position=std::lower_bound(uniqueIds.begin(),uniqueIds.end(),ids[i]);
+  scores[i]=static_cast<float>(uniqueWeight[position-uniqueIds.begin()]/sum);
+ }
+ auto out=env->NewFloatArray(count);env->SetFloatArrayRegion(out,0,count,scores.data());return out;
+}
+
 extern "C" JNIEXPORT jlongArray JNICALL Java_ai_petologic_paladino_runtime_NativeLfm_generateVisual(JNIEnv *env,jobject,jstring projectorPath,jbyteArray systemBytes,jbyteArray userBytes,jbyteArray rgbBytes,jint width,jint height,jobject callback,jint maxOutput,jfloat temperature,jint topK,jfloat topP,jfloat repeatPenalty,jint seed,jint threads) {
  std::lock_guard<std::mutex> lock(model_mutex);
  if(!ctx||!model){fail(env,"Local model is not loaded.");return nullptr;}

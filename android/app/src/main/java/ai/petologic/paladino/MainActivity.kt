@@ -132,6 +132,8 @@ class MainActivity:ComponentActivity(){
        }
        Text(tr("How can I help?"),fontSize=26.sp,lineHeight=32.sp,fontWeight=FontWeight.SemiBold)
        Spacer(Modifier.height(10.dp))
+       WhatsNewCard()
+       Spacer(Modifier.height(10.dp))
        Text(tr("Ask about a finding, suspicious message, or your phone’s protection."),fontSize=14.sp,lineHeight=21.sp,color=Muted)
        Spacer(Modifier.height(20.dp))
        FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){

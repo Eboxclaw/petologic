@@ -208,3 +208,18 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
   }
  }
 }
+
+/** Release highlights on the chat empty state; dismissed per app version, no remote config. */
+@Composable internal fun WhatsNewCard(){
+ val context=androidx.compose.ui.platform.LocalContext.current
+ val prefs=remember{context.getSharedPreferences("preferences",android.content.Context.MODE_PRIVATE)}
+ var visible by remember{mutableStateOf(prefs.getString("whats_new_seen","")!=BuildConfig.VERSION_NAME)}
+ if(!visible)return
+ Surface(color=Panel,shape=RoundedCornerShape(12.dp),border=BorderStroke(1.dp,Gold.copy(alpha=.6f)),modifier=Modifier.fillMaxWidth()){
+  Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
+   Text(tr("New in %1\$s",BuildConfig.VERSION_NAME),style=MaterialTheme.typography.titleMedium)
+   Text(tr("Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. Settings adds an optional LFM3 text speaker and, with d1-2B, smarter Maxx offers."),style=MaterialTheme.typography.bodySmall,color=Muted)
+   TextButton(onClick={prefs.edit().putString("whats_new_seen",BuildConfig.VERSION_NAME).apply();visible=false}){Text(tr("Got it"))}
+  }
+ }
+}

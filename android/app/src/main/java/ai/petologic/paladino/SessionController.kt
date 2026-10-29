@@ -34,6 +34,8 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
  private val greetingBroker=ContextBroker(app.assets.open("paladino/greeting.md").bufferedReader().use{it.readText()})
  private val broker=ContextBroker(app.assets.open(manifest.personaRef).bufferedReader().use{it.readText()})
  private val initialProvider=runCatching{CloudProvider.fromId(prefs.getString("cloud_provider","openrouter")!!)}.getOrDefault(CloudProvider.OPENROUTER)
+ private val decisionRouter=ai.petologic.core.DecisionRouter(ai.petologic.paladino.runtime.LfmDecisionBackend(app.local,app.modelLibrary))
+ private var lastDecisionAt:java.time.Instant?=null
  private fun modelSlot(provider:CloudProvider)=if(provider==CloudProvider.OPENROUTER)"model" else "model.${provider.id}"
  val ui=MutableStateFlow(PaladinoUiState(provider=initialProvider,connected=app.credentials.read(initialProvider)!=null,model=prefs.getString(modelSlot(initialProvider),"")?:""))
  val messages=app.memory.dao.messages(sessionId).stateIn(scope,SharingStarted.WhileSubscribed(5000),emptyList())
@@ -115,7 +117,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
        check(options.value.network){"Network is disabled for this session."}
        check(app.credentials.read(ui.value.provider)!=null){"Connect ${ui.value.provider.label} in Settings to use Maxx. Tiny remains available offline."}
        ui.update{it.copy(cloud=PendingCloud(context,ui.value.model,ui.value.provider),status="Review what leaves your phone.")}
-      }else generate(context,mode,ui.value.model,null)
+      }else{generate(context,mode,ui.value.model,null);maybeOfferMaxx(request)}
      }
     }
     app.memory.dao.task(TaskRow(id,request,mode.name,if(ui.value.action!=null||ui.value.cloud!=null)"AWAITING_APPROVAL" else "COMPLETED",sessionId=sessionId))
@@ -124,8 +126,22 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    finally{ui.update{it.copy(busy=false,streaming="")}}
   }
  }
- private fun requireSkillTool(id:String){
-  check(options.value.toolCalls){"Tool permission was revoked."}
+ /** Post-response d1 probe: surfaces a Maxx offer only; never escalates automatically and never
+  *  touches detector findings or approvals. Throttled so the model swap stays rare and invisible. */
+ private fun maybeOfferMaxx(request:String){
+  if(ModelCatalog.DECISION_ID !in app.modelLibrary.installed.value)return
+  val now=java.time.Instant.now()
+  val last=lastDecisionAt
+  if(last!=null&&now.isBefore(last.plusSeconds(300)))return
+  lastDecisionAt=now
+  scope.launch{
+   val outcome=withContext(Dispatchers.Default){decisionRouter.decide(request,ExecutionMode.TINY).second}
+   if(outcome.suggestion==DecisionSuggestion.OFFER_MAXX&&!ui.value.busy&&ui.value.notice==null){
+    ui.update{it.copy(notice=app.uiText("For harder questions, Maxx may serve you better."))}
+   }
+  }
+ }
+ private fun requireSkillTool(id:String){  check(options.value.toolCalls){"Tool permission was revoked."}
   val definition=ai.petologic.paladino.skills.SkillRegistry.definitions.single{skill->skill.tools.any{it.id==id}}
   val tool=definition.tools.single{it.id==id}
   check(ai.petologic.paladino.skills.SkillRegistry.states(app)[definition.id]!=ai.petologic.paladino.skills.SkillState.OFF && ai.petologic.paladino.skills.SkillRegistry.toolEnabled(app,definition,tool)){"Skill or tool was disabled."}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-revision=73a43d1f69345aee8bb186ef4b3172cef892f2e5
+revision=8642541b255bfb5dc39cd351a178be09013a55d6
 vendor="$root/app/src/main/cpp/vendor/llama.cpp"
 if [ -d "$vendor/.git" ]; then
  actual="$(git -C "$vendor" rev-parse HEAD)"

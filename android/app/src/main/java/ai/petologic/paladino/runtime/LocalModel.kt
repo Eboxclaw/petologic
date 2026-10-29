@@ -15,6 +15,7 @@ class NativeLfm {
  external fun load(path:String,context:Int,threads:Int,batch:Int,microBatch:Int,mmap:Boolean)
  external fun prepare()
  external fun generate(system:ByteArray,user:ByteArray,roles:Array<String>,contents:Array<ByteArray>,callback:TokenCallback,maxOutput:Int,temperature:Float,topK:Int,topP:Float,repeatPenalty:Float,seed:Int):LongArray
+ external fun decisionScores(system:ByteArray,user:ByteArray,candidates:Array<String>):FloatArray
  external fun generateVisual(projectorPath:String,system:ByteArray,user:ByteArray,rgb:ByteArray,width:Int,height:Int,callback:TokenCallback,maxOutput:Int,temperature:Float,topK:Int,topP:Float,repeatPenalty:Float,seed:Int,threads:Int):LongArray
  external fun cancel()
  external fun unload()
@@ -25,6 +26,7 @@ class LocalModel(private val context:Context,private val library:ModelLibrary){
  companion object {
   const val FILE_NAME="LFM2.5-VL-450M-Q4_0.gguf"
   const val SHA256="6d2757dd0f0b98aea7dc90477bb5b3a0df1089be85ef92943f8cecb05121ccbf"
+  private const val DECISION_CONTEXT=2048
  }
  val file get()=library.file(ModelCatalog.SPEAKER_ID)
  val status=library.status
@@ -72,4 +74,26 @@ class LocalModel(private val context:Context,private val library:ModelLibrary){
   }
  }
  suspend fun unload()=generationMutex.withLock{withContext(Dispatchers.IO){if(loadedSpec!=null){native.unload();loadedSpec=null}}}
+
+ /**
+  * d1 decision scoring in the main model slot, off the chat path: the caller runs it after a
+  * response, and this unloads the decision model before returning so the next chat turn
+  * transparently reloads the selected speaker. An empty array means cancelled, not a score.
+  */
+ suspend fun decisionScores(system:String,user:String,candidates:List<String>):FloatArray=generationMutex.withLock{
+  withContext(Dispatchers.IO){
+   check(ModelCatalog.DECISION_ID in library.installed.value){"Install d1-2B in Models first."}
+   native.prepare()
+   val job=currentCoroutineContext()[Job]!!
+   val watcher=CoroutineScope(Dispatchers.Default).launch{while(isActive){if(!job.isActive){native.cancel();break};delay(50)}}
+   val spec="${ModelCatalog.DECISION_ID}:$DECISION_CONTEXT:1:512:512:true"
+   try{
+    if(loadedSpec!=spec){if(loadedSpec!=null)native.unload();loadedSpec=null;native.load(library.file(ModelCatalog.DECISION_ID).absolutePath,DECISION_CONTEXT,1,512,512,true);loadedSpec=spec}
+    native.decisionScores(system.toByteArray(),user.toByteArray(),candidates.toTypedArray())
+   }finally{
+    watcher.cancel()
+    if(loadedSpec==spec){native.unload();loadedSpec=null}
+   }
+  }
+ }
 }

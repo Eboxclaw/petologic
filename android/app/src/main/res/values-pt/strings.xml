@@ -65,6 +65,10 @@
  <string name="ui_vision_permission">A configuração dos modelos usa os ficheiros ou a pasta escolhidos nas Definições. A análise visual recebe apenas uma imagem escolhida através do seletor ou da partilha do Android. Não utiliza a câmara nem captura silenciosamente o ecrã.</string>
  <string name="ui_vision_integrations">OpenRouter, OpenAI e Z.ai estão disponíveis nas Definições com a sua chave API. A visão local usa apenas uma imagem escolhida pelo utilizador. A pesquisa web, outras integrações e aceleradores Google ou Pixel continuam planeados.</string>
  <string name="ui_primary_speaker_suffix">%1$s MB · modelo local principal</string>
+ <string name="ui_lfm3_speaker_suffix">%1$s MB · modelo LFM3 de texto opcional</string>
+ <string name="ui_maxx_offer">Para perguntas mais difíceis, o Maxx pode responder melhor.</string>
+ <string name="ui_whats_new_title">Novidades na versão %1$s</string>
+ <string name="ui_whats_new_body">O Security Guard verifica ficheiros, APKs, mensagens e ligações no seu telefone, e a Proteção mostra exatamente o que correu. Nas Definições encontra um modelo LFM3 de texto opcional e, com o d1-2B, sugestões Maxx mais inteligentes.</string>
  <string name="ui_7dc800e503d4" formatted="false">"Memória que compreende o significado"</string>
  <string name="ui_7c6b4831b8e2" formatted="false">"O LFM2.5-Embedding-350M cria vetores privados para memória por significado e futura similaridade de segurança. Português e inglês · últimas 200 notas nesta prévia."</string>
  <string name="ui_88fca9cdbc45" formatted="false">"Memória vetorial pronta"</string>

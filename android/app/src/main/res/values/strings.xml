@@ -65,6 +65,10 @@
  <string name="ui_vision_permission">Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android\'s picker or share sheet. No camera or silent screen capture is used.</string>
  <string name="ui_vision_integrations">OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned.</string>
  <string name="ui_primary_speaker_suffix">%1$s MB · primary local speaker</string>
+ <string name="ui_lfm3_speaker_suffix">%1$s MB · optional LFM3 text speaker</string>
+ <string name="ui_maxx_offer">For harder questions, Maxx may serve you better.</string>
+ <string name="ui_whats_new_title">New in %1$s</string>
+ <string name="ui_whats_new_body">Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. Settings adds an optional LFM3 text speaker and, with d1-2B, smarter Maxx offers.</string>
  <string name="ui_7dc800e503d4" formatted="false">"Memory that understands meaning"</string>
  <string name="ui_7c6b4831b8e2" formatted="false">"LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."</string>
  <string name="ui_88fca9cdbc45" formatted="false">"Vector memory ready"</string>
