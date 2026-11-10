@@ -20,5 +20,4 @@ class ApprovedActionTest {
   val unknown=p.copy(tool="shell.execute")
   assertFailsWith<IllegalArgumentException>{ApprovalPolicy(clock).validate(unknown,unknown.argumentHash)}
  }
- @Test fun modelKindsExcludeEmbeddings(){assertTrue(ModelCatalog.selectable().all{it.kind==ModelKind.GENERATIVE});assertEquals(ModelKind.EMBEDDING,ModelCatalog.get("lfm25-embedding-350m").kind)}
 }

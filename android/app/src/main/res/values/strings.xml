@@ -53,26 +53,21 @@
  <string name="ui_5b8027fa0e81" formatted="false">"Got it"</string>
  <string name="ui_9d0925abf762" formatted="false">"Appearance, models and connections."</string>
  <string name="ui_836a00b5935e" formatted="false">"Tiny · your local brain"</string>
- <string name="ui_4674888b2fc9" formatted="false">"LFM2.5-VL-450M lives on your phone. It handles short security chat and powers optional visual inspection. Files are verified before installation."</string>
+ <string name="ui_4674888b2fc9" formatted="false">"LFM3-Omni-2B lives on your phone. It handles security chat and, with its projector, inspects the images you choose. Files are verified before installation."</string>
  <string name="ui_dac6c3970c50" formatted="false">"Ready for offline use"</string>
  <string name="ui_c177e4b0aa9f" formatted="false">"Downloading…"</string>
  <string name="ui_494d36125a4f" formatted="false">"Download · 229 MB"</string>
- <string name="ui_vision_download">Download · 219 MB</string>
+ <string name="ui_vision_download">Download · 1.0 GB</string>
  <string name="ui_vision_optional">Optional local vision</string>
- <string name="ui_vision_description">The 103 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions.</string>
+ <string name="ui_vision_description">The 516 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions.</string>
  <string name="ui_vision_ready">Vision pack ready</string>
- <string name="ui_vision_setup">Set up vision · 103 MB</string>
+ <string name="ui_vision_setup">Set up vision · 516 MB</string>
  <string name="ui_vision_permission">Model setup uses the files or folder you select in Settings. Visual inspection only receives an image you choose through Android\'s picker or share sheet. No camera or silent screen capture is used.</string>
  <string name="ui_vision_integrations">OpenRouter, OpenAI and Z.ai are available in Settings with your API key. Local vision uses only a user-selected image. Web search, other app integrations and Google or Pixel accelerators remain planned.</string>
  <string name="ui_primary_speaker_suffix">%1$s MB · primary local speaker</string>
- <string name="ui_lfm3_speaker_suffix">%1$s MB · optional LFM3 text speaker</string>
  <string name="ui_maxx_offer">For harder questions, Maxx may serve you better.</string>
  <string name="ui_whats_new_title">New in %1$s</string>
- <string name="ui_whats_new_body">Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. Settings adds an optional LFM3 text speaker and, with d1-2B, smarter Maxx offers.</string>
- <string name="ui_7dc800e503d4" formatted="false">"Memory that understands meaning"</string>
- <string name="ui_7c6b4831b8e2" formatted="false">"LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."</string>
- <string name="ui_88fca9cdbc45" formatted="false">"Vector memory ready"</string>
- <string name="ui_0565331c9859" formatted="false">"Set up vector memory · 229 MB"</string>
+ <string name="ui_whats_new_body">Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. LFM3-Omni-2B powers local chat with optional vision, and d1-2B brings smarter Maxx offers.</string>
  <string name="ui_f127a4feda4a" formatted="false">"Maxx · a little extra reach"</string>
  <string name="ui_63e99bdf7ed7" formatted="false">"Connect your own API key for harder questions. Paladino asks before sending context. Cloud usage is billed by your provider."</string>
  <string name="ui_d67c24196774" formatted="false">"API key authentication. Browser sign-in is not connected yet."</string>

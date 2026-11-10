@@ -34,10 +34,8 @@ const RELEASE = {
   version: "0.0.1",
   android: "Android 12+",
   architecture: "ARM64",
-  speaker: "219 MB",
-  vision: "103 MB",
-  vectors: "229 MB",
-  speakerLfm3: "1.0 GB",
+  chatVision: "1.0 GB",
+  visionPack: "516 MB",
   decisions: "1.1 GB",
 };
 
@@ -122,17 +120,17 @@ const DEFENSES = [
   },
   {
     status: "OPTIONAL LOCAL MODEL",
-    title: "Private vector memory",
-    body: "LFM2.5-Embedding-350M turns reviewed security knowledge and redacted findings into vectors. Similarity search retrieves related context in English and Portuguese without uploading the original check.",
-    detail:
-      "A similar record can help an explanation, but similarity alone can never create or change a verdict.",
-  },
-  {
-    status: "OPTIONAL LOCAL MODEL",
     title: "Security chat and vision",
-    body: "LFM2.5-VL-450M explains detector evidence and can inspect one screenshot you explicitly choose. It keeps the companion conversational while the security engine remains responsible for findings.",
+    body: "LFM3-Omni-2B is the one local Liquid model: it explains detector evidence in plain language and, with its optional projector, can inspect one screenshot you explicitly choose. The security engine remains responsible for findings.",
     detail:
       "AI explanations cannot approve actions, lower severity or claim that an incomplete check is safe.",
+  },
+  {
+    status: "BUILT IN · ENDPOINT PENDING",
+    title: "Signed security updates",
+    body: "Protection content ships as signed packs: exact indicators, reviewed knowledge and native rules, each verified with Ed25519 signatures, SHA-256 hashes, expiry and rollback protection. The app checks daily and you can force a check any time.",
+    detail:
+      "A revoked pack version stops protecting immediately, and an expired cached manifest can never pass as fresh. The production endpoint goes live with the first signed pack.",
   },
 ] as const;
 
@@ -142,6 +140,7 @@ const LIMITS = [
   "The included ESET Android indicator subset is historical and intentionally limited.",
   "A production threat-update endpoint is not configured in the public companion preview.",
   "The private hash-reputation service is implemented in the validation build but is not deployed yet.",
+  "The bundled indicator set is intentionally small; broader rules arrive only through signed packs you can audit.",
   "Paladino does not automatically remove apps, block messages, screen calls or provide VPN protection yet.",
 ] as const;
 
@@ -152,14 +151,9 @@ const TECHNOLOGY = [
     body: "Signed SHA-256 indicators, bounded heuristics, Android signals and an isolated native rule engine produce findings. These checks own the verdict.",
   },
   {
-    label: "CONNECT",
-    title: "LFM2.5-Embedding-350M",
-    body: "Creates private vectors for multilingual retrieval across reviewed knowledge and redacted local findings. Similarity supplies context; it never creates a security verdict.",
-  },
-  {
     label: "EXPLAIN",
-    title: "LFM2.5-VL-450M",
-    body: "Runs the security conversation and can inspect one image you explicitly choose. Its output cannot approve actions, change severity or hide detector uncertainty.",
+    title: "LFM3-Omni-2B",
+    body: "The one local model: it runs the security conversation and, with its optional 516 MB projector, inspects one image you explicitly choose. Its output cannot approve actions, change severity or hide detector uncertainty.",
   },
   {
     label: "ROUTE",
@@ -216,6 +210,9 @@ function Index() {
             <span className="truncate font-display text-sm text-gold sm:text-lg">PALADINO</span>
           </a>
           <div className="ml-auto hidden items-center gap-7 font-mono text-[11px] uppercase tracking-wider text-white/60 lg:flex">
+            <a className="hover:text-cyan" href="#capabilities">
+              What you can do
+            </a>
             <a className="hover:text-cyan" href="#today">
               What it does
             </a>
@@ -350,6 +347,55 @@ function Index() {
         </header>
 
         <section
+          id="capabilities"
+          className="border-y border-white/10 bg-black/20 px-4 py-16 sm:px-6 sm:py-24"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-3xl reveal">
+              <div className="font-mono text-[10px] tracking-[0.25em] text-cyan">
+                WHAT YOU CAN DO
+              </div>
+              <h2 className="mt-4 text-balance font-display text-3xl leading-tight sm:text-4xl">
+                You choose what gets checked. You see what ran. You decide what happens next.
+              </h2>
+            </div>
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                [
+                  "Check anything suspicious",
+                  "Paste a message or link, share a file from any app, pick an APK or a screenshot, or review an installed app. Paladino tells you what it will read before it starts.",
+                ],
+                [
+                  "Read the evidence, not a scare",
+                  "Every finding shows which checks ran, what they found, what was skipped and how old the data is. A no-match result never claims safety.",
+                ],
+                [
+                  "Ask in your language",
+                  "English or Portuguese: the local model explains what a finding means in plain words. It can never approve an action or soften a verdict.",
+                ],
+                [
+                  "Turn observation on, per app",
+                  "Installed-app checks and notification triage start only after you enable them, per source app, and can be switched off at any time.",
+                ],
+                [
+                  "Approve every action",
+                  "Paladino never deletes apps, dismisses messages or changes settings by itself. Android shows the final confirmation screen for every handoff.",
+                ],
+                [
+                  "Stay offline if you want",
+                  "All checks and the local model run without network. Cloud help (Maxx) exists only if you connect your own key and approve what leaves the phone.",
+                ],
+              ].map(([title, body]) => (
+                <article key={title} className="reveal border border-white/10 bg-card p-6">
+                  <h3 className="text-lg font-semibold">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/58">{body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
           id="today"
           className="border-y border-white/10 bg-black/20 px-4 py-16 sm:px-6 sm:py-24"
         >
@@ -472,6 +518,20 @@ function Index() {
                 </li>
               ))}
             </ol>
+            <div className="reveal mt-10 border border-cyan/30 bg-cyan/5 p-6">
+              <h3 className="text-lg font-semibold text-cyan">
+                What runs in parallel and in the background
+              </h3>
+              <p className="mt-2 max-w-4xl text-sm leading-relaxed text-white/60">
+                During a scan, the deterministic checks run in an isolated, non-exported Android
+                process with strict size and time limits, while private vector retrieval and the
+                local model stay off the scan path — the local model only explains evidence after
+                the checks are done. In the background, bounded daily jobs do the quiet work: the
+                signed threat-pack check, the installed-app reconciliation, opt-in notification
+                triage and k-anonymous reputation lookups. They respect battery and network
+                constraints, never run free inference while idle, and never touch the scan verdict.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -560,11 +620,11 @@ function Index() {
                 </p>
               </article>
               <article className="border border-white/10 bg-card p-6">
-                <h3 className="text-lg font-semibold">Optional LFM3 speaker</h3>
+                <h3 className="text-lg font-semibold">One local LFM3 brain</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">
-                  Settings can now download Liquid's LFM3-Omni-2B as an optional local text speaker
-                  alongside the default 219 MB model. Everything still runs on your phone, offline,
-                  with verified downloads.
+                  LFM3-Omni-2B is now the built-in local model: chat plus optional vision in a
+                  single 1.0 GB download. Everything still runs on your phone, offline, with
+                  verified downloads.
                 </p>
               </article>
               <article className="border border-white/10 bg-card p-6">
@@ -573,6 +633,13 @@ function Index() {
                   The optional d1-2B decision model runs after your answer and can only suggest when
                   cloud help may serve you better. It never changes a security finding or approves
                   an action.
+                </p>
+              </article>
+              <article className="border border-white/10 bg-card p-6">
+                <h3 className="text-lg font-semibold">Signed security updates</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  Protection content updates over a signed channel with expiry, rollback protection
+                  and instant revocation — no app update required for new indicators.
                 </p>
               </article>
             </div>
@@ -601,13 +668,9 @@ function Index() {
               <span>·</span>
               <span>{RELEASE.architecture}</span>
               <span>·</span>
-              <span>CHAT {RELEASE.speaker}</span>
+              <span>CHAT+VISION {RELEASE.chatVision}</span>
               <span>·</span>
-              <span>VISION {RELEASE.vision}</span>
-              <span>·</span>
-              <span>VECTORS {RELEASE.vectors}</span>
-              <span>·</span>
-              <span>LFM3 CHAT {RELEASE.speakerLfm3}</span>
+              <span>VISION PACK {RELEASE.visionPack}</span>
               <span>·</span>
               <span>DECISIONS {RELEASE.decisions}</span>
             </div>

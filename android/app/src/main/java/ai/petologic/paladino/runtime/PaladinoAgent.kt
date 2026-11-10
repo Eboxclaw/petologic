@@ -152,7 +152,7 @@ class PaladinoAgent(private val inference:ai.petologic.paladino.inference.LocalI
    override suspend fun moderate(prompt:Prompt,model:LLModel):ModerationResult=throw UnsupportedOperationException("No moderation capability configured.")
    override fun close(){}
   }
-  val model=LLModel(LLMProvider(if(mode==ExecutionMode.TINY)"liquid-local" else "openrouter","Paladino"),if(mode==ExecutionMode.TINY)ModelCatalog.artifacts.find{it.id==modelId}?.model?:"LFM2.5-VL-450M" else modelId,listOf(LLMCapability.Completion,LLMCapability.Tools),options.contextTokens.toLong(),options.outputTokens.toLong())
+  val model=LLModel(LLMProvider(if(mode==ExecutionMode.TINY)"liquid-local" else "openrouter","Paladino"),if(mode==ExecutionMode.TINY)ModelCatalog.artifacts.find{it.id==modelId}?.model?:"LFM3-Omni-2B" else modelId,listOf(LLMCapability.Completion,LLMCapability.Tools),options.contextTokens.toLong(),options.outputTokens.toLong())
   fun promptBytes(prompt:Prompt)=prompt.messages.sumOf{it.parts.toString().toByteArray().size}
   var compressions=0
   val compression=object:HistoryCompressionStrategy(){

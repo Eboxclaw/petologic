@@ -25,7 +25,7 @@ interface SecurityVectorEmbedder {
 class LiquidSecurityVectorEmbedder(private val delegate:LocalVectorMemory):SecurityVectorEmbedder {
  override val ready get()=delegate.ready.value
  override val modelId=LocalVectorMemory.ID
- override val modelRevision=ModelCatalog.get(modelId).sha256
+ override val modelRevision=ModelCatalog.artifacts.firstOrNull{it.id==modelId}?.sha256?:"retired-lfm25-embedding-350m"
  override suspend fun embedQuery(text:String)=delegate.embedQuery(text)
  override suspend fun embedDocument(text:String)=delegate.embedDocument(text)
 }

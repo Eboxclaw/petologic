@@ -41,7 +41,7 @@
  <string name="security_7700d058b604">Resultados de segurança limpos.</string>
  <string name="security_08b39b784b58">Relatório sem conteúdo privado exportado.</string>
  <string name="security_16bf4268b706">Explicação por IA — consulte as evidências abaixo.</string>
- <string name="security_d776c51b150d">Instale o modelo local 350M nas Definições para pedir uma explicação.</string>
+ <string name="security_d776c51b150d">Instale o modelo local LFM3-Omni-2B nas Definições para pedir uma explicação.</string>
  <string name="security_efe54974f891">A linguagem de pressão exige uma ação imediata.</string>
  <string name="security_c059a8581647">A mensagem contém referências a credenciais, códigos ou dados bancários.</string>
  <string name="security_308c2c122b48">A mensagem refere um prémio ou recompensa não solicitados.</string>
@@ -68,8 +68,8 @@
  <string name="security_visual_result">Possíveis sinais visuais — a IA pode interpretar mal o texto</string>
  <string name="security_visual_limit">Os sinais visuais não são OCR nem um veredito de malware. Não copie endereços, códigos, montantes ou nomes de botões desta resposta; confirme-os de forma independente.</string>
  <string name="security_visual_ready">Observações visuais prontas. A imagem foi processada localmente e não foi guardada.</string>
- <string name="security_vl_install">Instale o LFM2.5-VL-450M nas Definições para pedir uma explicação.</string>
- <string name="security_vl_first">Instale primeiro o LFM2.5-VL-450M nas Definições.</string>
+ <string name="security_vl_install">Instale o LFM3-Omni-2B nas Definições para pedir uma explicação.</string>
+ <string name="security_vl_first">Instale primeiro o LFM3-Omni-2B nas Definições.</string>
  <string name="security_projector_first">Instale primeiro o pacote de visão opcional nas Definições.</string>
  <string name="security_ux_private_guardian">Guardião de segurança privado com IA</string>
  <string name="security_ux_check_something">Analisar algo</string>
@@ -114,7 +114,7 @@
  <string name="security_ux_vectors_setup">Instale a memória vetorial para encontrar conhecimento revisto relacionado.</string>
  <string name="security_ux_security_chat">Conversa de segurança</string>
  <string name="security_ux_chat_ready">As explicações locais estão prontas.</string>
- <string name="security_ux_chat_setup">Instale o LFM2.5-VL-450M para obter explicações locais.</string>
+ <string name="security_ux_chat_setup">Instale o LFM3-Omni-2B para obter explicações locais.</string>
  <string name="security_ux_visual_checks">Análises visuais</string>
  <string name="security_ux_visual_ready">As imagens selecionadas podem ser analisadas localmente.</string>
  <string name="security_ux_visual_setup">Instale o pacote de visão opcional para analisar imagens selecionadas.</string>

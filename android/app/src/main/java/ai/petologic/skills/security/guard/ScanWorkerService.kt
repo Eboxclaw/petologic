@@ -22,6 +22,7 @@ class ScanWorkerService:Service(){
    started=true
    val fd=msg.data.getParcelable<ParcelFileDescriptor>("file")?:return
    val packFd=msg.data.getParcelable<ParcelFileDescriptor>("pack")
+   val rulesFd=msg.data.getParcelable<ParcelFileDescriptor>("rules")
    val reply=msg.replyTo
    // Enforce a wall-clock deadline even if a malicious provider blocks read().
    val timer=deadline.schedule({Process.killProcess(Process.myPid())},12,TimeUnit.SECONDS)
@@ -33,10 +34,18 @@ class ScanWorkerService:Service(){
       Json.decodeFromString<ThreatPack>(bytes.decodeToString())
      }}
      val active=pack?.takeIf{it.expiresAt>System.currentTimeMillis()}
-     val finding=ParcelFileDescriptor.AutoCloseInputStream(fd).use{FileScanner(rules=runCatching{NativeRules()}.getOrNull()).scan(it,active?.indicators.orEmpty(),active?.version?.toString()?:"none")}
+     val rules=runCatching{
+      val sources=rulesFd?.let{rules->ParcelFileDescriptor.AutoCloseInputStream(rules).use{source->
+       val bytes=source.readAtMost(YaraRulesVerifier.MAX_TOTAL_CHARS+1)
+       require(bytes.size<=YaraRulesVerifier.MAX_TOTAL_CHARS)
+       Json.decodeFromString<YaraRulesPack>(bytes.decodeToString(throwOnInvalidSequence=true)).sources
+      }}
+      NativeRules(sources.orEmpty())
+     }.getOrNull()
+     val finding=ParcelFileDescriptor.AutoCloseInputStream(fd).use{FileScanner(rules=rules).scan(it,active?.indicators.orEmpty(),active?.version?.toString()?:"none")}
      reply.send(Message.obtain(null,1).apply{data=Bundle().apply{putString("finding",Json.encodeToString(finding))}})
     }catch(_:Exception){runCatching{reply.send(Message.obtain(null,1).apply{data=Bundle().apply{putString("error","Scanner failed; no complete result is available.")}})}}
-    finally{timer.cancel(false);runCatching{fd.close()};runCatching{packFd?.close()}}
+    finally{timer.cancel(false);runCatching{fd.close()};runCatching{packFd?.close()};runCatching{rulesFd?.close()}}
    }
   }
  })

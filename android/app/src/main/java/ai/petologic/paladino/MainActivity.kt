@@ -227,19 +227,14 @@ class MainActivity:ComponentActivity(){
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Row{Icon(Icons.Outlined.Memory,null,tint=Gold);Spacer(Modifier.width(12.dp));Text(tr("Tiny · your local brain"),fontWeight=FontWeight.Bold)}
    Text(tr(status),color=Muted)
-   Text(tr("LFM2.5-VL-450M lives on your phone. It handles short security chat and powers optional visual inspection. Files are verified before installation."),fontSize=13.sp,color=Muted)
+   Text(tr("LFM3-Omni-2B lives on your phone. It handles security chat and, with its projector, inspects the images you choose. Files are verified before installation."),fontSize=13.sp,color=Muted)
    if(progress!=null)LinearProgressIndicator(progress={progress},modifier=Modifier.fillMaxWidth())
-   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 219 MB"))}
+   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 1.0 GB"))}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Text(tr("Optional local vision"),fontWeight=FontWeight.Bold)
-   Text(tr("The 103 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions."),fontSize=13.sp,color=Muted)
-   Button(onClick=vm::installVision,enabled=ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID !in installed&&progress==null){Text(tr(if(ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID in installed)"Vision pack ready" else if(progress!=null)"Downloading…" else "Set up vision · 103 MB"))}
-  }}
-  Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-   Text(tr("Memory that understands meaning"),fontWeight=FontWeight.Bold)
-   Text(tr("LFM2.5-Embedding-350M creates private vectors for meaning-based memory and future security similarity. Portuguese and English · latest 200 notes in this preview."),fontSize=13.sp,color=Muted)
-   Button(onClick=vm::installSemantic,enabled=!semanticReady&&!semanticInstalling){Text(tr(if(semanticReady)"Vector memory ready" else if(semanticInstalling)"Downloading…" else "Set up vector memory · 229 MB"))}
+   Text(tr("The 516 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions."),fontSize=13.sp,color=Muted)
+   Button(onClick=vm::installVision,enabled=ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID !in installed&&progress==null){Text(tr(if(ai.petologic.core.ModelCatalog.VISION_PROJECTOR_ID in installed)"Vision pack ready" else if(progress!=null)"Downloading…" else "Set up vision · 516 MB"))}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Row{Icon(Icons.Outlined.CloudQueue,null,tint=Gold);Spacer(Modifier.width(12.dp));Text(tr("Maxx · a little extra reach"),fontWeight=FontWeight.Bold)}
