@@ -41,7 +41,7 @@
  <string name="security_7700d058b604">Security findings cleared.</string>
  <string name="security_08b39b784b58">Redacted report exported.</string>
  <string name="security_16bf4268b706">AI explanation — consult the detector evidence below.</string>
- <string name="security_d776c51b150d">Install the local 350M model in Settings to request an explanation.</string>
+ <string name="security_d776c51b150d">Install the local LFM3-Omni-2B model in Settings to request an explanation.</string>
  <string name="security_efe54974f891">Pressure language urges immediate action.</string>
  <string name="security_c059a8581647">The message asks for credentials, codes or banking details.</string>
  <string name="security_308c2c122b48">The message offers an unsolicited prize or reward.</string>
@@ -68,8 +68,8 @@
  <string name="security_visual_result">Possible visual cues — AI may misread text</string>
  <string name="security_visual_limit">Visual cues are not OCR or a malware verdict. Do not copy links, codes, amounts or button labels from this answer; verify them independently.</string>
  <string name="security_visual_ready">Visual observations ready. The image was processed locally and was not retained.</string>
- <string name="security_vl_install">Install LFM2.5-VL-450M in Settings to request an explanation.</string>
- <string name="security_vl_first">Install LFM2.5-VL-450M in Settings first.</string>
+ <string name="security_vl_install">Install LFM3-Omni-2B in Settings to request an explanation.</string>
+ <string name="security_vl_first">Install LFM3-Omni-2B in Settings first.</string>
  <string name="security_projector_first">Install the optional vision pack in Settings first.</string>
  <string name="security_ux_private_guardian">Private AI security guardian</string>
  <string name="security_ux_check_something">Check something</string>
@@ -114,7 +114,7 @@
  <string name="security_ux_vectors_setup">Install vector memory to retrieve related reviewed knowledge.</string>
  <string name="security_ux_security_chat">Security chat</string>
  <string name="security_ux_chat_ready">Local explanations are ready.</string>
- <string name="security_ux_chat_setup">Install LFM2.5-VL-450M for local explanations.</string>
+ <string name="security_ux_chat_setup">Install LFM3-Omni-2B for local explanations.</string>
  <string name="security_ux_visual_checks">Visual checks</string>
  <string name="security_ux_visual_ready">Selected images can be inspected locally.</string>
  <string name="security_ux_visual_setup">Install the optional vision pack to inspect selected images.</string>

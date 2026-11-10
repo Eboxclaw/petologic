@@ -13,21 +13,22 @@ import java.io.File
 
 object IsolatedScanner {
  private val mutex=Mutex()
- suspend fun scan(context:Context,uri:Uri,pack:File?):Finding=mutex.withLock{
+ suspend fun scan(context:Context,uri:Uri,pack:File?,rules:File?=null):Finding=mutex.withLock{
   withContext(Dispatchers.IO){
    require(uri.scheme=="content"){"Choose a file with the Android file picker."}
    val fd=requireNotNull(context.contentResolver.openFileDescriptor(uri,"r")){"File cannot be opened."}
-   scanDescriptor(context,fd,pack)
+   scanDescriptor(context,fd,pack,rules)
   }
  }
- suspend fun scan(context:Context,file:File,pack:File?):Finding=mutex.withLock{
+ suspend fun scan(context:Context,file:File,pack:File?,rules:File?=null):Finding=mutex.withLock{
   withContext(Dispatchers.IO){
    require(file.isFile){"Installed APK cannot be opened."}
-   scanDescriptor(context,ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY),pack)
+   scanDescriptor(context,ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY),pack,rules)
   }
  }
- private suspend fun scanDescriptor(context:Context,fd:ParcelFileDescriptor,pack:File?):Finding {
+ private suspend fun scanDescriptor(context:Context,fd:ParcelFileDescriptor,pack:File?,rules:File?=null):Finding {
    val packFd=pack?.takeIf{it.exists()}?.let{ParcelFileDescriptor.open(it,ParcelFileDescriptor.MODE_READ_ONLY)}
+   val rulesFd=rules?.takeIf{it.exists()}?.let{ParcelFileDescriptor.open(it,ParcelFileDescriptor.MODE_READ_ONLY)}
    val result=CompletableDeferred<Finding>();var remote:Messenger?=null
    val response=Messenger(object:Handler(Looper.getMainLooper()){
     override fun handleMessage(msg:Message){
@@ -40,7 +41,7 @@ object IsolatedScanner {
    val connection=object:ServiceConnection{
     override fun onServiceConnected(name:ComponentName,binder:IBinder){
      remote=Messenger(binder)
-     try{remote!!.send(Message.obtain(null,1).apply{replyTo=response;data=Bundle().apply{putParcelable("file",fd);putParcelable("pack",packFd)}})}
+     try{remote!!.send(Message.obtain(null,1).apply{replyTo=response;data=Bundle().apply{putParcelable("file",fd);putParcelable("pack",packFd);putParcelable("rules",rulesFd)}})}
      catch(e:Exception){result.completeExceptionally(e)}
     }
     override fun onServiceDisconnected(name:ComponentName){result.completeExceptionally(IllegalStateException("Scanner stopped; scan coverage is incomplete."))}
@@ -54,7 +55,7 @@ object IsolatedScanner {
    }finally{
     runCatching{remote?.send(Message.obtain(null,2))}
     if(bound)runCatching{context.unbindService(connection)}
-    fd.close();packFd?.close()
+    fd.close();packFd?.close();rulesFd?.close()
    }
  }
 }

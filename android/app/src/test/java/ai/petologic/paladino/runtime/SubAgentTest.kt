@@ -5,7 +5,7 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class SubAgentTest {
- @Test fun every_speaking_turn_uses_the_main_350m(){
+ @Test fun every_speaking_turn_uses_the_local_speaker(){
   assertEquals(ai.petologic.core.ModelCatalog.SPEAKER_ID,SubAgent.MODEL)
   assertEquals(SubAgent.MODEL,SubAgent.modelId(emptySet()))
   assertEquals(SubAgent.MODEL,SubAgent.modelId(setOf("lfm25-embedding-350m")))

@@ -207,7 +207,7 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
   maybeAutoTitle(context.user)
  }
 
- /** Sub-agent job: name the conversation once, using the small model when downloaded (else 350M). */
+ /** Sub-agent job: name the conversation once, using the local model when downloaded. */
  private suspend fun maybeAutoTitle(firstUser:String){
   val current=sessionInfo.value
   if(current.title!="First conversation"&&!Regex("Conversation [0-9]+").matches(current.title))return

@@ -6,7 +6,7 @@ import ai.petologic.paladino.inference.LocalInferenceBackend
 
 /**
  * The sub-agent: a bounded worker turn with no tools, for background jobs like titling.
- * Every speaking turn uses the same VL-450M model. Worker turns remain serialized with chat.
+ * Every speaking turn uses the same LFM3-Omni-2B model. Worker turns remain serialized with chat.
  */
 object SubAgent{
  const val MODEL=ai.petologic.core.ModelCatalog.SPEAKER_ID

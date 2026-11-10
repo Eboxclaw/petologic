@@ -34,6 +34,7 @@ class SafeRetrievalBenchmarkTest {
   val instrumentation=InstrumentationRegistry.getInstrumentation()
   val args=InstrumentationRegistry.getArguments()
   assumeTrue("opt in with -e safeRetrievalBenchmark true",args.getString("safeRetrievalBenchmark")=="true")
+  assumeTrue("Dormant: the embedding artifact was retired from the catalog until a future Liquid embedding model is pinned.",ai.petologic.paladino.runtime.LocalVectorMemory.available)
   val app=instrumentation.targetContext.applicationContext as PaladinoApplication
   val stagingRoot=requireNotNull(app.getExternalFilesDir("safe-benchmark")).canonicalFile
   val corpusPath=requireNotNull(args.getString("safeBenchmarkCorpus")){"Pass -e safeBenchmarkCorpus with a staged app-external corpus path."}
@@ -82,7 +83,7 @@ class SafeRetrievalBenchmarkTest {
     val report=RetrievalBenchmarkReport(generatedAt=Instant.now().toString(),disclaimer=BenchmarkRunner.DISCLAIMER,
      corpusVersion=validated.corpus.corpusVersion,corpusSha256=BenchmarkRunner.sha256(raw),
      gitRevision=args.getString("benchmarkGitRevision")?:"unknown",
-     modelHash=ModelCatalog.get(ModelCatalog.EMBEDDING_ID).sha256,deviceFingerprint=Build.FINGERPRINT,
+     modelHash=ai.petologic.paladino.runtime.LocalVectorMemory.ID,deviceFingerprint=Build.FINGERPRINT,
      deviceModel=Build.MODEL,networkDisabled=true,
      records=records.size,warmupQueries=queries.size,passes=passes,summaries=summaries,
      passed=summaries.map{it.locale}.toSet()==setOf("en","pt")&&summaries.all{it.recallPassed&&it.latencyPassed})

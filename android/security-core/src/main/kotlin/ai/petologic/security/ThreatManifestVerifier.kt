@@ -54,3 +54,28 @@ object SecurityKnowledgePackVerifier {
   return pack
  }
 }
+
+object YaraRulesVerifier {
+ const val MAX_RULE_SOURCES=256
+ const val MAX_SOURCE_CHARS=512*1024
+ const val MAX_TOTAL_CHARS=8*1024*1024
+ fun verify(payload:ByteArray,expectedVersion:Long,now:Long):YaraRulesPack {
+  require(payload.size<=ThreatManifestVerifier.MAX_ARTIFACT_BYTES){"YARA rule pack is too large."}
+  val pack=Json.decodeFromString<YaraRulesPack>(payload.decodeToString(throwOnInvalidSequence=true))
+  require(pack.schema==1&&pack.version==expectedVersion){"Unsupported YARA rule pack."}
+  require(pack.minEngine==1){"YARA rule pack needs a newer engine."}
+  require(pack.issuedAt<=now&&pack.expiresAt>now&&pack.expiresAt>pack.issuedAt){"YARA rule pack is expired or not yet valid."}
+  require(pack.sources.isNotEmpty()&&pack.sources.size<=MAX_RULE_SOURCES){"YARA rule pack exceeds source limits."}
+  require(pack.sources.map{it.id}.distinct().size==pack.sources.size){"Duplicate YARA rule source."}
+  var total=0
+  pack.sources.forEach { source->
+   require(source.id.length in 1..160&&source.license.length in 1..80){"Invalid YARA rule identity."}
+   require(source.text.length in 1..MAX_SOURCE_CHARS){"YARA rule source exceeds limits."}
+   require(!source.text.contains('\u0000')){"YARA rule source contains invalid characters."}
+   require(Regex("rule\\s+[A-Za-z_][A-Za-z0-9_]*\\s*[:{]").containsMatchIn(source.text)){"YARA rule source does not declare a rule."}
+   total+=source.text.length
+  }
+  require(total<=MAX_TOTAL_CHARS){"YARA rule pack exceeds the compiled-source budget."}
+  return pack
+ }
+}

@@ -61,6 +61,9 @@ interface ThreatMemory {
 @Serializable data class ThreatEdge(val fromId:String,val toId:String,val relation:String)
 @Serializable data class SecurityKnowledgePack(val schema:Int=1,val version:Long,val issuedAt:Long,val expiresAt:Long,
  val records:List<KnowledgeRecord>,val edges:List<ThreatEdge> = emptyList())
+@Serializable data class YaraRuleSource(val id:String,val license:String,val text:String)
+@Serializable data class YaraRulesPack(val schema:Int=1,val version:Long,val issuedAt:Long,val expiresAt:Long,
+ val minEngine:Int=1,val sources:List<YaraRuleSource>)
 
 @Serializable data class ThreatArtifact(val kind:ThreatArtifactKind,val url:String,val sha256:String,val size:Long,
  val recordCount:Int,val sourceSetVersion:String,val licenseManifestSha256:String,val required:Boolean=true)

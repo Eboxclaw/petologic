@@ -47,7 +47,7 @@ class SecurityViewModel(application:Application):AndroidViewModel(application){
  fun checkUpdates(){ai.petologic.skills.security.guard.ThreatUpdateScheduler.checkNow(app);status.value="Threat update check scheduled."}
  fun export(uri:Uri)=work{repository.export(uri);status.value="Redacted report exported."}
  fun image(uri:Uri)=work{
-  check(ModelCatalog.SPEAKER_ID in app.modelLibrary.installed.value){"Install LFM2.5-VL-450M in Settings first."}
+  check(ModelCatalog.SPEAKER_ID in app.modelLibrary.installed.value){"Install LFM3-Omni-2B in Settings first."}
   check(ModelCatalog.VISION_PROJECTOR_ID in app.modelLibrary.installed.value){"Install the optional vision pack in Settings first."}
   app.vectorMemory.unload();visualAnalysis.value=""
   val language=app.resources.configuration.locales[0].language
@@ -55,7 +55,7 @@ class SecurityViewModel(application:Application):AndroidViewModel(application){
   status.value="Visual observations ready. The image was processed locally and was not retained."
  }
  fun explain(finding:Finding)=work{
-  check(ModelCatalog.SPEAKER_ID in app.modelLibrary.installed.value){"Install LFM2.5-VL-450M in Settings to request an explanation."}
+  check(ModelCatalog.SPEAKER_ID in app.modelLibrary.installed.value){"Install LFM3-Omni-2B in Settings to request an explanation."}
   // No raw content and no tool callbacks enter this bounded local generation.
   val facts="${finding.summary}. Checks: ${finding.checks.joinToString()}. Evidence: ${finding.evidence.joinToString{it.detail}}. Limitations: ${finding.limitations.joinToString()}"
   val related=runCatching{repository.threatMemory.retrieve(ThreatQuery(facts,limit=3))}.getOrDefault(emptyList())

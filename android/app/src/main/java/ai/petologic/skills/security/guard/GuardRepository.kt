@@ -24,6 +24,7 @@ class GuardRepository(private val context:Context){
  val latest=findings.map{rows->rows.mapNotNull{runCatching{Json.decodeFromString<Finding>(it.json)}.getOrNull()}}
   .stateIn((context.applicationContext as ai.petologic.paladino.PaladinoApplication).scope,SharingStarted.Eagerly,emptyList())
  val packs=ThreatPackStore(context)
+ val yara=YaraRulesStore(context)
  suspend fun expire(){
   val cutoff=System.currentTimeMillis()-ThreatMemoryRepository.FINDING_TTL
   val ids=db.dao().expiredFindingIds(cutoff)
@@ -40,8 +41,8 @@ class GuardRepository(private val context:Context){
   return finding
  }
  suspend fun scanFile(uri:Uri):Finding {
-  val pack=packs.snapshot()
-  return try{record(IsolatedScanner.scan(context,uri,pack))}finally{pack?.delete()}
+  val pack=packs.snapshot();val rules=yara.snapshot()
+  return try{record(IsolatedScanner.scan(context,uri,pack,rules))}finally{pack?.delete();rules?.delete()}
  }
  suspend fun scanText(raw:String):Finding=record(analyzeText(raw))
  private val reputation by lazy{ReputationClient(context)}
@@ -60,12 +61,12 @@ class GuardRepository(private val context:Context){
   val checks=mutableListOf("Android permissions, installer, signing and service profile")
   val limits=mutableListOf("Android package visibility and available metadata limit this check.","App capability signals are not proof of malware.")
   var coverage=if(unavailable)Coverage.UNAVAILABLE else Coverage.COMPLETE
-  val packSnapshot=packs.snapshot()
+  val packSnapshot=packs.snapshot();val rulesSnapshot=yara.snapshot()
   if(profile.sourceFiles.isEmpty()){
    coverage=Coverage.PARTIAL;limits+="Android did not expose the installed APK files."
   }else try{
    profile.sourceFiles.forEachIndexed { index,file->
-    val local=runCatching{IsolatedScanner.scan(context,file,packSnapshot)}.getOrElse{
+    val local=runCatching{IsolatedScanner.scan(context,file,packSnapshot,rulesSnapshot)}.getOrElse{
      coverage=Coverage.PARTIAL;limits+="An installed APK could not be fully scanned within the isolated limits.";null
     }
     if(local!=null){
@@ -107,7 +108,7 @@ class GuardRepository(private val context:Context){
    is ThreatMemoryStatus.Stale->"Threat memory pack ${state.packVersion} expired"
    is ThreatMemoryStatus.Failed->"Threat memory needs attention: ${state.message}"
   }
-  return ProtectionStatus(vectorMemory=vector,rules="YARA 4.5.8 — harmless self-test rule only",signatures=when{pack==null->"No valid threat pack — missing, expired or invalid";pack.expiresAt<=System.currentTimeMillis()->"Threat pack expired";else->"Pack ${pack.version}: ${pack.indicators.size} exact indicators"})
+  return ProtectionStatus(vectorMemory=vector,rules=let{val installed=yara.load();if(installed!=null)"YARA 4.5.8 with signed rule pack v${installed.version} (${installed.sources.size} sources)" else "YARA 4.5.8 — harmless self-test rule only"},signatures=when{pack==null->"No valid threat pack — missing, expired or invalid";pack.expiresAt<=System.currentTimeMillis()->"Threat pack expired";else->"Pack ${pack.version}: ${pack.indicators.size} exact indicators"})
  }
  suspend fun clear(){
   val ids=db.dao().observe().first().map{it.id}

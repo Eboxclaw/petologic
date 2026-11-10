@@ -23,11 +23,7 @@ class NativeLfm {
 fun interface TokenCallback{fun onToken(bytes:ByteArray)}
 
 class LocalModel(private val context:Context,private val library:ModelLibrary){
- companion object {
-  const val FILE_NAME="LFM2.5-VL-450M-Q4_0.gguf"
-  const val SHA256="6d2757dd0f0b98aea7dc90477bb5b3a0df1089be85ef92943f8cecb05121ccbf"
-  private const val DECISION_CONTEXT=2048
- }
+ companion object{private const val DECISION_CONTEXT=2048}
  val file get()=library.file(ModelCatalog.SPEAKER_ID)
  val status=library.status
  val progress=library.progress
@@ -60,7 +56,7 @@ class LocalModel(private val context:Context,private val library:ModelLibrary){
   }
  }
  suspend fun generateVisual(system:String,user:String,rgb:ByteArray,width:Int,height:Int,options:SessionOptions=SessionOptions(outputTokens=192,maxHops=1,maxToolCalls=0,maxRetries=0),onText:(String)->Unit):String=generationMutex.withLock{
-  options.validate();check(ModelCatalog.SPEAKER_ID in library.installed.value){"Install LFM2.5-VL-450M first."};check(ModelCatalog.VISION_PROJECTOR_ID in library.installed.value){"Install the Paladino vision pack first."}
+  options.validate();check(ModelCatalog.SPEAKER_ID in library.installed.value){"Install LFM3-Omni-2B first."};check(ModelCatalog.VISION_PROJECTOR_ID in library.installed.value){"Install the Paladino vision pack first."}
   withContext(Dispatchers.IO){
    native.prepare();val job=currentCoroutineContext()[Job]!!;var peakPss=Debug.getPss();val watcher=CoroutineScope(Dispatchers.Default).launch{while(isActive){if(!job.isActive){native.cancel();break};peakPss=maxOf(peakPss,Debug.getPss());delay(50)}}
    try{

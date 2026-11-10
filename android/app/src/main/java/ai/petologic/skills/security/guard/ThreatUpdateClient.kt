@@ -52,6 +52,7 @@ class ThreatUpdateClient(private val context:Context,private val repository:Guar
    // Validate every artifact before changing active state.
    staged.forEach{(artifact,data)->validateArtifact(manifest,artifact,data)}
    staged.forEach{(artifact,data)->activate(manifest,artifact,data)}
+   retireDroppedArtifacts(manifest)
    repository.packs.noteManifest(bytes,manifest.version,manifest.expiresAt)
    it.header("ETag")?.let{tag->prefs.edit().putString("etag",tag).apply()}
    prefs.edit().putLong("last_success",System.currentTimeMillis()).putString("last_error","").apply()
@@ -76,6 +77,7 @@ class ThreatUpdateClient(private val context:Context,private val repository:Guar
     require(repository.packs.validate(bytes).version==manifest.version){"Hash pack version does not match manifest."}
    }
    ThreatArtifactKind.KNOWLEDGE->SecurityKnowledgePackVerifier.verify(bytes,manifest.version,System.currentTimeMillis())
+   ThreatArtifactKind.YARA_RULES->YaraRulesVerifier.verify(bytes,manifest.version,System.currentTimeMillis())
    else->require(!artifact.required){"Required artifact ${artifact.kind} is not supported by this engine."}
   }
  }
@@ -83,8 +85,13 @@ class ThreatUpdateClient(private val context:Context,private val repository:Guar
   when(artifact.kind){
    ThreatArtifactKind.HASH_SET->repository.packs.install(bytes)
    ThreatArtifactKind.KNOWLEDGE->repository.threatMemory.install(SecurityKnowledgePackVerifier.verify(bytes,manifest.version,System.currentTimeMillis()))
+   ThreatArtifactKind.YARA_RULES->repository.yara.install(YaraRulesVerifier.verify(bytes,manifest.version,System.currentTimeMillis()))
    else->Unit
   }
+ }
+ // A newer manifest without YARA rules retires the installed rule set.
+ private fun retireDroppedArtifacts(manifest:ThreatManifest){
+  if(manifest.artifacts.none{it.kind==ThreatArtifactKind.YARA_RULES})repository.yara.clear()
  }
  fun recordFailure(message:String){prefs.edit().putString("last_error",message.take(300)).putLong("last_failure",System.currentTimeMillis()).apply()}
  private fun sha256(bytes:ByteArray)=MessageDigest.getInstance("SHA-256").digest(bytes).joinToString(""){"%02x".format(it)}
