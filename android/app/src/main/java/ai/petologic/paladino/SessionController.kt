@@ -83,10 +83,15 @@ class SessionController(private val app:PaladinoApplication,val sessionId:String
    log("request","Mode ${mode.name}; model ${sessionInfo.value.modelId}")
    try{
     if(mode==ExecutionMode.TINY&&phoneReadRequest(request)==null){
-     app.modelsReady.await()
-     if(sessionInfo.value.modelId !in app.modelLibrary.installed.value){
-      ui.update{it.copy(pendingModelMessage=request,status="Install a model to continue.")}
-      return@launch
+     // Deterministic routes (save/search/clarify) are model-free by design and must work without
+     // any downloaded model; only generation waits for the speaker.
+     val needsModel=RoutePolicy().route(request,ExecutionMode.TINY) is Route.Generate
+     if(needsModel){
+      app.modelsReady.await()
+      if(sessionInfo.value.modelId !in app.modelLibrary.installed.value){
+       ui.update{it.copy(pendingModelMessage=request,status="Install a model to continue.")}
+       return@launch
+      }
      }
     }
     ui.update{it.copy(pendingModelMessage=null,busy=true,error=null,notice=null,status="Understanding your request…")}

@@ -12,9 +12,12 @@ class SecurityGuardUiTest {
   ui.onNodeWithTag("check_something").performScrollTo().performClick()
   ui.onNodeWithText("Message or URL").performTextInput("URGENT verify your account and bank details http://193.42.11.7")
   ui.onNodeWithText("Check text locally").performClick()
-  ui.waitUntil(10000){ui.onAllNodesWithText("Review suspicious patterns").fetchSemanticsNodes().isNotEmpty()}
-  ui.onAllNodesWithText("Review suspicious patterns").onFirst().assertExists()
+  // The scan lands on Activity, where the deterministic REVIEW title renders; the status banner
+  // confirms the scan completed and was recorded without retaining the submitted text.
+  ui.waitUntil(10000){ui.onAllNodesWithText("Review recommended").fetchSemanticsNodes().isNotEmpty()}
+  ui.onAllNodesWithText("Review recommended").onFirst().assertExists()
   ui.onNodeWithText("Scan recorded. Review its evidence and limitations.").assertExists()
+  ui.onAllNodesWithText("Local text and link patterns").onFirst().assertExists()
  }
  @Test fun visualScanExplainsItsLocalAndNonVerdictBoundary(){
   ui.onNodeWithTag("check_something").performScrollTo().performClick()
