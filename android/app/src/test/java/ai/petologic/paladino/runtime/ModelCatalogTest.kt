@@ -13,9 +13,9 @@ class ModelCatalogTest {
  @Test fun main_brain_is_the_lfm3_omni_quant(){
   val speaker=ModelCatalog.get(ModelCatalog.SPEAKER_ID)
   assertEquals("LFM3-Omni-2B",speaker.model)
-  assertEquals("Q4_0",speaker.quantization)
-  assertEquals("LFM3-Omni-2B-Q4_0.gguf",speaker.filename)
-  assertEquals(1049617920L,speaker.size)
+  assertEquals("Q4_K_M",speaker.quantization)
+  assertEquals("LFM3-Omni-2B-Q4_K_M.gguf",speaker.filename)
+  assertEquals(1099630080L,speaker.size)
  }
  @Test fun local_catalog_has_speaker_router_and_projectors(){
   assertEquals(4,ModelCatalog.artifacts.size)
@@ -29,7 +29,7 @@ class ModelCatalogTest {
  }
  @Test fun vector_import_match_resolves(){
   assertEquals(ModelCatalog.SPEAKER_ID,SubAgent.modelId(emptySet()))
-  assertEquals(ModelCatalog.SPEAKER_ID,ModelCatalog.match(1049617920,"6d2273a383b92dd7c5db0eb4c8dfeae13e805b485a6621c4b391ae179c2b5f28")?.id)
+  assertEquals(ModelCatalog.SPEAKER_ID,ModelCatalog.match(1099630080,"9f8d30e9d4fd7a9349d586e077988229b3ca0a0e4ad730897563d1eccc9893e2")?.id)
  }
  @Test fun projector_is_optional_and_not_selectable(){
   val projector=ModelCatalog.get(ModelCatalog.VISION_PROJECTOR_ID)

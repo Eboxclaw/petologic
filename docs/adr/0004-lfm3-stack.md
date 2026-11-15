@@ -8,7 +8,7 @@
 
 Liquid AI announced LFM3 on 2026-10-27: six open-weight 2B-class models built on the LFM3-1.7B-Base tri-hybrid backbone (24 layers, gated short convs + SWA + global attention), with day-0 GGUF releases and llama.cpp support (the Audio-2B GGUF card states b11960 / v0.8.0 and newer). License: LFM Open License v1.0 — commercial use is permitted for entities under the $10M annual-revenue threshold, which covers Petologic.
 
-The current product has no classifier/router: routing is exact-command rules plus the user-selected Tiny/Maxx split, and the planned Encoder-230M security classifier was never built (NEXT-02, `docs/MISSING.md`). Today's optional-model downloads total about 551 MB: LFM2.5-VL-450M Q4_0 (219 MB), its mmproj Q8_0 (103 MB) and LFM2.5-Embedding-350M Q4_K_M (229 MB).
+The current product has no classifier/router: routing is exact-command rules plus the user-selected Tiny/Maxx split, and the planned Encoder-230M security classifier was never built (NEXT-02, `docs/MISSING.md`). Today's optional-model downloads total about 551 MB: LFM2.5-VL-450M Q4_0 (superseded) (219 MB), its mmproj Q8_0 (103 MB) and LFM2.5-Embedding-350M Q4_K_M (229 MB).
 
 Verified LFM3 artifacts (sizes and SHA-256 from the Hugging Face LFS metadata, pinned to repository revisions):
 

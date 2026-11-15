@@ -109,7 +109,7 @@ async function pump(
       if (value && value.length > 0) onChunk(value);
     }
   } catch (error) {
-    if (!failed) throw error; // genuine network error, not the watchdog — still resumable by the caller
+    if (!failed) throw error; // genuine network error, not the watchdog - still resumable by the caller
     failed = true;
   } finally {
     if (timer !== undefined) window.clearTimeout(timer);
@@ -118,7 +118,7 @@ async function pump(
 }
 
 /**
- * Streams the file with stall detection and Range resume — the browser twin of the app's ModelDownloader:
+ * Streams the file with stall detection and Range resume - the browser twin of the app's ModelDownloader:
  * if bytes stop arriving, abort and re-fetch from the last received offset instead of restarting.
  * Resolves with the complete Blob; on CORS/fetch failure it throws `fallbackToBrowser` so the caller
  * can hand off to the browser's own download manager (the previous behavior).

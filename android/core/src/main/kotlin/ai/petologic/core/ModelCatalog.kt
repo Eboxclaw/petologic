@@ -16,6 +16,8 @@ data class ModelArtifact(
 )
 
 /**
+ * Pinned Liquid artifacts. Quantization selection rule: QAD when the publisher ships it,
+ * else Q4_K_M, else Q8_0.
  * Pinned Liquid artifacts. LFM3-Omni-2B is the one local speaker: it handles chat and, with its
  * own projector, visual inspection. d1-2B is the decision router (never a chat model). The
  * retired LFM2.5-VL-450M speaker/pair and the LFM2.5-Embedding-350M vector model are removed —
@@ -28,9 +30,9 @@ object ModelCatalog {
  const val DECISION_PROJECTOR_ID="d1-2b-mmproj"
  val artifacts=listOf(
   ModelArtifact(
-   SPEAKER_ID,"LiquidAI","LFM3-Omni-2B","Q4_0","LFM3-Omni-2B-Q4_0.gguf",
-   1049617920,"6d2273a383b92dd7c5db0eb4c8dfeae13e805b485a6621c4b391ae179c2b5f28",
-   "https://huggingface.co/LiquidAI/LFM3-Omni-2B-GGUF/resolve/64660117852a2054cf1f666f47eeb910e2204e4d/LFM3-Omni-2B-Q4_0.gguf",
+   SPEAKER_ID,"LiquidAI","LFM3-Omni-2B","Q4_K_M","LFM3-Omni-2B-Q4_K_M.gguf",
+   1099630080,"9f8d30e9d4fd7a9349d586e077988229b3ca0a0e4ad730897563d1eccc9893e2",
+   "https://huggingface.co/LiquidAI/LFM3-Omni-2B-GGUF/resolve/64660117852a2054cf1f666f47eeb910e2204e4d/LFM3-Omni-2B-Q4_K_M.gguf",
    ModelKind.GENERATIVE,
    VISION_PROJECTOR_ID,
   ),

@@ -1,9 +1,9 @@
 name: Android preview
 on:
   push:
-    paths: ['android/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'src/**', 'docs/INSTALL-ANDROID.md', 'README.md', 'scripts/**', '.github/workflows/android.yml']
   pull_request:
-    paths: ['android/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'src/**', 'docs/INSTALL-ANDROID.md', 'README.md', 'scripts/**', '.github/workflows/android.yml']
 permissions:
   contents: read
 jobs:
@@ -42,6 +42,8 @@ jobs:
         run: android/scripts/bootstrap-native.sh
       - name: Fetch pinned security engine
         run: android/scripts/bootstrap-security.sh
+      - name: Check public copy typography
+        run: scripts/check-public-copy.sh
       - name: Test release evidence verifier
         working-directory: android
         run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'

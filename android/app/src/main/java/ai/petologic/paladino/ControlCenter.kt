@@ -224,7 +224,7 @@ private fun skillStateLabel(state:ai.petologic.paladino.skills.SkillState)=when(
    PermissionSwitch("Memory-map model",edit.mmap){edit=edit.copy(mmap=it)}
    Text(tr("Automatic summarization, reasoning mode, GPU offload and KV quantization are not exposed until implemented and tested."),fontSize=12.sp,color=Muted)
    error?.let{Text(tr(it),color=MaterialTheme.colorScheme.error)}
-   Row{Button(onClick={try{edit.validate();vm.updateOptions(edit);error=null}catch(_:IllegalArgumentException){error="Values are outside supported limits. Context 1024–8192; output 16–1024; reserve 128–2048. Check timeouts, batch sizes and sampling values."}},enabled=!state.busy){Text(tr("Apply"))};TextButton(onClick={edit=SessionOptions(instructions=saved.instructions,memoryRead=saved.memoryRead,memoryWrite=saved.memoryWrite,toolCalls=saved.toolCalls,network=saved.network);error=null}){Text(tr("Reset defaults"))}}
+   Row{Button(onClick={try{edit.validate();vm.updateOptions(edit);error=null}catch(_:IllegalArgumentException){error="Values are outside supported limits. Context 1024 to 8192; output 16 to 1024; reserve 128 to 2048. Check timeouts, batch sizes and sampling values."}},enabled=!state.busy){Text(tr("Apply"))};TextButton(onClick={edit=SessionOptions(instructions=saved.instructions,memoryRead=saved.memoryRead,memoryWrite=saved.memoryWrite,toolCalls=saved.toolCalls,network=saved.network);error=null}){Text(tr("Reset defaults"))}}
   }
  }}
 }
