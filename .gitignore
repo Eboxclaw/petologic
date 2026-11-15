@@ -45,3 +45,4 @@ android/app/src/main/cpp/vendor/
 
 # Release signing secrets
 android/keystore/*.pass
+android/keystore/
