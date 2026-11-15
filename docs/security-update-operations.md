@@ -19,6 +19,32 @@ Endpoint: `https://petologic-updates.eitherbox.workers.dev` (Cloudflare Worker
 
 ## Publishing a new pack version
 
+The content is already staged: `scripts/build-staged-content.py` builds
+`updates-endpoint/content/` (158 exact SHA-256 indicators from 16 Android-relevant ESET
+families at the pinned commit, 30 reviewed EN/PT campaign knowledge records, reputation shard
+inputs) and `security-core`'s `StagedContentContractTest` validates that content against the
+app's real verifiers in CI. To refresh it after a snapshot update:
+
+```sh
+cd android
+python3 scripts/build-staged-content.py --snapshot /tmp/eset-malware-ioc-<commit> \
+    --commit <commit> --version <N> --out ../updates-endpoint/content
+```
+
+Then sign and publish in one command (requires the offline Ed25519 PKCS#8 key; JDK 17 and
+wrangler on PATH):
+
+```sh
+cd android
+./scripts/sign-and-publish.sh --key /secure/ed25519-production.pem --version <N>
+```
+
+The script: signs the hash-pack envelope (`scripts/sign-pack-envelope.py`), builds and signs
+the manifest (`build-threat-manifest.py`), builds reputation shards
+(`build-reputation-shards.py`), deploys everything to the worker, and curls the live URLs.
+
+Manual equivalent:
+
 ```sh
 cd android
 python3 scripts/build-threat-manifest.py \
