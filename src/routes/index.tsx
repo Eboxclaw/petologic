@@ -8,20 +8,24 @@ import { APK_RELEASE } from "../lib/apkDownload";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Paladino: Free Local AI Antivirus and Companion for Android" },
+      {
+        title:
+          "Petologic: Proof-of-Concept AI Agent, Antivirus, Antimalware and Anti Spam for Android",
+      },
       {
         name: "description",
         content:
-          "Paladino is a free local AI antivirus and companion for Android. Check suspicious content, understand the evidence and ask your private Liquid AI for help.",
+          "Petologic is a proof of concept Android app: an on-device AI agent with antivirus, antimalware and anti spam checks. Check suspicious content, understand the evidence and ask your private Liquid AI agent for help.",
       },
       {
         property: "og:title",
-        content: "Paladino: Free Local AI Antivirus and Companion for Android",
+        content:
+          "Petologic: Proof-of-Concept AI Agent, Antivirus, Antimalware and Anti Spam for Android",
       },
       {
         property: "og:description",
         content:
-          "One Android app combining local antivirus checks, Liquid AI, private vector memory, chat, Sprite and widget.",
+          "One Android app combining an on-device AI agent with antivirus, antimalware and anti spam checks, chat, Sprite and widget.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -34,7 +38,7 @@ const RELEASE = {
   version: "0.0.1",
   android: "Android 12+",
   architecture: "ARM64",
-  chatVision: "1.0 GB",
+  chatVision: "1.1 GB",
   visionPack: "516 MB",
   decisions: "1.1 GB",
 };
@@ -203,11 +207,11 @@ function Index() {
     <div className="min-h-screen bg-navy font-body text-white selection:bg-cyan selection:text-navy">
       <nav className="sticky top-0 z-40 border-b border-white/10 bg-navy/95 px-4 py-3 backdrop-blur sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center gap-4">
-          <a href="#top" className="flex min-w-0 items-center gap-3" aria-label="Paladino home">
+          <a href="#top" className="flex min-w-0 items-center gap-3" aria-label="Petologic home">
             <span className="pixel-border-gold grid size-7 shrink-0 place-items-center bg-royal">
               <span className="size-2 bg-cyan" />
             </span>
-            <span className="truncate font-display text-sm text-gold sm:text-lg">PALADINO</span>
+            <span className="truncate font-display text-sm text-gold sm:text-lg">PETOLOGIC</span>
           </a>
           <div className="ml-auto hidden items-center gap-7 font-mono text-[11px] uppercase tracking-wider text-white/60 lg:flex">
             <a className="hover:text-cyan" href="#capabilities">
@@ -250,15 +254,17 @@ function Index() {
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-20">
             <div>
               <StatusPill tone="cyan">
-                FREE ANDROID ANTIVIRUS · POWERED BY LOCAL LIQUID AI
+                PROOF OF CONCEPT · AI AGENT + ANTIVIRUS + ANTIMALWARE + ANTI SPAM · LOCAL LIQUID AI
               </StatusPill>
               <h1 className="mt-6 max-w-3xl text-balance font-display text-3xl leading-tight sm:text-4xl lg:text-5xl">
-                Free antivirus for Android. <span className="text-gold">Powered by local AI.</span>
+                A proof of concept AI agent for Android.{" "}
+                <span className="text-gold">Antivirus, antimalware and anti spam.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/72">
-                Paladino keeps a private AI companion and local antivirus in one Android app. It
-                checks suspicious content on your phone, while Liquid AI connects reviewed knowledge
-                and explains the evidence without sending your private checks to a cloud model.
+                Petologic keeps a local AI agent (0xPaladino), antivirus, antimalware and anti spam
+                checks in one Android app. It checks suspicious content on your phone, explains the
+                evidence and never sends your private checks to a cloud model. Everything you see is
+                a proof of concept.
               </p>
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 font-mono text-[10px] tracking-[0.16em] text-cyan">
                 <span>FREE TO USE</span>
@@ -429,10 +435,10 @@ function Index() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-4xl reveal">
               <div className="font-mono text-[10px] tracking-[0.25em] text-gold">
-                WHAT PALADINO DOES
+                WHAT PETOLOGIC DOES
               </div>
               <h2 className="mt-4 text-balance font-display text-3xl leading-tight sm:text-4xl">
-                Antivirus, anti-malware and anti-scam intelligence on your phone.
+                Antivirus, antimalware and anti spam intelligence on your phone.
               </h2>
               <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/60">
                 Fast deterministic checks produce the finding. Signed threat knowledge and private
@@ -524,12 +530,12 @@ function Index() {
               </h3>
               <p className="mt-2 max-w-4xl text-sm leading-relaxed text-white/60">
                 During a scan, the deterministic checks run in an isolated, non-exported Android
-                process with strict size and time limits, while private vector retrieval and the
-                local model stay off the scan path — the local model only explains evidence after
-                the checks are done. In the background, bounded daily jobs do the quiet work: the
-                signed threat-pack check, the installed-app reconciliation, opt-in notification
-                triage and k-anonymous reputation lookups. They respect battery and network
-                constraints, never run free inference while idle, and never touch the scan verdict.
+                process with strict size and time limits, while retrieval and the local model stay
+                off the scan path: the local model only explains evidence after the checks are done.
+                In the background, bounded daily jobs do the quiet work: the signed threat-pack
+                check, the installed-app reconciliation, opt-in notification triage and k-anonymous
+                reputation lookups. They respect battery and network constraints, never run free
+                inference while idle, and never touch the scan verdict.
               </p>
             </div>
           </div>
@@ -568,7 +574,7 @@ function Index() {
           <div className="mx-auto max-w-7xl">
             <div className="max-w-3xl reveal">
               <div className="font-mono text-[10px] tracking-[0.25em] text-cyan">
-                HOW THE LOCAL AI ANTIVIRUS WORKS
+                HOW THE LOCAL AI AGENT AND ANTIVIRUS WORKS
               </div>
               <h2 className="mt-4 font-display text-3xl sm:text-4xl">
                 Security checks find signals. Liquid AI connects context and explains.
@@ -623,7 +629,7 @@ function Index() {
                 <h3 className="text-lg font-semibold">One local LFM3 brain</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">
                   LFM3-Omni-2B is now the built-in local model: chat plus optional vision in a
-                  single 1.0 GB download. Everything still runs on your phone, offline, with
+                  single 1.1 GB download. Everything still runs on your phone, offline, with
                   verified downloads.
                 </p>
               </article>
@@ -639,7 +645,7 @@ function Index() {
                 <h3 className="text-lg font-semibold">Signed security updates</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">
                   Protection content updates over a signed channel with expiry, rollback protection
-                  and instant revocation — no app update required for new indicators.
+                  and instant revocation: no app update required for new indicators.
                 </p>
               </article>
             </div>
@@ -651,7 +657,7 @@ function Index() {
           className="border-t border-white/10 bg-black/20 px-4 py-20 text-center sm:px-6 sm:py-28"
         >
           <div className="mx-auto max-w-3xl reveal">
-            <StatusPill tone="royal">CURRENT PALADINO PREVIEW</StatusPill>
+            <StatusPill tone="royal">CURRENT PETOLOGIC POC PREVIEW</StatusPill>
             <h2 className="mt-6 font-display text-3xl sm:text-4xl">Get Paladino for Android</h2>
             <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-white/60">
               Companion and antivirus live together in Paladino. The current free preview includes
@@ -682,7 +688,7 @@ function Index() {
                 <li>Download the preview APK on an Android phone and open it.</li>
                 <li>Allow installation from this browser only when Android asks.</li>
                 <li>
-                  Install local chat, vision or vector memory separately from Settings when wanted.
+                  Install local chat, vision or decision packs separately from Settings when wanted.
                 </li>
                 <li>
                   Keep the existing app installed when updating so conversations and settings
@@ -704,7 +710,7 @@ function Index() {
 
       <footer className="border-t border-white/10 px-4 py-10 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 font-mono text-[10px] tracking-wider text-white/38 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 PETOLOGIC · PALADINO FREE AI ANTIVIRUS</span>
+          <span>© 2026 PETOLOGIC · POC AI AGENT + ANTIVIRUS + ANTIMALWARE + ANTI SPAM</span>
           <span>LOCAL LIQUID AI · USER CONTROLLED · EVIDENCE LED</span>
         </div>
       </footer>

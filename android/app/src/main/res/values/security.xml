@@ -40,7 +40,7 @@
  <string name="security_5826e36adbb8">Scan recorded. Review its evidence and limitations.</string>
  <string name="security_7700d058b604">Security findings cleared.</string>
  <string name="security_08b39b784b58">Redacted report exported.</string>
- <string name="security_16bf4268b706">AI explanation — consult the detector evidence below.</string>
+ <string name="security_16bf4268b706">AI explanation: consult the detector evidence below.</string>
  <string name="security_d776c51b150d">Install the local LFM3-Omni-2B model in Settings to request an explanation.</string>
  <string name="security_efe54974f891">Pressure language urges immediate action.</string>
  <string name="security_c059a8581647">The message asks for credentials, codes or banking details.</string>
@@ -65,7 +65,7 @@
  <string name="security_visual_ephemeral">The selected image is resized in memory and is not added to history.</string>
  <string name="security_visual_inspect">Inspect image locally</string>
  <string name="security_visual_install">Install the optional vision pack in Settings to inspect images.</string>
- <string name="security_visual_result">Possible visual cues — AI may misread text</string>
+ <string name="security_visual_result">Possible visual cues: AI may misread text</string>
  <string name="security_visual_limit">Visual cues are not OCR or a malware verdict. Do not copy links, codes, amounts or button labels from this answer; verify them independently.</string>
  <string name="security_visual_ready">Visual observations ready. The image was processed locally and was not retained.</string>
  <string name="security_vl_install">Install LFM3-Omni-2B in Settings to request an explanation.</string>

@@ -56,8 +56,7 @@
  <string name="ui_4674888b2fc9" formatted="false">"LFM3-Omni-2B lives on your phone. It handles security chat and, with its projector, inspects the images you choose. Files are verified before installation."</string>
  <string name="ui_dac6c3970c50" formatted="false">"Ready for offline use"</string>
  <string name="ui_c177e4b0aa9f" formatted="false">"Downloading…"</string>
- <string name="ui_494d36125a4f" formatted="false">"Download · 229 MB"</string>
- <string name="ui_vision_download">Download · 1.0 GB</string>
+ <string name="ui_vision_download">Download · 1.1 GB</string>
  <string name="ui_vision_optional">Optional local vision</string>
  <string name="ui_vision_description">The 516 MB projector lets Paladino inspect one image you choose. Images stay local, are not saved to history and cannot trigger tools or security actions.</string>
  <string name="ui_vision_ready">Vision pack ready</string>
@@ -78,7 +77,7 @@
  <string name="ui_a717d92a1154" formatted="false">"Exact model ID from your provider"</string>
  <string name="ui_07796d389ef2" formatted="false">"Save connection"</string>
  <string name="ui_869026f56a1a" formatted="false">"No account needed for Tiny. No hidden cloud fallback. Private memory stays here."</string>
- <string name="ui_9fb0880ee9f3" formatted="false">"0xPaladino 0.1 · Native Android preview\nGoogle companion accelerators are not enabled yet."</string>
+ <string name="ui_9fb0880ee9f3" formatted="false">"Petologic %1$s · Native Android preview\nGoogle companion accelerators are not enabled yet."</string>
  <string name="ui_380bc20269b5" formatted="false">"Sprite &amp; Widget"</string>
  <string name="ui_0d6487dfd925" formatted="false">"TinyPet 01 · Personal companion"</string>
  <string name="ui_8b49198d5f60" formatted="false">"One role. Tiny or Maxx."</string>
@@ -170,7 +169,7 @@
  <string name="ui_45f4db3a650e" formatted="false">"Micro-batch size"</string>
  <string name="ui_999889f3729e" formatted="false">"Memory-map model"</string>
  <string name="ui_250368406dd0" formatted="false">"Automatic summarization, reasoning mode, GPU offload and KV quantization are not exposed until implemented and tested."</string>
- <string name="ui_316f7393097d" formatted="false">"Values are outside supported limits. Context 1024–8192; output 16–1024; reserve 128–2048. Check timeouts, batch sizes and sampling values."</string>
+ <string name="ui_316f7393097d" formatted="false">"Values are outside supported limits. Context 1024 to 8192; output 16 to 1024; reserve 128 to 2048. Check timeouts, batch sizes and sampling values."</string>
  <string name="ui_cfea419c3b4e" formatted="false">"Apply"</string>
  <string name="ui_7871b34ddab1" formatted="false">"Reset defaults"</string>
  <string name="ui_3998637be017" formatted="false">"Floating Paladino"</string>

@@ -80,7 +80,7 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
     }
     is AppUpdateState.Ready->{
      Text(tr("Update verified and ready to install."),color=Gold)
-     Text(tr("Android will confirm the installation. Your conversations, notes and models stay — never uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
+     Text(tr("Android will confirm the installation. Your conversations, notes and models stay. Never uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
      Button(onClick={
       if(updater.canInstall)context.startActivity(updater.installIntent(s.file))
       else context.startActivity(updater.permissionIntent())
@@ -218,7 +218,7 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
  Surface(color=Panel,shape=RoundedCornerShape(12.dp),border=BorderStroke(1.dp,Gold.copy(alpha=.6f)),modifier=Modifier.fillMaxWidth()){
   Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
    Text(tr("New in %1\$s",BuildConfig.VERSION_NAME),style=MaterialTheme.typography.titleMedium)
-   Text(tr("Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. Settings adds an optional LFM3 text speaker and, with d1-2B, smarter Maxx offers."),style=MaterialTheme.typography.bodySmall,color=Muted)
+   Text(tr("Security Guard checks files, APKs, messages and links on your phone, and Protection shows exactly what ran. LFM3-Omni-2B powers local chat with optional vision, and d1-2B brings smarter Maxx offers."),style=MaterialTheme.typography.bodySmall,color=Muted)
    TextButton(onClick={prefs.edit().putString("whats_new_seen",BuildConfig.VERSION_NAME).apply();visible=false}){Text(tr("Got it"))}
   }
  }

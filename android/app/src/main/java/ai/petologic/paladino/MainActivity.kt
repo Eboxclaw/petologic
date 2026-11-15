@@ -229,7 +229,7 @@ class MainActivity:ComponentActivity(){
    Text(tr(status),color=Muted)
    Text(tr("LFM3-Omni-2B lives on your phone. It handles security chat and, with its projector, inspects the images you choose. Files are verified before installation."),fontSize=13.sp,color=Muted)
    if(progress!=null)LinearProgressIndicator(progress={progress},modifier=Modifier.fillMaxWidth())
-   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 1.0 GB"))}
+   Button(onClick=vm::install,enabled=!ready&&progress==null,modifier=Modifier.fillMaxWidth()){Text(tr(if(ready)"Ready for offline use" else if(progress!=null)"Downloading…" else "Download · 1.1 GB"))}
   }}
   Surface(shape=RoundedCornerShape(20.dp),color=Panel){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Text(tr("Optional local vision"),fontWeight=FontWeight.Bold)
@@ -252,6 +252,6 @@ class MainActivity:ComponentActivity(){
   }}
   AdvancedSettings(vm)
   Row(Modifier.padding(vertical=8.dp)){Icon(Icons.Outlined.Shield,null,tint=Muted);Spacer(Modifier.width(12.dp));Text(tr("No account needed for Tiny. No hidden cloud fallback. Private memory stays here."),fontSize=12.sp,color=Muted)}
-  Text(tr("0xPaladino 0.1 · Native Android preview\nGoogle companion accelerators are not enabled yet."),fontSize=11.sp,color=Muted,modifier=Modifier.padding(bottom=24.dp))
+  Text(tr("Petologic %1\$s · Native Android preview\nGoogle companion accelerators are not enabled yet.",BuildConfig.VERSION_NAME),fontSize=11.sp,color=Muted,modifier=Modifier.padding(bottom=24.dp))
  }
 }

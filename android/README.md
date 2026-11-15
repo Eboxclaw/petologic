@@ -15,7 +15,7 @@ cd android
 ./gradlew :app:installDebug
 ```
 
-Open 0xPaladino. In Settings, download the mandatory LFM2.5-VL-450M speaking model (219 MB), optionally add its 103 MB vision projector, then optionally install LFM2.5-Embedding-350M vector memory (229 MB). Every artifact uses a pinned revision and SHA-256 verification. The app shows setup status rather than substituting a fake model. Installed models work with networking disabled. No provider key is required for Tiny.
+Open 0xPaladino. In Settings, download the mandatory LFM2.5-VL-450M speaking model (219 MB), optionally add its 516 MB vision projector and the d1-2B decision model (1.1 GB). Every artifact uses a pinned revision and SHA-256 verification. The app shows setup status rather than substituting a fake model. Installed models work with networking disabled. No provider key is required for Tiny.
 
 Outputs: `app/build/outputs/apk/debug/app-debug.apk`. The debug APK contains ARM64 and x86_64 native libraries. Debug signing is for development only.
 
@@ -26,7 +26,7 @@ Chat is the everyday app tab. Open its conversation drawer to create, switch, br
 - Type `Remember that my bicycle is in the blue garage`. Review and save the note.
 - Type `Find bicycle`. Inspect Orchestration → Memory, then delete the note through confirmation.
 - With vector memory installed, search for a paraphrase in English or Portuguese. The preview considers the latest 200 notes.
-- Ask a short question in Tiny. This executes actual LFM2.5-VL-450M via Koog and streams text into chat.
+- Ask a short question in Tiny. This executes actual LFM3-Omni-2B via Koog and streams text into chat.
 - In Security, choose a screenshot or image and run the local visual check. The image is resized in memory, excluded from chat history and cannot trigger tools or security actions. Treat the response as fallible visual cues, not OCR: exact text-like content is masked and must be verified independently.
 - In Settings, supply your own OpenRouter key and exact provider/model ID. Select Maxx, send a message, inspect the outbound context, and approve. The key is Keystore-encrypted. Connection is verified by the first request; saving a key is not a successful authentication claim.
 - Stop a running response. Mode changes and new requests stay blocked until the task finishes cancellation.

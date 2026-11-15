@@ -56,8 +56,7 @@
  <string name="ui_4674888b2fc9" formatted="false">"O LFM3-Omni-2B fica no teu telemóvel. Trata conversas de segurança e, com o projeto, analisa as imagens que escolher. Os ficheiros são verificados antes da instalação."</string>
  <string name="ui_dac6c3970c50" formatted="false">"Pronto para usar offline"</string>
  <string name="ui_c177e4b0aa9f" formatted="false">"A descarregar…"</string>
- <string name="ui_494d36125a4f" formatted="false">"Descarregar · 229 MB"</string>
- <string name="ui_vision_download">Descarregar · 1.0 GB</string>
+ <string name="ui_vision_download">Descarregar · 1.1 GB</string>
  <string name="ui_vision_optional">Visão local opcional</string>
  <string name="ui_vision_description">O projetor de 516 MB permite ao Paladino analisar uma imagem escolhida por si. As imagens permanecem locais, não são guardadas no histórico e não podem ativar ferramentas ou ações de segurança.</string>
  <string name="ui_vision_ready">Pacote de visão pronto</string>
@@ -78,7 +77,7 @@
  <string name="ui_a717d92a1154" formatted="false">"Identificador exato fornecido pelo serviço"</string>
  <string name="ui_07796d389ef2" formatted="false">"Guardar ligação"</string>
  <string name="ui_869026f56a1a" formatted="false">"O Tiny não precisa de conta. Não há envio oculto para a cloud. A memória privada fica aqui."</string>
- <string name="ui_9fb0880ee9f3" formatted="false">"0xPaladino · Prévia Android nativa\nOs aceleradores complementares Google ainda não estão ativos."</string>
+ <string name="ui_9fb0880ee9f3" formatted="false">"Petologic %1$s · Prévia Android nativa\nOs aceleradores complementares Google ainda não estão ativos."</string>
  <string name="ui_380bc20269b5" formatted="false">"Sprite e widget"</string>
  <string name="ui_0d6487dfd925" formatted="false">"TinyPet 01 · Companheiro pessoal"</string>
  <string name="ui_8b49198d5f60" formatted="false">"Um papel. Tiny ou Maxx."</string>
@@ -170,7 +169,7 @@
  <string name="ui_45f4db3a650e" formatted="false">"Tamanho do microlote"</string>
  <string name="ui_999889f3729e" formatted="false">"Mapear modelo em memória"</string>
  <string name="ui_250368406dd0" formatted="false">"O resumo automático, modo de raciocínio, execução na GPU e quantização KV só serão disponibilizados depois de implementados e testados."</string>
- <string name="ui_316f7393097d" formatted="false">"Os valores excedem os limites suportados. Contexto: 1024–8192; resposta: 16–1024; reserva: 128–2048. Verifica os tempos limite, lotes e valores de amostragem."</string>
+ <string name="ui_316f7393097d" formatted="false">"Os valores excedem os limites suportados. Contexto: 1024 a 8192; resposta: 16 a 1024; reserva: 128 a 2048. Verifica os tempos limite, lotes e valores de amostragem."</string>
  <string name="ui_cfea419c3b4e" formatted="false">"Aplicar"</string>
  <string name="ui_7871b34ddab1" formatted="false">"Repor valores iniciais"</string>
  <string name="ui_3998637be017" formatted="false">"Paladino flutuante"</string>

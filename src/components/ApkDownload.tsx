@@ -44,7 +44,7 @@ export function ApkDownloadButton() {
     setResuming(false);
     try {
       // The raw mirror is CORS-open; the release URL is not. Fallback handoff keeps using the
-      // release URL: the browser's own download manager — exactly what the old plain link did.
+      // release URL: the browser's own download manager - exactly what the old plain link did.
       const blob = await downloadWithResume(APK_STREAM_URL, {
         onProgress: (progress) => {
           // Throttle re-renders; chunk callbacks fire far faster than the eye needs.
@@ -64,7 +64,7 @@ export function ApkDownloadButton() {
       setPhase("saved");
     } catch (error) {
       // No response, CORS, or stalls exhausted: hand off to the browser's own download
-      // manager — exactly what the old plain link did, with a fresh signed URL.
+      // manager - exactly what the old plain link did, with a fresh signed URL.
       window.location.href = APK_URL;
       setPhase("fallback");
       if (!(error instanceof ApkDownloadError)) console.error("APK download failed", error);
@@ -129,7 +129,7 @@ export function ApkDownloadButton() {
           aria-live="polite"
           data-testid="apk-saved"
         >
-          ✓ {APK_FILENAME} saved — open it from the download notification or your Downloads folder.
+          ✓ {APK_FILENAME} saved. Open it from the download notification or your Downloads folder.
         </p>
       )}
 
@@ -139,7 +139,7 @@ export function ApkDownloadButton() {
           aria-live="polite"
           data-testid="apk-fallback"
         >
-          Browser download started. Stuck near the end? Press DOWNLOAD AGAIN — every attempt gets a
+          Browser download started. Stuck near the end? Press DOWNLOAD AGAIN: every attempt gets a
           fresh link.
         </p>
       )}

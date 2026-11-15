@@ -108,7 +108,7 @@ class GuardRepository(private val context:Context){
    is ThreatMemoryStatus.Stale->"Threat memory pack ${state.packVersion} expired"
    is ThreatMemoryStatus.Failed->"Threat memory needs attention: ${state.message}"
   }
-  return ProtectionStatus(vectorMemory=vector,rules=let{val installed=yara.load();if(installed!=null)"YARA 4.5.8 with signed rule pack v${installed.version} (${installed.sources.size} sources)" else "YARA 4.5.8 — harmless self-test rule only"},signatures=when{pack==null->"No valid threat pack — missing, expired or invalid";pack.expiresAt<=System.currentTimeMillis()->"Threat pack expired";else->"Pack ${pack.version}: ${pack.indicators.size} exact indicators"})
+  return ProtectionStatus(vectorMemory=vector,rules=let{val installed=yara.load();if(installed!=null)"YARA 4.5.8 with signed rule pack v${installed.version} (${installed.sources.size} sources)" else "YARA 4.5.8: harmless self-test rule only"},signatures=when{pack==null->"No valid threat pack: missing, expired or invalid";pack.expiresAt<=System.currentTimeMillis()->"Threat pack expired";else->"Pack ${pack.version}: ${pack.indicators.size} exact indicators"})
  }
  suspend fun clear(){
   val ids=db.dao().observe().first().map{it.id}
