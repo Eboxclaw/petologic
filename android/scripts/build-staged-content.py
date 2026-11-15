@@ -138,9 +138,6 @@ def main():
            for i in pack["indicators"]]
     (out / "reputation-indicators.json").write_text(json.dumps(rep, indent=1))
 
-    lic = pathlib.Path("security-data/licenses")
-    if lic.parent.exists():
-        pass
     print(f"hash indicators: {len(indicators)}  ({len(pack_bytes)} bytes)")
     print(f"knowledge records: {len(records)}  ({len(knowledge_bytes)} bytes)")
     print(f"reputation inputs: {len(rep)}")
