@@ -80,7 +80,7 @@ internal const val PublicUpdatesUrl="https://github.com/Eboxclaw/petologic-downl
     }
     is AppUpdateState.Ready->{
      Text(tr("Update verified and ready to install."),color=Gold)
-     Text(tr("Android will confirm the installation. Your conversations, notes and models stay — never uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
+     Text(tr("Android will confirm the installation. Your conversations, notes and models stay. Never uninstall first."),style=MaterialTheme.typography.bodyMedium,color=Muted)
      Button(onClick={
       if(updater.canInstall)context.startActivity(updater.installIntent(s.file))
       else context.startActivity(updater.permissionIntent())
